@@ -19,7 +19,7 @@ public class Building
     public Guid AddressId { get; set; } 
 
     public int ConstructionYear { get; set; }
-    public Type BuildingType { get; set; } = Type.Residential;
+    public Type BuildingType { get; set; }
     public int NumberOfFloors { get; set; }
     public int SurfaceArea { get; set; } // in square meters
     public int InsuredValue { get; set; } //local currency

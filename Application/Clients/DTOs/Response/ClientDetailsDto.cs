@@ -1,0 +1,19 @@
+using System;
+using Application.Address.DTOs;
+using Domain.Models.Clients;
+
+namespace Application.Clients.DTOs.Response;
+
+public class ClientDetailsDto
+{
+    public Guid Id { get; set; }
+    public ClientType Type { get; set; }
+    public string Name { get; set; } = string.Empty;
+    
+    public string IdentificationNumber { get; set; } = string.Empty;
+
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    public AddressDetailsDto? Address { get; set; }
+}
