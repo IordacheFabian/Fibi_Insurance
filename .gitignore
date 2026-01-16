@@ -1,0 +1,21 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# IDE settings
+.vscode/
+*.user
+*.suo
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Logs and temp
+*.log
+*.tmp
+
+# Packages
+node_modules/
+packages/
