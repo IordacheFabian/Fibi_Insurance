@@ -1,6 +1,6 @@
 using System;
 
-namespace Application.Address.DTOs;
+namespace Application.Addresses.DTOs;
 
 public class CreateAddressDto
 {

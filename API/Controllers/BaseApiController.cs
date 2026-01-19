@@ -16,7 +16,7 @@ public class BaseApiController : ControllerBase
         _mediator ??= HttpContext.RequestServices.GetService<IMediator>() 
             ?? throw new InvalidOperationException("IMediator service is unvailable");
 
-    protected ActionResult HandlResult<T>(Result<T> result)
+    protected ActionResult HandleResult<T>(Result<T> result)
     {
         if(!result.IsSuccess && result.Code == 404) return NotFound();
 

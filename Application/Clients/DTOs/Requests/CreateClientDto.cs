@@ -1,5 +1,5 @@
 using System;
-using Application.Address.DTOs;
+using Application.Addresses.DTOs;
 using Domain.Models.Geography.Address;
 
 namespace Application.Clients.DTOs;

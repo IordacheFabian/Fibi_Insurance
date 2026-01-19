@@ -1,5 +1,5 @@
 using System;
-using Application.Address;
+using Application.Addresses;
 
 namespace Application.Buildings.DTOs.Request;
 
@@ -12,4 +12,5 @@ public class UpdateBuildingDto
     public int NumberOfFloors { get; set; }
     public int SurfaceArea { get; set; }
     public int InsuredValue { get; set; }
+    public string RiskIndicatiors { get; set; } = string.Empty;
 }

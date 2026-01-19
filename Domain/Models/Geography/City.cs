@@ -1,5 +1,6 @@
 using System;
 using Domain.Models.Buildings;
+using Domain.Models.Geography.Address;
 
 namespace Domain.Models;
 
@@ -12,4 +13,6 @@ public class City
     // nav props
     public County County { get; set; } = null!;
     public ICollection<Building> Buildings { get; set; } = [];
+    public ICollection<Address> Addresses { get; set; } = [];
+
 }

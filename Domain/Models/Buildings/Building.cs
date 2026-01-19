@@ -23,6 +23,9 @@ public class Building
     public int NumberOfFloors { get; set; }
     public int SurfaceArea { get; set; } // in square meters
     public int InsuredValue { get; set; } //local currency
+    public string RiskIndicatiors { get; set; } = string.Empty; 
+
+    // risk factors can be added lnow
 
     // nav props
     public Client Client { get; set; } = null!;

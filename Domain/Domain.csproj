@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Models\Buildings\" />
     <Folder Include="Models\Clients\" />
-    <Folder Include="Models\Geography\Address\" />
   </ItemGroup>
 
 </Project>
