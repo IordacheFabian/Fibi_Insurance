@@ -5,6 +5,7 @@ using Persistence.Context;
 using MediatR;
 using Application;
 using Application.Core;
+using FluentValidation;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,15 +25,26 @@ builder.Services.AddMediatR(x =>
 
 builder.Services.AddAutoMapper(x => {}, typeof(MappingProfiles).Assembly);
 
-// builder.Services.AddSwaggerGen();
+builder.Services.AddValidatorsFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
+
+builder.Services.AddTransient(
+    typeof(IPipelineBehavior<,>), 
+    typeof(ValidationBehavior<,>)
+);
+// Lowercase routes
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 

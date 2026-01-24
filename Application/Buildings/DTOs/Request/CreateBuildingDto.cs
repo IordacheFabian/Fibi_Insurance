@@ -21,5 +21,5 @@ public class CreateBuildingDto
     public int NumberOfFloors { get; set; }
     public int SurfaceArea { get; set; } 
     public int InsuredValue { get; set; }
-    public string RiskIndicatiors { get; set; } = string.Empty;
+    public string RiskIndicators { get; set; } = string.Empty;
 }

@@ -2,7 +2,7 @@ using System;
 using Application.Addresses.DTOs;
 using Application.Buildings.DTOs.Request;
 using Application.Clients.DTOs.Response;
-using Application.Geography.DTOs;
+using Application.Geographies.DTOs;
 
 namespace Application.Buildings.DTOs.Response;
 

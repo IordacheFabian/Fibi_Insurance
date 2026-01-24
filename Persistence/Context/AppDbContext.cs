@@ -51,5 +51,31 @@ public class AppDbContext : DbContext
             .WithMany(x => x.Cities)
             .HasForeignKey(x => x.CountyId);
 
+        var countryId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var countyId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var cityId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+
+        builder.Entity<Country>().HasData(new Country
+        {
+            Id = countryId,
+            Name = "Romania"
+        });
+
+        builder.Entity<County>().HasData(new County
+        {
+            Id = countyId,
+            CountryId = countryId,
+            Name = "Bucharest"
+        });
+
+        builder.Entity<City>().HasData(new City
+        {
+            Id = cityId,
+            CountyId = countyId,
+            Name = "Bucharest"
+        });
+
+
     }
 }

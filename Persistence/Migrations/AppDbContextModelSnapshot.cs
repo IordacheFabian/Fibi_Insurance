@@ -81,6 +81,14 @@ namespace Persistence.Migrations
                     b.HasIndex("CountyId");
 
                     b.ToTable("Cities");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            CountyId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Name = "Bucharest"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Models.Clients.Client", b =>
@@ -126,6 +134,13 @@ namespace Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Countries");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "Romania"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Models.County", b =>
@@ -146,6 +161,14 @@ namespace Persistence.Migrations
                     b.HasIndex("CountryId");
 
                     b.ToTable("Counties");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            CountryId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "Bucharest"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Models.Geography.Address.Address", b =>

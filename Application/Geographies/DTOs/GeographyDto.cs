@@ -1,6 +1,6 @@
 using System;
 
-namespace Application.Geography.DTOs;
+namespace Application.Geographies.DTOs;
 
 public class GeographyDto
 {

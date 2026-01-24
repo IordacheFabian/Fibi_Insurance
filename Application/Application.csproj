@@ -15,18 +15,19 @@
     <PackageReference Include="AutoMapper" Version="16.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.0.0" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Buildings\" />
+    <Folder Include="Buildings\Commands\" />
     <Folder Include="Buildings\DTOs\" />
     <Folder Include="Buildings\DTOs\Request\" />
     <Folder Include="Buildings\DTOs\Response\" />
+    <Folder Include="Clients\Commands\" />
     <Folder Include="Clients\DTOs\Response\" />
     <Folder Include="Core\util\" />
-    <Folder Include="Geography\" />
-    <Folder Include="Geography\DTOs\" />
+    <Folder Include="Geographies\" />
+    <Folder Include="Geographies\Command\" />
+    <Folder Include="Geographies\Queries\" />
   </ItemGroup>
 
 </Project>

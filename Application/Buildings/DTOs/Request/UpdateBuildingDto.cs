@@ -5,6 +5,8 @@ namespace Application.Buildings.DTOs.Request;
 
 public class UpdateBuildingDto
 {
+    public Guid Id { get; set; }
+
     public UpdateAddressDto? Address { get; set; }
 
     public int ConstructionYear { get; set; }

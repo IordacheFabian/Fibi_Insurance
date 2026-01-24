@@ -1,5 +1,6 @@
 using System;
 using Domain.Models.Buildings;
+using Domain.Models.Clients;
 
 namespace Domain.Models.Geography.Address;
 
@@ -14,5 +15,4 @@ public class Address
     public City City { get; set; } = default!;
 
     public bool IsPrimary { get; set; }
-
 }

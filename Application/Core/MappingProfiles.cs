@@ -7,8 +7,9 @@ using Application.Buildings.DTOs.Response;
 using Application.Clients.DTOs;
 using Application.Clients.DTOs.Response;
 using Application.Core.util;
-using Application.Geography.DTOs;
+using Application.Geographies.DTOs;
 using AutoMapper;
+using Domain.Models;
 using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using Domain.Models.Geography.Address;
@@ -24,12 +25,16 @@ public class MappingProfiles : Profile
         CreateMap<CreateClientDto, Client>();
         CreateMap<UpdateClientDto, Client>();
 
+        CreateMap<Client, ClientDetailsDto>();
+
         CreateMap<Client, ClientSearchDto>() 
             .ForMember(d => d.IdentificationMasked,
                 opt => opt.MapFrom(src => IdentificationMasker.Mask(src.IdentificationNumber, 4)));
 
         //building mappings
-        CreateMap<CreateBuildingDto, Building>();
+        CreateMap<CreateBuildingDto, Building>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Address, opt => opt.Ignore());
         CreateMap<UpdateBuildingDto, Building>();
 
         CreateMap<Building, BuildingDetailsDto>();
@@ -38,9 +43,16 @@ public class MappingProfiles : Profile
                 opt => opt.MapFrom(src => $"{src.Address.Street} {src.Address.Number}"))
             .ForMember(d => d.CityName,
                 opt => opt.MapFrom(src => src.Address.City.Name));
+        
+        CreateMap<Building, ClientBuildingSummaryDto>()
+            .ForMember(d => d.Address, 
+                opt => opt.MapFrom(src => $"{src.Address.Street} {src.Address.Number}"))
+            .ForMember(d => d.CityName,
+                opt => opt.MapFrom(src => src.Address.City.Name));
       
         //address mappingss
-        CreateMap<CreateAddressDto, Address>();
+        CreateMap<CreateAddressDto, Address>()
+            .ForMember(d => d.Id, opt => opt.Ignore());
         CreateMap<UpdateAddressDto, Address>();
 
         CreateMap<Address, AddressDetailsDto>()
@@ -61,5 +73,9 @@ public class MappingProfiles : Profile
                 opt => opt.MapFrom(src => src.Address.City.County.Country.Id))
             .ForMember(d => d.CountryName, 
                 opt => opt.MapFrom(src => src.Address.City.County.Country.Name));
+
+        CreateMap<Country, CountryDto>();
+        CreateMap<County, CountyDto>();
+        CreateMap<City, CityDto>(); 
     }
 }

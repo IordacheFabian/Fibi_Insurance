@@ -11,24 +11,26 @@ namespace Application.Clients.Queries;
 
 public class GetClientDetails
 {
-    public class Query : IRequest<Result<ClientSearchDto>>
+    public class Query : IRequest<ClientDetailsDto>
     {
         public Guid Id { get; set; }
     }
 
-    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, Result<ClientSearchDto>>
+    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, ClientDetailsDto>
     {
-        public async Task<Result<ClientSearchDto>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<ClientDetailsDto> Handle(Query request, CancellationToken cancellationToken)
         {
             var client = await context.Clients
-                .FirstOrDefaultAsync(x => request.Id == x.Id, cancellationToken);
+                .AsNoTracking()
+                .Include(x => x.Buildings)
+                    .ThenInclude(x => x.Address)
+                        .ThenInclude(x => x.City)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-            if(client == null) return Result<ClientSearchDto>.Failure("Client not found", 404);
+            if (client is null)
+                throw new NotFoundException("Client not found");
 
-
-            return Result<ClientSearchDto>.Success(
-                mapper.Map<ClientSearchDto>(client)
-            );
+            return mapper.Map<ClientDetailsDto>(client);
         }
     }
 }

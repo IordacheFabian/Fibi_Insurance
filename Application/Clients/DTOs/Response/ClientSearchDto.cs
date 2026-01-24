@@ -11,5 +11,7 @@ public class ClientSearchDto
     public string IdentificationMasked { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
 
-    
+    // building 
+    public ICollection<ClientBuildingSummaryDto> Buildings { get; set; } = new List<ClientBuildingSummaryDto>();
+
 }

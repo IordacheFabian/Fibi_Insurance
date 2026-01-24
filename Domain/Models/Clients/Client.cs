@@ -22,6 +22,6 @@ public class Client
     public string PhoneNumber { get; set; } = string.Empty;
     
     // nav props
-    public ICollection<Address> Addresses { get; set; } = [];
+    public ICollection<Address> Addresses { get; set; } = []; // !!!!
     public ICollection<Building> Buildings { get; set; } = [];
 }
