@@ -37,7 +37,9 @@ public class MappingProfiles : Profile
             .ForMember(d => d.Address, opt => opt.Ignore());
         CreateMap<UpdateBuildingDto, Building>();
 
-        CreateMap<Building, BuildingDetailsDto>();
+        CreateMap<Building, BuildingDetailsDto>()
+            .ForMember(d => d.Owner, 
+                opt => opt.MapFrom(src => src.Client));
         CreateMap<Building, BuildingListDto>()
             .ForMember(d => d.Address,
                 opt => opt.MapFrom(src => $"{src.Address.Street} {src.Address.Number}"))

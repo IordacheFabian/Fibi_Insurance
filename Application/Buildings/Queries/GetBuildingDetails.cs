@@ -10,14 +10,14 @@ namespace Application.Buildings.Queries;
 
 public class GetBuildingDetails
 {
-    public class Query : IRequest<Result<BuildingDetailsDto>>
+    public class Query : IRequest<BuildingDetailsDto>
     {
         public Guid Id { get; set; }
     }
 
-    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, Result<BuildingDetailsDto>>
+    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, BuildingDetailsDto>
     {
-        public async Task<Result<BuildingDetailsDto>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<BuildingDetailsDto> Handle(Query request, CancellationToken cancellationToken)
         {
             var building = await context.Buildings
                 .AsNoTracking()
@@ -28,11 +28,11 @@ public class GetBuildingDetails
                     .ThenInclude(x => x.Country)
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-            if(building == null) return Result<BuildingDetailsDto>.Failure("Building not found", 404);
+            if(building == null) throw new NotFoundException("Building not found");
 
             var result = mapper.Map<BuildingDetailsDto>(building);
 
-            return Result<BuildingDetailsDto>.Success(result);
+            return result;
         }
     }
 }

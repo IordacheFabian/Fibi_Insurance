@@ -11,20 +11,20 @@ namespace Application.Buildings.Queries;
 
 public class GetBuildingsList
 {
-    public class Query : IRequest<Result<List<BuildingListDto>>>
+    public class Query : IRequest<List<BuildingListDto>>
     {
         public Guid ClientId { get; set; }
     }
 
-    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, Result<List<BuildingListDto>>>
+    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, List<BuildingListDto>>
     {
-        public async Task<Result<List<BuildingListDto>>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<List<BuildingListDto>> Handle(Query request, CancellationToken cancellationToken)
         {
             var client = await context.Clients
                 .AsNoTracking()
                 .AnyAsync(x => x.Id == request.ClientId, cancellationToken);
 
-            if(!client) return Result<List<BuildingListDto>>.Failure("Client not found", 404);
+            if(!client) throw new NotFoundException("Client not found");
 
             var buildings = await context.Buildings
                 .AsNoTracking()
@@ -35,7 +35,7 @@ public class GetBuildingsList
                 .Select(x => mapper.Map<BuildingListDto>(x))
                 .ToListAsync(cancellationToken);
 
-            return Result<List<BuildingListDto>>.Success(buildings);
+            return buildings;
         }
     }
 }

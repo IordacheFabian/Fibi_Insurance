@@ -13,13 +13,15 @@ public class BuildingsController : BaseApiController
     [HttpGet("clients/{clientId:guid}/buildings")]
     public async Task<ActionResult<List<BuildingListDto>>> GetBuildingsListAsync(Guid clientId)
     {
-        return HandleResult(await Mediator.Send(new GetBuildingsList.Query { ClientId = clientId }));
+        var buildings = await Mediator.Send(new GetBuildingsList.Query { ClientId = clientId });
+        return Ok(buildings);
     }
 
     [HttpGet("buildings/{buildingId:guid}")]
     public async Task<ActionResult<BuildingDetailsDto>> GetBuildingDetailsAsync(Guid buildingId)
     {
-        return HandleResult(await Mediator.Send(new GetBuildingDetails.Query { Id = buildingId }));
+        var buildingDetails = await Mediator.Send(new GetBuildingDetails.Query { Id = buildingId });
+        return Ok(buildingDetails);
     }
 
     [HttpPost("clients/{clientId:guid}/buildings")]
@@ -37,7 +39,11 @@ public class BuildingsController : BaseApiController
     [HttpPut("buildings/{buildingId:guid}")]
     public async Task<ActionResult> UpdateBuildingAsync(Guid buildingId, UpdateBuildingDto buildingDto)
     {
-        buildingDto.Id = buildingId;
-        return HandleResult(await Mediator.Send(new UpdateBuilding.Command { BuildingDto = buildingDto }));
+        var command = new UpdateBuilding.Command
+        {
+            BuildingDto = buildingDto
+        };
+        await Mediator.Send(command);
+        return NoContent();
     }
 }
