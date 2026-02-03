@@ -1,10 +1,9 @@
 using System;
 using Application.Core;
+using Application.Core.Interfaces.IRepositories;
 using Application.Geographies.DTOs;
 using AutoMapper;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Persistence.Context;
 
 namespace Application.Geographies.Queries;
 
@@ -15,16 +14,15 @@ public class GetCities
         public Guid CityId { get; set; }
     }
 
-    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, List<CityDto>>
+    public class Handler(IGeographyRepository geographyRepository, IMapper mapper) : IRequestHandler<Query, List<CityDto>>
     {
-        public Task<List<CityDto>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<List<CityDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var cities = context.Cities
-                .Where(x => x.CountyId == request.CityId);
+            var cities = await geographyRepository.GetCitiesByCountyAsync(request.CityId, cancellationToken);
             
             if(cities == null) throw new NotFoundException("Cities not found for the specified county");
 
-            return mapper.ProjectTo<CityDto>(cities).ToListAsync(cancellationToken);
+            return mapper.Map<List<CityDto>>(cities);
         }
     }
 }

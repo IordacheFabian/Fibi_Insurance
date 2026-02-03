@@ -1,0 +1,14 @@
+using System;
+using Domain.Models.Clients;
+
+namespace Application.Core.Interfaces.IRepositories;
+
+public interface IClientRepository
+{
+    Task<Client?> GetClientAsync(Guid id, CancellationToken cancellationToken);
+    Task<List<Client>> ClientSearchAsync(string? name, string? identifier, CancellationToken cancellationToken);
+    Task<Client?> GetClientDetailsAsync(Guid id, CancellationToken cancellationToken);
+    Task AddClientAsync(Client client, CancellationToken cancellationToken);    
+    Task<bool> SaveChangesAsync(CancellationToken cancellationToken);
+    Task<bool> IdentifierExistsAsync(string identifier, CancellationToken cancellationToken);
+}

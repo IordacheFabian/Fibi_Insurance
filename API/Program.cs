@@ -6,6 +6,9 @@ using MediatR;
 using Application;
 using Application.Core;
 using FluentValidation;
+using Persistence.Repositories.Clients;
+using Application.Core.Interfaces.IRepositories;
+using Persistence.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +25,11 @@ builder.Services.AddMediatR(x =>
 {
     x.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
 });
+
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+builder.Services.AddScoped<IGeographyRepository, GeographyRepository>();
 
 builder.Services.AddAutoMapper(x => {}, typeof(MappingProfiles).Assembly);
 

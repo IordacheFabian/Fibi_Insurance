@@ -1,11 +1,11 @@
 using System;
 using Application.Clients.DTOs.Response;
 using Application.Core;
+using Application.Core.Interfaces.IRepositories;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Persistence.Context;
+
 
 namespace Application.Clients.Queries;
 
@@ -16,17 +16,11 @@ public class GetClientDetails
         public Guid Id { get; set; }
     }
 
-    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, ClientDetailsDto>
+    public class Handler(IClientRepository clientRepository, IMapper mapper) : IRequestHandler<Query, ClientDetailsDto>
     {
         public async Task<ClientDetailsDto> Handle(Query request, CancellationToken cancellationToken)
         {
-            var client = await context.Clients
-                .AsNoTracking()
-                .Include(x => x.Buildings)
-                    .ThenInclude(x => x.Address)
-                        .ThenInclude(x => x.City)
-                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
+            var client = await clientRepository.GetClientDetailsAsync(request.Id, cancellationToken);
             if (client is null)
                 throw new NotFoundException("Client not found");
 

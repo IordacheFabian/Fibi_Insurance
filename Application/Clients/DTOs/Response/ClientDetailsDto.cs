@@ -15,5 +15,4 @@ public class ClientDetailsDto
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
 
-    // public AddressDetailsDto? Address { get; set; }
 }

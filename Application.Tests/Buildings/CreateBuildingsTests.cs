@@ -1,4 +1,3 @@
-using System;
 using Application.Addresses.DTOs;
 using Application.Buildings.Commands;
 using Application.Buildings.DTOs.Request;
@@ -10,6 +9,8 @@ using Domain.Models;
 using Domain.Models.Clients;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Repositories;
+using Persistence.Repositories.Clients;
 
 namespace Application.Tests.Buildings;
 
@@ -27,7 +28,7 @@ public class CreateBuildingsTests
         var city = new City { Id = Guid.NewGuid(), Name = "Bucharest", CountyId = county.Id, County = county };
 
         context.Countries.Add(country);
-        context.Counties.Add(county);   
+        context.Counties.Add(county);
         context.Cities.Add(city);
 
         var client = new Client
@@ -39,11 +40,15 @@ public class CreateBuildingsTests
             Email = "test@test.com",
             PhoneNumber = "0712345678"
         };
+
         context.Clients.Add(client);
+        await context.SaveChangesAsync();
 
-        await context.SaveChangesAsync();   
+        var clientRepo = new ClientRepository(context);
+        var addressRepo = new AddressRepository(context);
+        var buildingRepo = new BuildingRepository(context);
 
-        var handler = new CreateBuilding.Handler(context, _mapper);
+        var handler = new CreateBuilding.Handler(buildingRepo, clientRepo, addressRepo, _mapper);
 
         var dto = new CreateBuildingDto
         {
@@ -73,11 +78,11 @@ public class CreateBuildingsTests
             .Include(b => b.Address)
             .FirstOrDefaultAsync(b => b.Id == buildingId);
 
-
         building.Should().NotBeNull();
         building!.ClientId.Should().Be(client.Id);
+
         building.Address.Should().NotBeNull();
-        building.Address.CityId.Should().Be(city.Id);
+        building.Address!.CityId.Should().Be(city.Id);
     }
 
     [Fact]
@@ -85,7 +90,11 @@ public class CreateBuildingsTests
     {
         using var context = TestDbContextFactory.Create();
 
-        var handler = new CreateBuilding.Handler(context, _mapper);
+        var clientRepo = new ClientRepository(context);
+        var addressRepo = new AddressRepository(context);
+        var buildingRepo = new BuildingRepository(context);
+
+        var handler = new CreateBuilding.Handler(buildingRepo, clientRepo, addressRepo, _mapper);
 
         var dto = new CreateBuildingDto
         {
@@ -110,6 +119,7 @@ public class CreateBuildingsTests
 
         var act = async () => await handler.Handle(command, CancellationToken.None);
 
-        await act.Should().ThrowAsync<NotFoundException>();
+        await act.Should().ThrowAsync<NotFoundException>()
+            .WithMessage("Client not found");
     }
 }

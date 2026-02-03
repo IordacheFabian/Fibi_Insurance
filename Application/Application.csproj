@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\Persistence\Persistence.csproj" />
+    <!-- <ProjectReference Include="..\Persistence\Persistence.csproj" /> -->
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Brokers\" />
+    <Folder Include="Brokers\DTOs\" />
+    <Folder Include="Brokers\DTOs\Request\" />
+    <Folder Include="Brokers\DTOs\Response\" />
     <Folder Include="Buildings\Commands\" />
     <Folder Include="Buildings\DTOs\" />
     <Folder Include="Buildings\DTOs\Request\" />
@@ -29,6 +33,8 @@
     <Folder Include="Geographies\" />
     <Folder Include="Geographies\Command\" />
     <Folder Include="Geographies\Queries\" />
+    <Folder Include="Metadatas\" />
+    <Folder Include="Policies\DTOs\Response\" />
   </ItemGroup>
 
 </Project>
