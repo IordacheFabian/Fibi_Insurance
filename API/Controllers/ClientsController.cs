@@ -19,7 +19,7 @@ public class ClientsController : BaseApiController
         }));
     }
 
-    [HttpGet("clients/{clientId:guid}")]
+    [HttpGet("clients/{clientId:guid}", Name = "GetClient")]
     public async Task<ActionResult<ClientDetailsDto>> GetClientDetailsAsync(Guid clientId)
     {
         return Ok(await Mediator.Send(new GetClientDetails.Query { Id = clientId }));
@@ -29,7 +29,7 @@ public class ClientsController : BaseApiController
     public async Task<ActionResult<string>> CreateClientAsync(CreateClientDto clientDto)
     {
         var clientId = await Mediator.Send(new CreateClient.Command { ClientDto = clientDto });
-        return CreatedAtAction(nameof(GetClientDetailsAsync), new { id = clientId }, clientId);
+        return CreatedAtRoute(nameof(GetClient), new { clientId }, clientId);
     }
 
     [HttpPut("clients/{clientId:guid}")]

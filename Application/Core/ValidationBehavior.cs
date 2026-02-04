@@ -1,20 +1,30 @@
-using System;
 using FluentValidation;
 using MediatR;
 
-namespace Application.Core;
-
-public class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? validator = null)
+public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
-        if (validator == null) return await next();
+        if (!validators.Any())
+            return await next();
 
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        var context = new ValidationContext<TRequest>(request);
 
-        if(!validationResult.IsValid) 
-            throw new ValidationException(validationResult.Errors);
+        var validationResults = await Task.WhenAll(
+            validators.Select(v => v.ValidateAsync(context, cancellationToken))
+        );
+
+        var failures = validationResults
+            .SelectMany(r => r.Errors)
+            .Where(f => f != null)
+            .ToList();
+
+        if (failures.Count > 0)
+            throw new FluentValidation.ValidationException(failures);
 
         return await next();
     }

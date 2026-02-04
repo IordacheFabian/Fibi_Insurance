@@ -28,7 +28,9 @@
     <Folder Include="Buildings\DTOs\Request\" />
     <Folder Include="Buildings\DTOs\Response\" />
     <Folder Include="Clients\Commands\" />
+    <Folder Include="Clients\DTOs\Validators\" />
     <Folder Include="Clients\DTOs\Response\" />
+    <Folder Include="Clients\DTOs\Validators\Extensions\" />
     <Folder Include="Core\util\" />
     <Folder Include="Geographies\" />
     <Folder Include="Geographies\Command\" />

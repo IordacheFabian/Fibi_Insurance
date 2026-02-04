@@ -9,6 +9,7 @@ using FluentValidation;
 using Persistence.Repositories.Clients;
 using Application.Core.Interfaces.IRepositories;
 using Persistence.Repositories;
+using Application.Clients.DTOs.Validators;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,7 @@ builder.Services.AddScoped<IGeographyRepository, GeographyRepository>();
 builder.Services.AddAutoMapper(x => {}, typeof(MappingProfiles).Assembly);
 
 builder.Services.AddValidatorsFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
+builder.Services.AddValidatorsFromAssemblyContaining<CreateClientDtoValidator>();
 
 builder.Services.AddTransient(
     typeof(IPipelineBehavior<,>), 
