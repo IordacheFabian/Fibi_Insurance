@@ -4,7 +4,7 @@ using Domain.Models.Geography.Address;
 
 namespace Domain.Models.Clients;
 
-public enum Type
+public enum ClientType
 {
     Individual,
     Company,
@@ -14,7 +14,7 @@ public class Client
 {
     public Guid Id { get; set; }
 
-    public Type ClientType { get; set; } = Type.Individual;
+    public ClientType ClientType { get; set; } = ClientType.Individual;
     public string Name { get; set; } = string.Empty;
     public string IdentificationNumber { get; set; } = string.Empty; 
 

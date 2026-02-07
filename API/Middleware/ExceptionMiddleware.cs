@@ -23,7 +23,6 @@ public class ExceptionMiddleware(ILogger<ExceptionMiddleware> logger, IHostEnvir
         } 
         catch (ValidationException ex)
         {
-            
             await HandleValidationException(context, ex);
         }
         catch (Exception ex)

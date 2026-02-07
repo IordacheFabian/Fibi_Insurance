@@ -4,7 +4,7 @@ using Domain.Models.Geography.Address;
 
 namespace Domain.Models.Buildings;
 
-public enum Type 
+public enum BuildingType 
 {
     Residential,
     Commercial,
@@ -19,13 +19,11 @@ public class Building
     public Guid AddressId { get; set; } 
 
     public int ConstructionYear { get; set; }
-    public Type BuildingType { get; set; }
+    public BuildingType BuildingType { get; set; }
     public int NumberOfFloors { get; set; }
     public int SurfaceArea { get; set; } // in square meters
     public int InsuredValue { get; set; } //local currency
     public string RiskIndicatiors { get; set; } = string.Empty; 
-
-
 
     // nav props
     public Client Client { get; set; } = null!;

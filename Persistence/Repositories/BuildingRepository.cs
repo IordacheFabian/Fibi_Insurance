@@ -16,7 +16,12 @@ public class BuildingRepository(AppDbContext context) : IBuildingRepository
     public async Task<Building?> GetBuildingAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Buildings
-                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .AsNoTracking()
+            .Include(b => b.Address)
+                .ThenInclude(a => a.City)
+                    .ThenInclude(c => c.County)
+                        .ThenInclude(co => co.Country)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
     public async Task<Building?> GetBuildingDetailsAsync(Guid id, CancellationToken cancellationToken)

@@ -1,5 +1,5 @@
 using System;
-using Domain.Models.Broker;
+using Domain.Models.Brokers;
 
 namespace Application.Brokers.DTOs.Request;
 

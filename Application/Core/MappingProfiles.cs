@@ -8,11 +8,18 @@ using Application.Clients.DTOs;
 using Application.Clients.DTOs.Response;
 using Application.Core.util;
 using Application.Geographies.DTOs;
+using Application.Metadatas.Currencies.DTOs.Response;
+using Application.Metadatas.Fees.DTOs.Response;
+using Application.Metadatas.RiskFactors.DTOs.Response;
+using Application.Policies.DTOs.Requests;
+using Application.Policies.DTOs.Response;
 using AutoMapper;
 using Domain.Models;
 using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using Domain.Models.Geography.Address;
+using Domain.Models.Metadatas;
+using Domain.Models.Policies;
 
 namespace Application.Core;
 
@@ -79,5 +86,38 @@ public class MappingProfiles : Profile
         CreateMap<Country, CountryDto>();
         CreateMap<County, CountyDto>();
         CreateMap<City, CityDto>(); 
+
+        // policies mappings
+        CreateMap<Policy, PolicyListItemDto>()
+            .ForMember(d => d.ClientName,
+                o => o.MapFrom(src => src.Client.Name))
+            .ForMember(d => d.BuildingStreet, o => o.MapFrom(s => s.Building.Address.Street))
+            .ForMember(d => d.BuildingNumber, o => o.MapFrom(s => s.Building.Address.Number))
+            .ForMember(d => d.CityName, o => o.MapFrom(s => s.Building.Address.City.Name))
+            .ForMember(d => d.CurrencyCode, o => o.MapFrom(s => s.Currency.Code));
+
+        CreateMap<Policy, PolicyDetailsDto>()
+                .ForMember(d => d.CurrencyCode, o => o.MapFrom(s => s.Currency.Code))
+                .ForMember(d => d.CurrencyName, o => o.MapFrom(s => s.Currency.Name))
+                .ForMember(d => d.Client, o => o.MapFrom(s => s.Client))
+                .ForMember(d => d.Building, o => o.MapFrom(s => s.Building))
+                .ForMember(d => d.Broker, o => o.MapFrom(s => s.Broker))
+                .ForMember(d => d.PolicyAdjustements, o => o.MapFrom(s => s.PolicyAdjustements));
+
+        CreateMap<PolicyAdjustement, PolicyAdjustementDto>();
+        
+        CreateMap<Policy, CreatePolicyDraftDto>()
+            .ForMember(d => d.ClientId, o => o.MapFrom(s => s.Client.Id))
+            .ForMember(d => d.BuildingId, o => o.MapFrom(s => s.Building.Id))
+            .ForMember(d => d.CurrencyId, o => o.MapFrom(s => s.Currency.Id))
+            .ForMember(d => d.BrokerId, o => o.MapFrom(s => s.Broker.Id));
+        
+        CreateMap<Policy, ActivatePolicyDto>();
+        CreateMap<Policy, CancelPolicyDto>();
+
+        // metadata and premium calculator mappings
+        CreateMap<FeeConfiguration, FeeConfigurationDto>();
+        CreateMap<RiskFactorConfiguration, RiskFactorDto>();
+        CreateMap<Currency, CurrencyDto>();
     }
 }

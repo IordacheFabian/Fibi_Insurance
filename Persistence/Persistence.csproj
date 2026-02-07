@@ -12,7 +12,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Context\" />
+    <Folder Include="Context\Configurations\Brokers\" />
+    <Folder Include="Context\Configurations\Buildings\" />
+    <Folder Include="Context\Configurations\Clients\" />
+    <Folder Include="Context\Configurations\Converters\" />
+    <Folder Include="Context\Configurations\Geography\" />
+    <Folder Include="Context\Configurations\Metadatas\" />
+    <Folder Include="Context\Configurations\Policies\" />
+    <Folder Include="Context\Seeds\" />
   </ItemGroup>
 
   <ItemGroup>

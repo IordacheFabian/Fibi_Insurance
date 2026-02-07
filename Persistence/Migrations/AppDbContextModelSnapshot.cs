@@ -17,6 +17,58 @@ namespace Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.12");
 
+            modelBuilder.Entity("Domain.Models.Brokers.Broker", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BrokerCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("BrokerStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal?>("CommissionPrecentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrokerCode")
+                        .IsUnique();
+
+                    b.ToTable("Brokers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("99999999-9999-9999-9999-999999999999"),
+                            BrokerCode = "BRK-001",
+                            BrokerStatus = 0,
+                            CommissionPrecentage = 10.00m,
+                            Email = "broker@insurance.local",
+                            Name = "Default Broker",
+                            PhoneNumber = "0700000000"
+                        });
+                });
+
             modelBuilder.Entity("Domain.Models.Buildings.Building", b =>
                 {
                     b.Property<Guid>("Id")
@@ -74,6 +126,7 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -88,6 +141,42 @@ namespace Persistence.Migrations
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
                             CountyId = new Guid("22222222-2222-2222-2222-222222222222"),
                             Name = "Bucharest"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333334"),
+                            CountyId = new Guid("22222222-2222-2222-2222-222222222223"),
+                            Name = "Cluj-Napoca"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333335"),
+                            CountyId = new Guid("22222222-2222-2222-2222-222222222223"),
+                            Name = "Florești"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333336"),
+                            CountyId = new Guid("22222222-2222-2222-2222-222222222224"),
+                            Name = "Timișoara"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333337"),
+                            CountyId = new Guid("22222222-2222-2222-2222-222222222224"),
+                            Name = "Lugoj"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333338"),
+                            CountyId = new Guid("22222222-2222-2222-2222-222222222225"),
+                            Name = "Iași"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333339"),
+                            CountyId = new Guid("22222222-2222-2222-2222-222222222226"),
+                            Name = "Brașov"
                         });
                 });
 
@@ -106,10 +195,12 @@ namespace Persistence.Migrations
 
                     b.Property<string>("IdentificationNumber")
                         .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PhoneNumber")
@@ -117,6 +208,9 @@ namespace Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdentificationNumber")
+                        .IsUnique();
 
                     b.ToTable("Clients");
                 });
@@ -129,9 +223,13 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Countries");
 
@@ -154,6 +252,7 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -168,6 +267,30 @@ namespace Persistence.Migrations
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             CountryId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Name = "Bucharest"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222223"),
+                            CountryId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "Cluj"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222224"),
+                            CountryId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "Timiș"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222225"),
+                            CountryId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "Iași"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222226"),
+                            CountryId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "Brașov"
                         });
                 });
 
@@ -188,10 +311,12 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Number")
                         .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Street")
                         .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -201,6 +326,240 @@ namespace Persistence.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("Addresses");
+                });
+
+            modelBuilder.Entity("Domain.Models.Metadatas.Currency", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("ExchangeRateToBase")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Currencies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            Code = "RON",
+                            ExchangeRateToBase = 1m,
+                            Name = "Romanian Leu"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            Code = "EUR",
+                            ExchangeRateToBase = 4.95m,
+                            Name = "Euro"
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Models.Metadatas.FeeConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EffectiveFrom")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EffectiveTo")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FeeType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Percentage")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeeType", "EffectiveFrom");
+
+                    b.ToTable("FeeConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            EffectiveFrom = "2026-01-01",
+                            FeeType = 0,
+                            IsActive = true,
+                            Name = "Default broker commission",
+                            Percentage = 0.10m
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Models.Metadatas.RiskFactorConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("AdjustementPercentage")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("BuildingType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("ReferenceID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RiskLevel")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RiskLevel", "BuildingType");
+
+                    b.HasIndex("RiskLevel", "ReferenceID");
+
+                    b.ToTable("RiskFactorConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                            AdjustementPercentage = 0.05m,
+                            IsActive = true,
+                            ReferenceID = new Guid("33333333-3333-3333-3333-333333333333"),
+                            RiskLevel = 2
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Models.Policies.Policy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("BasePremium")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BrokerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BuildingId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("CancelledAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CurrencyId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EndDate")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("FinalPremium")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PolicyNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PolicyStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StartDate")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrokerId");
+
+                    b.HasIndex("BuildingId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CurrencyId");
+
+                    b.HasIndex("PolicyNumber")
+                        .IsUnique();
+
+                    b.ToTable("Policies");
+                });
+
+            modelBuilder.Entity("Domain.Models.Policies.PolicyAdjustement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AdjustementType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Percentage")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PolicyId", "AdjustementType");
+
+                    b.ToTable("PolicyAdjustements");
                 });
 
             modelBuilder.Entity("Domain.Models.Buildings.Building", b =>
@@ -253,7 +612,7 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Models.City", "City")
                         .WithMany("Addresses")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Models.Clients.Client", null)
@@ -261,6 +620,57 @@ namespace Persistence.Migrations
                         .HasForeignKey("ClientId");
 
                     b.Navigation("City");
+                });
+
+            modelBuilder.Entity("Domain.Models.Policies.Policy", b =>
+                {
+                    b.HasOne("Domain.Models.Brokers.Broker", "Broker")
+                        .WithMany("Policies")
+                        .HasForeignKey("BrokerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Buildings.Building", "Building")
+                        .WithMany()
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Clients.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Metadatas.Currency", "Currency")
+                        .WithMany("Policies")
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Broker");
+
+                    b.Navigation("Building");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Currency");
+                });
+
+            modelBuilder.Entity("Domain.Models.Policies.PolicyAdjustement", b =>
+                {
+                    b.HasOne("Domain.Models.Policies.Policy", "Policy")
+                        .WithMany("PolicyAdjustements")
+                        .HasForeignKey("PolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Policy");
+                });
+
+            modelBuilder.Entity("Domain.Models.Brokers.Broker", b =>
+                {
+                    b.Navigation("Policies");
                 });
 
             modelBuilder.Entity("Domain.Models.City", b =>
@@ -290,6 +700,16 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Models.Geography.Address.Address", b =>
                 {
                     b.Navigation("Building");
+                });
+
+            modelBuilder.Entity("Domain.Models.Metadatas.Currency", b =>
+                {
+                    b.Navigation("Policies");
+                });
+
+            modelBuilder.Entity("Domain.Models.Policies.Policy", b =>
+                {
+                    b.Navigation("PolicyAdjustements");
                 });
 #pragma warning restore 612, 618
         }

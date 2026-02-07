@@ -28,15 +28,24 @@
     <Folder Include="Buildings\DTOs\Request\" />
     <Folder Include="Buildings\DTOs\Response\" />
     <Folder Include="Clients\Commands\" />
-    <Folder Include="Clients\DTOs\Validators\" />
     <Folder Include="Clients\DTOs\Response\" />
-    <Folder Include="Clients\DTOs\Validators\Extensions\" />
     <Folder Include="Core\util\" />
     <Folder Include="Geographies\" />
     <Folder Include="Geographies\Command\" />
     <Folder Include="Geographies\Queries\" />
-    <Folder Include="Metadatas\" />
+    <Folder Include="Metadatas\Currencies\DTOs\Request\" />
+    <Folder Include="Metadatas\Currencies\DTOs\Response\" />
+    <Folder Include="Metadatas\Fees\" />
+    <Folder Include="Metadatas\Fees\DTOs\" />
+    <Folder Include="Metadatas\Fees\DTOs\Request\" />
+    <Folder Include="Metadatas\Fees\DTOs\Response\" />
+    <Folder Include="Metadatas\RiskFactors\" />
+    <Folder Include="Metadatas\RiskFactors\DTOs\" />
+    <Folder Include="Metadatas\RiskFactors\DTOs\Request\" />
+    <Folder Include="Metadatas\RiskFactors\DTOs\Response\" />
+    <Folder Include="Policies\DTOs\Command\" />
     <Folder Include="Policies\DTOs\Response\" />
+    <Folder Include="Policies\Queries\" />
   </ItemGroup>
 
 </Project>

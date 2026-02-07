@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Broker\" />
+    <Folder Include="Models\Brokers\" />
     <Folder Include="Models\Buildings\" />
     <Folder Include="Models\Clients\" />
-    <Folder Include="Models\Metadata\" />
+    <Folder Include="Models\Metadatas\" />
     <Folder Include="Models\Policies\" />
   </ItemGroup>
 

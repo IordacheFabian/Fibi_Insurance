@@ -1,10 +1,11 @@
 using System;
+using Domain.Models.Brokers;
 using Domain.Models.Buildings;
 using Domain.Models.Clients;
-using Domain.Models.Metadata;
+using Domain.Models.Metadatas;
 
 namespace Domain.Models.Policies;
-
+ 
 public enum PolicyStatus
 {
     Draft,
@@ -17,6 +18,9 @@ public class Policy
 {
     public Guid Id { get; set; }
     public string PolicyNumber { get; set; } = default!;
+
+    public Guid BrokerId { get; set; }
+    public Broker Broker { get; set; } = default!;
 
     public Guid ClientId { get; set; }
     public Client Client { get; set; } = default!;
