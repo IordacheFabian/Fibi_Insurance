@@ -3,6 +3,7 @@ using Application.Addresses.DTOs;
 using Application.Buildings.DTOs.Request;
 using Application.Clients.DTOs.Response;
 using Application.Geographies.DTOs;
+using Domain.Models.Buildings;
 
 namespace Application.Buildings.DTOs.Response;
 

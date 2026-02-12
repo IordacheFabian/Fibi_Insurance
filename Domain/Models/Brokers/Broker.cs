@@ -17,7 +17,10 @@ public class Broker
     public string Email { get; set; } = default!;
     public string? PhoneNumber { get; set; }
     public BrokerStatus BrokerStatus { get; set; } = BrokerStatus.Active;
-    public decimal? CommissionPrecentage { get; set; }
+    public decimal? CommissionPercentage { get; set; }
+
+    public DateTime CreatedAt { get; set; } 
+    public DateTime? UpdatedAt { get; set; }
 
     public List<Policy> Policies { get; set; } = new(); 
 }

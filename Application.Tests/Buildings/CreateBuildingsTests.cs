@@ -6,6 +6,7 @@ using Application.Core;
 using Application.Tests.TestHelpers;
 using AutoMapper;
 using Domain.Models;
+using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ public class CreateBuildingsTests
         {
             Id = Guid.NewGuid(),
             Name = "Test Client",
-            ClientType = (Domain.Models.Clients.Type)ClientType.Individual,
+            ClientType = (Domain.Models.Clients.ClientType)Clients.DTOs.ClientType.Individual,
             IdentificationNumber = "1234567890123",
             Email = "test@test.com",
             PhoneNumber = "0712345678"

@@ -1,4 +1,5 @@
 using System;
+using API.Controllers.BaseControllers;
 using Application.Policies.DTOs.Command;
 using Application.Policies.DTOs.Requests;
 using Application.Policies.DTOs.Response;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class PoliciesController : BaseApiController
+public class PoliciesController : BrokerBaseController
 {
     [HttpGet("policies")]
     public async Task<ActionResult<List<PolicyListItemDto>>> GetPoliciesAsync(

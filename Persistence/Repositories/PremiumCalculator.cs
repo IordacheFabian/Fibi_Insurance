@@ -6,13 +6,15 @@ using Domain.Models.Policies;
 
 namespace Persistence.Repositories;
 
-public class PremiumCalculator(IMetadataRepository metadataRepository) : IPremiumCalculator
+public class PremiumCalculator(
+    IRiskFactorRepository riskFactorRepository,
+    IFeeConfigurationRepository feeConfigurationRepository) : IPremiumCalculator
 {
     public async Task<(decimal finalPremium, List<PolicyAdjustement> policyAdjustements)> CalculateAsync(Building building, decimal basePremium, DateOnly startDate, CancellationToken cancellationToken)
     {
         var policyAdjustements = new List<PolicyAdjustement>();
 
-        var fees = await metadataRepository.GetActiveFeeConfigurationsAsync(startDate, cancellationToken);
+        var fees = await feeConfigurationRepository.GetActiveFeeConfigurationsAsync(startDate, cancellationToken);
 
         foreach (var fee in fees)
         {
@@ -27,7 +29,7 @@ public class PremiumCalculator(IMetadataRepository metadataRepository) : IPremiu
             });
         }
 
-        var riskFactors = await metadataRepository.GetActiveRiskFactorConfigurationsAsync(cancellationToken);
+        var riskFactors = await riskFactorRepository.GetActiveRiskFactorConfigurationsAsync(cancellationToken);
 
         foreach (var riskFactor in riskFactors)
         {

@@ -8,4 +8,7 @@ public class CreateCurrencyDto
     public string Name { get; set; } = null!;
     public decimal ExchangeRateToBase { get; set; }
     public bool IsActive { get; set; } = true;
+
+    public DateTime CreatedAt { get; set; } 
+    public DateTime? UpdatedAt { get; set; }
 }

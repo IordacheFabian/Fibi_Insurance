@@ -1,5 +1,6 @@
 using System;
 using Application.Buildings.DTOs.Request;
+using Domain.Models.Buildings;
 
 namespace Application.Buildings.DTOs.Response;
 

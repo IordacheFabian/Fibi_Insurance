@@ -31,8 +31,11 @@ namespace Persistence.Migrations
                     b.Property<int>("BrokerStatus")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("CommissionPrecentage")
+                    b.Property<decimal?>("CommissionPercentage")
                         .HasPrecision(5, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -49,12 +52,15 @@ namespace Persistence.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BrokerCode")
                         .IsUnique();
 
-                    b.ToTable("Brokers");
+                    b.ToTable("Brokers", (string)null);
 
                     b.HasData(
                         new
@@ -62,7 +68,8 @@ namespace Persistence.Migrations
                             Id = new Guid("99999999-9999-9999-9999-999999999999"),
                             BrokerCode = "BRK-001",
                             BrokerStatus = 0,
-                            CommissionPrecentage = 10.00m,
+                            CommissionPercentage = 10.00m,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "broker@insurance.local",
                             Name = "Default Broker",
                             PhoneNumber = "0700000000"
@@ -112,7 +119,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("Buildings");
+                    b.ToTable("Buildings", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.City", b =>
@@ -133,7 +140,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("CountyId");
 
-                    b.ToTable("Cities");
+                    b.ToTable("Cities", (string)null);
 
                     b.HasData(
                         new
@@ -212,7 +219,7 @@ namespace Persistence.Migrations
                     b.HasIndex("IdentificationNumber")
                         .IsUnique();
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Country", b =>
@@ -231,7 +238,7 @@ namespace Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Countries");
+                    b.ToTable("Countries", (string)null);
 
                     b.HasData(
                         new
@@ -259,7 +266,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Counties");
+                    b.ToTable("Counties", (string)null);
 
                     b.HasData(
                         new
@@ -325,7 +332,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Metadatas.Currency", b =>
@@ -339,13 +346,22 @@ namespace Persistence.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal>("ExchangeRateToBase")
                         .HasPrecision(18, 6)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -353,21 +369,25 @@ namespace Persistence.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("Currencies");
+                    b.ToTable("Currencies", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                             Code = "RON",
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ExchangeRateToBase = 1m,
+                            IsActive = true,
                             Name = "Romanian Leu"
                         },
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             Code = "EUR",
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ExchangeRateToBase = 4.95m,
+                            IsActive = true,
                             Name = "Euro"
                         });
                 });
@@ -376,6 +396,9 @@ namespace Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EffectiveFrom")
@@ -400,16 +423,20 @@ namespace Persistence.Migrations
                         .HasPrecision(9, 6)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FeeType", "EffectiveFrom");
 
-                    b.ToTable("FeeConfigurations");
+                    b.ToTable("FeeConfigurations", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EffectiveFrom = "2026-01-01",
                             FeeType = 0,
                             IsActive = true,
@@ -434,6 +461,10 @@ namespace Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("ReferenceID")
                         .HasColumnType("TEXT");
 
@@ -446,7 +477,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("RiskLevel", "ReferenceID");
 
-                    b.ToTable("RiskFactorConfigurations");
+                    b.ToTable("RiskFactorConfigurations", (string)null);
 
                     b.HasData(
                         new
@@ -454,6 +485,7 @@ namespace Persistence.Migrations
                             Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
                             AdjustementPercentage = 0.05m,
                             IsActive = true,
+                            Name = "City risk factor",
                             ReferenceID = new Guid("33333333-3333-3333-3333-333333333333"),
                             RiskLevel = 2
                         });
@@ -527,7 +559,7 @@ namespace Persistence.Migrations
                     b.HasIndex("PolicyNumber")
                         .IsUnique();
 
-                    b.ToTable("Policies");
+                    b.ToTable("Policies", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Policies.PolicyAdjustement", b =>
@@ -559,7 +591,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("PolicyId", "AdjustementType");
 
-                    b.ToTable("PolicyAdjustements");
+                    b.ToTable("PolicyAdjustements", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Buildings.Building", b =>

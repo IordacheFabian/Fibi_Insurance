@@ -1,4 +1,5 @@
 using System;
+using API.Controllers.BaseControllers;
 using Application.Geographies.DTOs;
 using Application.Geographies.Queries;
 using Domain.Models;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class GeographiesController : BaseApiController
+public class GeographiesController : BrokerBaseController
 {
     [HttpGet("countries")]
     public async Task<ActionResult<List<CountryDto>>> GetCountriesAsync()

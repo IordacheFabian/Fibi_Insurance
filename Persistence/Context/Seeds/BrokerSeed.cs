@@ -20,7 +20,7 @@ public class BrokerSeed
                 Email = "broker@insurance.local",
                 PhoneNumber = "0700000000",
                 BrokerStatus = BrokerStatus.Active,
-                CommissionPrecentage = 10.00m
+                CommissionPercentage = 10.00m
             }
         );
     }

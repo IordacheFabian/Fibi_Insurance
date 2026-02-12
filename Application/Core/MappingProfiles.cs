@@ -2,19 +2,25 @@ using System;
 using System.Runtime.InteropServices;
 using Application.Addresses;
 using Application.Addresses.DTOs;
+using Application.Brokers.DTOs.Request;
+using Application.Brokers.DTOs.Response;
 using Application.Buildings.DTOs.Request;
 using Application.Buildings.DTOs.Response;
 using Application.Clients.DTOs;
 using Application.Clients.DTOs.Response;
 using Application.Core.util;
 using Application.Geographies.DTOs;
+using Application.Metadatas.Currencies.DTOs.Request;
 using Application.Metadatas.Currencies.DTOs.Response;
+using Application.Metadatas.Fees.DTOs.Request;
 using Application.Metadatas.Fees.DTOs.Response;
+using Application.Metadatas.RiskFactors.DTOs.Request;
 using Application.Metadatas.RiskFactors.DTOs.Response;
 using Application.Policies.DTOs.Requests;
 using Application.Policies.DTOs.Response;
 using AutoMapper;
 using Domain.Models;
+using Domain.Models.Brokers;
 using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using Domain.Models.Geography.Address;
@@ -116,8 +122,30 @@ public class MappingProfiles : Profile
         CreateMap<Policy, CancelPolicyDto>();
 
         // metadata and premium calculator mappings
-        CreateMap<FeeConfiguration, FeeConfigurationDto>();
-        CreateMap<RiskFactorConfiguration, RiskFactorDto>();
         CreateMap<Currency, CurrencyDto>();
+        CreateMap<Currency, CreateCurrencyDto>();
+        CreateMap<CreateCurrencyDto, Currency>();
+        CreateMap<Currency, UpdateCurrencyDto>();
+        CreateMap<UpdateCurrencyDto, Currency>();   
+
+        CreateMap<FeeConfiguration, FeeConfigurationDto>();
+        CreateMap<FeeConfiguration, CreateFeeConfigurationDto>();
+        CreateMap<CreateFeeConfigurationDto, FeeConfiguration>();   
+        CreateMap<FeeConfiguration, UpdateFeeConfigurationDto>();
+        CreateMap<UpdateFeeConfigurationDto, FeeConfiguration>();
+
+        CreateMap<RiskFactorConfiguration, RiskFactorDto>();
+        CreateMap<RiskFactorConfiguration, CreateRiskFactorDto>();
+        CreateMap<CreateRiskFactorDto, RiskFactorConfiguration>();
+        CreateMap<RiskFactorConfiguration, UpdateRiskFactorDto>();
+        CreateMap<UpdateRiskFactorDto, RiskFactorConfiguration>();
+
+        // broker mappings
+        CreateMap<Broker, BrokerDto>();
+        CreateMap<Broker, BrokerDetailsDto>();
+        CreateMap<CreateBrokerDto, Broker>();
+        CreateMap<Broker, CreateBrokerDto>();
+        CreateMap<UpdateBrokerDto, Broker>();
+        CreateMap<Broker, UpdateBrokerDto>();
     }
 }

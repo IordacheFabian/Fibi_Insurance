@@ -47,6 +47,7 @@ public class MetadataSeed
             new RiskFactorConfiguration
             {
                 Id = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Name = "City risk factor",
                 RiskLevel = RiskLevel.City,
                 ReferenceID = cityId,
                 BuildingType = null,

@@ -19,9 +19,8 @@ public class CreatePolicyDraft
         IPolicyRepository policyRepository,
         IClientRepository clientRepository,
         IBuildingRepository buildingRepository,
-        IMetadataRepository metadataRepository,
-        IPremiumCalculator premiumCalculator,
-        IMapper mapper) : IRequestHandler<Command, Guid>
+        ICurrencyRepository currencyRepository,
+        IPremiumCalculator premiumCalculator) : IRequestHandler<Command, Guid>
     {
         public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
         {
@@ -33,7 +32,7 @@ public class CreatePolicyDraft
             var building = await buildingRepository.GetBuildingAsync(policyDto.BuildingId, cancellationToken);
             if (building == null) throw new NotFoundException("Building not found");
 
-            var currency = await metadataRepository.GetCurrencyAsync(policyDto.CurrencyId, cancellationToken);
+            var currency = await currencyRepository.GetCurrencyAsync(policyDto.CurrencyId, cancellationToken);
             if (currency == null) throw new NotFoundException("Currency not found");
 
             if(policyDto.EndDate <= policyDto.StartDate) throw new BadRequestException("End date must be after start date");
@@ -45,7 +44,6 @@ public class CreatePolicyDraft
 
             var policyNumber = GeneratePolicyNumber();
             policyDto.PolicyNumber = policyNumber;
-            var brokerId = Guid.Parse("99999999-9999-9999-9999-999999999999");
             var policy = new Policy
             {
                 Id = Guid.NewGuid(),
@@ -53,7 +51,7 @@ public class CreatePolicyDraft
                 ClientId = policyDto.ClientId,
                 BuildingId = policyDto.BuildingId,
                 CurrencyId = policyDto.CurrencyId,
-                BrokerId = brokerId,
+                BrokerId = policyDto.BrokerId,
 
                 PolicyStatus = PolicyStatus.Draft,
                 StartDate = policyDto.StartDate,

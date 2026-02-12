@@ -1,15 +1,8 @@
 using System;
 using Application.Addresses.DTOs;
+using Domain.Models.Buildings;
 
 namespace Application.Buildings.DTOs.Request;
-
-public enum BuildingType
-{
-    Residential,
-    Commercial,
-    Industrial,
-    MixedUse
-}
 
 public class CreateBuildingDto
 {

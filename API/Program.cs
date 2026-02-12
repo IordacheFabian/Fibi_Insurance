@@ -35,13 +35,15 @@ builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IGeographyRepository, GeographyRepository>();
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
-builder.Services.AddScoped<IMetadataRepository, MetadataRepository>();
 builder.Services.AddScoped<IPremiumCalculator, PremiumCalculator>();
+builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+builder.Services.AddScoped<IFeeConfigurationRepository, FeeConfigurationRepository>();
+builder.Services.AddScoped<IRiskFactorRepository, RiskFactorRepository>();
+builder.Services.AddScoped<IBrokerRepository, BrokerRepository>();
 
 builder.Services.AddAutoMapper(x => {}, typeof(MappingProfiles).Assembly);
 
 builder.Services.AddValidatorsFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
-// builder.Services.AddValidatorsFromAssemblyContaining<CreateClientDtoValidator>();
 
 builder.Services.AddTransient(
     typeof(IPipelineBehavior<,>), 

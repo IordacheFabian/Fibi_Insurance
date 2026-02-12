@@ -3,7 +3,7 @@ using Domain.Models.Brokers;
 
 namespace Application.Brokers.DTOs.Request;
 
-public class BrokerCreateDto
+public class CreateBrokerDto
 {
     public string BrokerCode { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

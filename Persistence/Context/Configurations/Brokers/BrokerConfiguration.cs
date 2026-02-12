@@ -32,7 +32,7 @@ public class BrokerConfiguration : IEntityTypeConfiguration<Broker>
         builder.Property(b => b.BrokerStatus)
             .IsRequired();
 
-        builder.Property(b => b.CommissionPrecentage)
+        builder.Property(b => b.CommissionPercentage)
             .HasPrecision(5, 2);
 
         builder.HasMany(b => b.Policies)

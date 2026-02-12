@@ -15,9 +15,10 @@ public enum RiskLevel
 public class RiskFactorConfiguration
 {
     public Guid Id { get; set; }
+    public string Name { get; set; } = default!;
     public RiskLevel RiskLevel { get; set; }
     public Guid? ReferenceID { get; set; }
     public BuildingType? BuildingType { get; set; }
-    public decimal AdjustementPercentage { get; set; }  
+    public decimal AdjustementPercentage { get; set; }
     public bool IsActive { get; set; }
 }

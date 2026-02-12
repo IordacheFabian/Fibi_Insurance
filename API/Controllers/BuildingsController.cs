@@ -1,4 +1,5 @@
 using System;
+using API.Controllers.BaseControllers;
 using Application.Buildings.Commands;
 using Application.Buildings.DTOs.Request;
 using Application.Buildings.DTOs.Response;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 
-public class BuildingsController : BaseApiController
+public class BuildingsController : BrokerBaseController
 {
     [HttpGet("clients/{clientId:guid}/buildings")]
     public async Task<ActionResult<List<BuildingListDto>>> GetBuildingsListAsync(Guid clientId)

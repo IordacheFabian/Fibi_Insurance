@@ -1,13 +1,10 @@
 using System;
-using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using Application.Core;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.BaseControllers;
 
 [ApiController]
-[Route("api/brokers")]
 public abstract class BaseApiController : ControllerBase
 {
     private IMediator? _mediator;

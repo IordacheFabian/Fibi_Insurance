@@ -1,5 +1,6 @@
 using System;
 using Application.Addresses;
+using Domain.Models.Buildings;
 
 namespace Application.Buildings.DTOs.Request;
 

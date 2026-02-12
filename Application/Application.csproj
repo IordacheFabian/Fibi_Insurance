@@ -19,10 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Brokers\" />
-    <Folder Include="Brokers\DTOs\" />
-    <Folder Include="Brokers\DTOs\Request\" />
+    <Folder Include="Brokers\Command\" />
     <Folder Include="Brokers\DTOs\Response\" />
+    <Folder Include="Brokers\Queries\" />
     <Folder Include="Buildings\Commands\" />
     <Folder Include="Buildings\DTOs\" />
     <Folder Include="Buildings\DTOs\Request\" />
@@ -35,14 +34,18 @@
     <Folder Include="Geographies\Queries\" />
     <Folder Include="Metadatas\Currencies\DTOs\Request\" />
     <Folder Include="Metadatas\Currencies\DTOs\Response\" />
-    <Folder Include="Metadatas\Fees\" />
+    <Folder Include="Metadatas\Currencies\Command\" />
+    <Folder Include="Metadatas\Currencies\Query\" />
+    <Folder Include="Metadatas\Fees\Command\" />
     <Folder Include="Metadatas\Fees\DTOs\" />
     <Folder Include="Metadatas\Fees\DTOs\Request\" />
     <Folder Include="Metadatas\Fees\DTOs\Response\" />
     <Folder Include="Metadatas\RiskFactors\" />
+    <Folder Include="Metadatas\RiskFactors\Command\" />
     <Folder Include="Metadatas\RiskFactors\DTOs\" />
     <Folder Include="Metadatas\RiskFactors\DTOs\Request\" />
     <Folder Include="Metadatas\RiskFactors\DTOs\Response\" />
+    <Folder Include="Metadatas\RiskFactors\Queries\" />
     <Folder Include="Policies\DTOs\Command\" />
     <Folder Include="Policies\DTOs\Response\" />
     <Folder Include="Policies\Queries\" />

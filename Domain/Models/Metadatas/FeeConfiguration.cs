@@ -19,4 +19,7 @@ public class FeeConfiguration
     public DateOnly EffectiveFrom { get; set; }
     public DateOnly? EffectiveTo { get; set; }
     public bool IsActive { get; set; }  
+
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

@@ -1,4 +1,5 @@
 using System;
+using API.Controllers.BaseControllers;
 using Application.Clients.Commands;
 using Application.Clients.DTOs;
 using Application.Clients.DTOs.Response;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class ClientsController : BaseApiController
+public class ClientsController : BrokerBaseController
 {
     [HttpGet("clients")]
     public async Task<ActionResult<List<ClientSearchDto>>> GetClientsAsync([FromQuery] string? name, [FromQuery] string? identifier)
