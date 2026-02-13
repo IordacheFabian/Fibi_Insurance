@@ -27,7 +27,6 @@ public class FeeConfigurationRepository(AppDbContext context) : IFeeConfiguratio
     public async Task<List<FeeConfiguration>> GetActiveFeeConfigurationsAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var query = context.FeeConfigurations
-            .AsNoTracking()
             .Where(x => x.IsActive && x.EffectiveFrom <= date && x.EffectiveTo >= date);
 
         return await query

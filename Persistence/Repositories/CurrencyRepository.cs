@@ -45,10 +45,10 @@ public class CurrencyRepository(AppDbContext context) : ICurrencyRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);   
     }
 
-    public async Task RemoveCurrencyAsync(Currency currency, CancellationToken cancellationToken)
-    {
-        context.Currencies.Remove(currency);
-    }
+    // public async Task RemoveCurrencyAsync(Currency currency, CancellationToken cancellationToken)
+    // {
+    //     context.Currencies.Remove(currency);
+    // }
 
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)
     {

@@ -56,6 +56,7 @@ public class CreatePolicyDraft
                 PolicyStatus = PolicyStatus.Draft,
                 StartDate = policyDto.StartDate,
                 EndDate = policyDto.EndDate,
+                PolicyAdjustements = policyAdjustements,
 
                 BasePremium = policyDto.BasePremium,
                 FinalPremium = finalPremium,
@@ -67,7 +68,6 @@ public class CreatePolicyDraft
             foreach (var policyAdjustement in policyAdjustements)
             {
                 policyAdjustement.Policy = policy;
-                policy.PolicyAdjustements.Add(policyAdjustement);
             }
 
             await policyRepository.CreatePolicyAsync(policy, cancellationToken);  

@@ -10,6 +10,6 @@ public interface ICurrencyRepository
     Task<Currency?> GetCurrencyForUpdateAsync(Guid id, CancellationToken cancellationToken);
     Task CreateCurrencyAsync(Currency currency, CancellationToken cancellationToken);
     Task<bool> CurrencyCodeExistsAsync(string code, CancellationToken cancellationToken);
-    Task RemoveCurrencyAsync(Currency currency, CancellationToken cancellationToken);   
+    // Task RemoveCurrencyAsync(Currency currency, CancellationToken cancellationToken);   
     Task<bool> SaveChangesAsync(CancellationToken cancellationToken);   
 }

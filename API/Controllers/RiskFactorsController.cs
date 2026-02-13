@@ -26,7 +26,7 @@ public class RiskFactorsController : AdminBaseController
     {
         var riskFactor = await Mediator.Send(new CreateRiskFactor.Command { CreateRiskFactorDto = createRiskFactorDto });
 
-        return CreatedAtAction(nameof(GetRiskFactorAsync), new { id = riskFactor.Id }, riskFactor);
+        return Ok(riskFactor);
     }
 
     [HttpPut("risk-factors/{id}")]
