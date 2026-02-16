@@ -78,3 +78,5 @@ app.UseCors(x => x
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

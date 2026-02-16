@@ -30,6 +30,7 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
                     .ThenInclude(x => x.City)
                         .ThenInclude(x => x.County)
                             .ThenInclude(x => x.Country)
+            .Include(x => x.Broker)
             .Include(x => x.Currency)
             .Include(x => x.PolicyAdjustements)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
@@ -64,10 +65,10 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
                 query = query.Where(x => x.PolicyStatus == policyStatus.Value);
 
             if(startDate.HasValue) 
-                query = query.Where(x => x.EndDate >= startDate.Value);
+                query = query.Where(x => x.StartDate >= startDate.Value);
 
             if(endDate.HasValue)
-                query = query.Where(x => x.StartDate <= endDate.Value);
+                query = query.Where(x => x.EndDate <= endDate.Value);
 
             query = query
                 .Include(x => x.Client)

@@ -2,7 +2,7 @@ using System;
 using Application.Core;
 using Application.Core.Interfaces.IRepositories;
 using Application.Policies.DTOs.Requests;
-using AutoMapper;
+using Domain.Models.Brokers;
 using Domain.Models.Policies;
 using MediatR;
 
@@ -20,6 +20,7 @@ public class CreatePolicyDraft
         IClientRepository clientRepository,
         IBuildingRepository buildingRepository,
         ICurrencyRepository currencyRepository,
+        IBrokerRepository brokerRepository,
         IPremiumCalculator premiumCalculator) : IRequestHandler<Command, Guid>
     {
         public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
@@ -34,6 +35,11 @@ public class CreatePolicyDraft
 
             var currency = await currencyRepository.GetCurrencyAsync(policyDto.CurrencyId, cancellationToken);
             if (currency == null) throw new NotFoundException("Currency not found");
+
+            var broker = await brokerRepository.GetBrokerAsync(policyDto.BrokerId, cancellationToken);
+            if (broker == null) throw new NotFoundException("Broker not found");
+            if (broker.BrokerStatus != BrokerStatus.Active)
+                throw new BadRequestException("Broker is not active");
 
             if(policyDto.EndDate <= policyDto.StartDate) throw new BadRequestException("End date must be after start date");
 

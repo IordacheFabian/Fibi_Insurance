@@ -21,6 +21,13 @@ public class ExceptionMiddleware(ILogger<ExceptionMiddleware> logger, IHostEnvir
 
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
         } 
+        catch (BadRequestException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+        }
         catch (ValidationException ex)
         {
             await HandleValidationException(context, ex);

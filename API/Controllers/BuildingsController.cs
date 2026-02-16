@@ -18,7 +18,7 @@ public class BuildingsController : BrokerBaseController
         return Ok(buildings);
     }
 
-    [HttpGet("buildings/{buildingId:guid}")]
+    [HttpGet("buildings/{buildingId:guid}", Name = "GetBuilding")]
     public async Task<ActionResult<BuildingDetailsDto>> GetBuildingDetailsAsync(Guid buildingId)
     {
         var buildingDetails = await Mediator.Send(new GetBuildingDetails.Query { Id = buildingId });
@@ -26,7 +26,7 @@ public class BuildingsController : BrokerBaseController
     }
 
     [HttpPost("clients/{clientId:guid}/buildings")]
-    public async Task<ActionResult<string>> CreateBuildingAsync(Guid clientId, CreateBuildingDto buildingDto)
+    public async Task<ActionResult<BuildingDetailsDto>> CreateBuildingAsync(Guid clientId, CreateBuildingDto buildingDto)
     {
         var buildingId = await Mediator.Send(new CreateBuilding.Command
         {
@@ -34,7 +34,7 @@ public class BuildingsController : BrokerBaseController
             BuildingDto = buildingDto   
         });
         
-        return CreatedAtAction(nameof(GetBuildingDetails), new { buildingId }, buildingId);
+        return CreatedAtRoute("GetBuilding", new { buildingId }, buildingId);
     }
 
     [HttpPut("buildings/{buildingId:guid}")]

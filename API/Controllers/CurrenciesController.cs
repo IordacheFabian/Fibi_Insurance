@@ -23,7 +23,7 @@ public class CurrenciesController : AdminBaseController
     {
         var currency = await Mediator.Send(new CreateCurrency.Command { CreateCurrencyDto = createCurrencyDto });
 
-        return CreatedAtAction(nameof(GetCurrenciesAsync), new { id = currency.Id }, currency); 
+        return Ok();
     }
 
     [HttpPut("currencies/{currencyId:guid}")] 

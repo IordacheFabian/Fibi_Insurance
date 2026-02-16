@@ -27,7 +27,7 @@ public class ClientsController : BrokerBaseController
     }
 
     [HttpPost("clients")]
-    public async Task<ActionResult<string>> CreateClientAsync(CreateClientDto clientDto)
+    public async Task<ActionResult<ClientDetailsDto>> CreateClientAsync(CreateClientDto clientDto)
     {
         var clientId = await Mediator.Send(new CreateClient.Command { ClientDto = clientDto });
         return CreatedAtRoute(nameof(GetClient), new { clientId }, clientId);

@@ -41,11 +41,14 @@ public class PoliciesController : BrokerBaseController
     }
 
     [HttpPost("policies")]
-    public async Task<ActionResult<Guid>> CreatePolicyDraftAsync(CreatePolicyDraftDto createPolicyDraftDto)
+    public async Task<ActionResult<PolicyDetailsDto>> CreatePolicyDraftAsync(CreatePolicyDraftDto createPolicyDraftDto)
     {
         var policyId = await Mediator.Send(new CreatePolicyDraft.Command { CreatePolicyDraftDto = createPolicyDraftDto });
 
-        return CreatedAtRoute("GetPolicyDetailsAsync", new { policyId }, policyId);
+        return CreatedAtRoute(
+        nameof(GetPolicyDetailsAsync),
+        new { policyId }
+    );
     }
 
     [HttpPost("policies/{policyId:guid}/activate")]

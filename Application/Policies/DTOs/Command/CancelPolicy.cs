@@ -34,6 +34,9 @@ public class CancelPolicy
             if(effectiveDate < policy.StartDate)
                 throw new BadRequestException("Cancellation date cannot be before policy start date");
 
+            if(effectiveDate > policy.EndDate)
+                throw new BadRequestException("Cancellation date cannot be after policy end date");
+
             policy.PolicyStatus = PolicyStatus.Cancelled;
             policy.CancelledAt = effectiveDate;
             policy.CancellationReason = request.CancelPolicyDto.CancellationReason;

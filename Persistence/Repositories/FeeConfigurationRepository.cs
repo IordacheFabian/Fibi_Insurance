@@ -27,7 +27,9 @@ public class FeeConfigurationRepository(AppDbContext context) : IFeeConfiguratio
     public async Task<List<FeeConfiguration>> GetActiveFeeConfigurationsAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var query = context.FeeConfigurations
-            .Where(x => x.IsActive && x.EffectiveFrom <= date && x.EffectiveTo >= date);
+            .Where(x => x.IsActive 
+                && x.EffectiveFrom <= date 
+                && (x.EffectiveTo == null || x.EffectiveTo.Value >= date));
 
         return await query
             .OrderByDescending(x => x.EffectiveFrom)

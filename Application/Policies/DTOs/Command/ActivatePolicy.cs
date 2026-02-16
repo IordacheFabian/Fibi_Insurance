@@ -21,8 +21,8 @@ public class ActivatePolicy
 
             if (policy == null) throw new NotFoundException("Policy not found");
 
-            // if (policy.PolicyStatus != PolicyStatus.Draft) 
-            //     throw new BadRequestException("Only policies in draft status can be activated");
+            if (policy.PolicyStatus != PolicyStatus.Draft) 
+                throw new BadRequestException("Only policies in draft status can be activated");
 
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
             if(policy.StartDate > today) 
