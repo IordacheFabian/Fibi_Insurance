@@ -1,4 +1,5 @@
 using System;
+using System.Net.Quic;
 using Application.Core.Interfaces.IRepositories;
 using Domain.Models.Brokers;
 using Microsoft.EntityFrameworkCore;
@@ -33,10 +34,11 @@ public class BrokerRepository(AppDbContext context) : IBrokerRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task<List<Broker>> GetBrokersAsync(bool? isActive, CancellationToken cancellationToken)
+    public IQueryable<Broker> GetBrokersAsync(bool? isActive, CancellationToken cancellationToken)
     {
         var query = context.Brokers
-            .AsNoTracking();
+            .AsNoTracking()
+            .AsQueryable();
 
         
         if(isActive.HasValue)
@@ -46,9 +48,9 @@ public class BrokerRepository(AppDbContext context) : IBrokerRepository
                 : x.BrokerStatus == BrokerStatus.Inactive);
         }
 
-        return await query
-            .OrderBy(x => x.BrokerCode)
-            .ToListAsync(cancellationToken);
+        query = query.OrderBy(x => x.BrokerCode);
+        
+        return query;
     }
 
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)

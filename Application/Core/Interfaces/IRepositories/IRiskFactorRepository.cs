@@ -7,7 +7,7 @@ namespace Application.Core.Interfaces.IRepositories;
 
 public interface IRiskFactorRepository
 {
-    Task<List<RiskFactorConfiguration>> GetRiskFactorConfigurationsAsync(
+    IQueryable<RiskFactorConfiguration> GetRiskFactorConfigurationsAsync(
         bool? isActive, 
         RiskLevel? riskLevel,
         CancellationToken cancellationToken);

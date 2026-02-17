@@ -1,5 +1,6 @@
 using System;
 using API.Controllers.BaseControllers;
+using Application.Core.PagedResults;
 using Application.Policies.DTOs.Command;
 using Application.Policies.DTOs.Requests;
 using Application.Policies.DTOs.Response;
@@ -12,12 +13,14 @@ namespace API.Controllers;
 public class PoliciesController : BrokerBaseController
 {
     [HttpGet("policies")]
-    public async Task<ActionResult<List<PolicyListItemDto>>> GetPoliciesAsync(
+    public async Task<ActionResult<PagedResult<PolicyListItemDto>>> GetPoliciesAsync(
         [FromQuery] Guid? clientId,
         [FromQuery] Guid? brokerId,
         [FromQuery] string? policyStatus,
         [FromQuery] DateOnly? startDate,
-        [FromQuery] DateOnly? endDate
+        [FromQuery] DateOnly? endDate,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
     )
     {
         var policies = await Mediator.Send(new GetPolicies.Query
@@ -26,7 +29,9 @@ public class PoliciesController : BrokerBaseController
             BrokerId = brokerId,
             PolicyStatus = string.IsNullOrEmpty(policyStatus) ? null : Enum.Parse<PolicyStatus>(policyStatus, true),
             StartDate = startDate,
-            EndDate = endDate
+            EndDate = endDate,
+            PageNumber = pageNumber,
+            PageSize = pageSize
         });
 
         return Ok(policies);
@@ -43,12 +48,13 @@ public class PoliciesController : BrokerBaseController
     [HttpPost("policies")]
     public async Task<ActionResult<PolicyDetailsDto>> CreatePolicyDraftAsync(CreatePolicyDraftDto createPolicyDraftDto)
     {
-        var policyId = await Mediator.Send(new CreatePolicyDraft.Command { CreatePolicyDraftDto = createPolicyDraftDto });
+        var policy = await Mediator.Send(new CreatePolicyDraft.Command { CreatePolicyDraftDto = createPolicyDraftDto });
 
         return CreatedAtRoute(
-        nameof(GetPolicyDetailsAsync),
-        new { policyId }
-    );
+            nameof(GetPolicyDetailsAsync),
+            new { policyId = policy.Id },
+            policy
+        );
     }
 
     [HttpPost("policies/{policyId:guid}/activate")]

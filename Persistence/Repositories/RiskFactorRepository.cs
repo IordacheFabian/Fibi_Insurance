@@ -39,10 +39,11 @@ public class RiskFactorRepository(AppDbContext context) : IRiskFactorRepository
 
     }
 
-    public async Task<List<RiskFactorConfiguration>> GetRiskFactorConfigurationsAsync(bool? isActive, RiskLevel? riskLevel, CancellationToken cancellationToken)
+    public IQueryable<RiskFactorConfiguration> GetRiskFactorConfigurationsAsync(bool? isActive, RiskLevel? riskLevel, CancellationToken cancellationToken)
     {
         var query = context.RiskFactorConfigurations
-            .AsNoTracking();
+            .AsNoTracking()
+            .AsQueryable();
 
         if (isActive.HasValue) 
         {
@@ -54,10 +55,9 @@ public class RiskFactorRepository(AppDbContext context) : IRiskFactorRepository
             query = query.Where(x => x.RiskLevel == riskLevel.Value);
         }
 
-        return await query
-            .OrderBy(x => x.RiskLevel)
-            .ThenBy(x => x.Name)
-            .ToListAsync(cancellationToken);
+        query = query.OrderBy(x => x.RiskLevel).ThenBy(x => x.ReferenceID).ThenBy(x => x.BuildingType);
+
+        return query;
     }
 
     public async Task<RiskFactorConfiguration?> GetRiskFactorForUpdateAsync(Guid id, CancellationToken cancellationToken)

@@ -16,6 +16,8 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.12" />
+
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +30,7 @@
     <Folder Include="Buildings\DTOs\Response\" />
     <Folder Include="Clients\Commands\" />
     <Folder Include="Clients\DTOs\Response\" />
+    <Folder Include="Core\PagedResults\" />
     <Folder Include="Core\util\" />
     <Folder Include="Geographies\" />
     <Folder Include="Geographies\Command\" />

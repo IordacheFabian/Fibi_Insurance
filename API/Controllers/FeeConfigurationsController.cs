@@ -5,15 +5,16 @@ using Application.Metadatas.Fees.DTOs.Response;
 using Microsoft.AspNetCore.Mvc;
 using Application.Metadatas.Fees.Command;
 using Application.Metadatas.Fees.DTOs.Request;
+using Application.Core.PagedResults;
 
 namespace API.Controllers;
 
 public class FeeConfigurationsController : AdminBaseController
 {
     [HttpGet("fees")]
-    public async Task<ActionResult<List<FeeConfigurationDto>>> GetFeesAsync([FromQuery] bool? isActive)
+    public async Task<ActionResult<PagedResult<FeeConfigurationDto>>> GetFeesAsync([FromQuery] bool? isActive, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var fees = await Mediator.Send(new GetFees.Query { IsActive = isActive });
+        var fees = await Mediator.Send(new GetFees.Query { IsActive = isActive, PageNumber = pageNumber, PageSize = pageSize });
         return Ok(fees);
     }
 

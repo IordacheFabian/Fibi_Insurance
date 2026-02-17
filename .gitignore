@@ -11,6 +11,11 @@ out/
 # OS files
 Thumbs.db
 .DS_Store
+*.db
+
+# Test outputs
+TestResults/
+coverage-report/
 
 # Logs and temp
 *.log

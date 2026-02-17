@@ -1,5 +1,6 @@
 using System;
 using API.Controllers.BaseControllers;
+using Application.Core.PagedResults;
 using Application.Metadatas.Currencies.Command;
 using Application.Metadatas.Currencies.DTOs.Request;
 using Application.Metadatas.Currencies.DTOs.Response;
@@ -11,9 +12,9 @@ namespace API.Controllers;
 public class CurrenciesController : AdminBaseController
 {
     [HttpGet("currencies")]
-    public async Task<ActionResult<List<CurrencyDto>>> GetCurrenciesAsync([FromQuery] bool? isActive)
+    public async Task<ActionResult<PagedResult<CurrencyDto>>> GetCurrenciesAsync([FromQuery] bool? isActive, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var currencies = await Mediator.Send(new GetCurrencies.Query { IsActive = isActive });
+        var currencies = await Mediator.Send(new GetCurrencies.Query { IsActive = isActive, PageNumber = pageNumber, PageSize = pageSize });
 
         return Ok(currencies);
     }
@@ -23,7 +24,7 @@ public class CurrenciesController : AdminBaseController
     {
         var currency = await Mediator.Send(new CreateCurrency.Command { CreateCurrencyDto = createCurrencyDto });
 
-        return Ok();
+        return Ok(currency);
     }
 
     [HttpPut("currencies/{currencyId:guid}")] 

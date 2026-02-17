@@ -1,5 +1,6 @@
 using System;
 using API.Controllers.BaseControllers;
+using Application.Core.PagedResults;
 using Application.Metadatas.RiskFactors.Command;
 using Application.Metadatas.RiskFactors.DTOs.Request;
 using Application.Metadatas.RiskFactors.DTOs.Response;
@@ -12,11 +13,13 @@ namespace API.Controllers;
 public class RiskFactorsController : AdminBaseController
 {
     [HttpGet("risk-factors")]
-    public async Task<ActionResult<List<RiskFactorDto>>> GetRiskFactorAsync(
+    public async Task<ActionResult<PagedResult<RiskFactorDto>>> GetRiskFactorAsync(
         [FromQuery] bool? isActive,
-        [FromQuery] RiskLevel? riskLevel)
+        [FromQuery] RiskLevel? riskLevel,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
-        var riskFactors = await Mediator.Send(new GetRiskFactors.Query { IsActive = isActive, RiskLevel = riskLevel });
+        var riskFactors = await Mediator.Send(new GetRiskFactors.Query { IsActive = isActive, RiskLevel = riskLevel, PageNumber = pageNumber, PageSize = pageSize });
         
         return Ok(riskFactors);
     }

@@ -8,29 +8,29 @@ namespace Persistence.Repositories;
 
 public class GeographyRepository(AppDbContext context) : IGeographyRepository
 {
-    public async Task<List<City>> GetCitiesByCountyAsync(Guid countyId, CancellationToken cancellationToken)
+    public IQueryable<City> GetCitiesByCountyAsync(Guid countyId, CancellationToken cancellationToken)
     {
-        return await context.Cities
+        return context.Cities
             .AsNoTracking()
+            .AsQueryable()
             .Where(x => x.CountyId == countyId)
-            .OrderBy(x => x.Name)
-            .ToListAsync(cancellationToken);
+            .OrderBy(x => x.Name);
     }
 
-    public async Task<List<County>> GetCountiesByCountryAsync(Guid countryId, CancellationToken cancellationToken)
+    public IQueryable<County> GetCountiesByCountryAsync(Guid countryId, CancellationToken cancellationToken)
     {
-        return await context.Counties
+        return context.Counties
             .AsNoTracking()
+            .AsQueryable()
             .Where(x => x.CountryId == countryId)
-            .OrderBy(x => x.Name)
-            .ToListAsync(cancellationToken);
+            .OrderBy(x => x.Name);
     }
 
-    public async Task<List<Country>> GetCountriesAsync(CancellationToken cancellationToken)
+    public IQueryable<Country> GetCountriesAsync(CancellationToken cancellationToken)
     {
-        return await context.Countries
+        return context.Countries
             .AsNoTracking()
-            .OrderBy(x => x.Name)
-            .ToListAsync(cancellationToken);
+            .AsQueryable()
+            .OrderBy(x => x.Name);
     }
 }

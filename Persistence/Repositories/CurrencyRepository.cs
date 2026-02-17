@@ -19,17 +19,20 @@ public class CurrencyRepository(AppDbContext context) : ICurrencyRepository
         return context.Currencies.AnyAsync(x => x.Code == code, cancellationToken);
     }
 
-    public async Task<List<Currency>> GetCurrenciesAsync(bool? isActive, CancellationToken cancellationToken)
+    public IQueryable<Currency> GetCurrenciesAsync(bool? isActive, CancellationToken cancellationToken)
     {
         var query = context.Currencies
-            .AsNoTracking();
+            .AsNoTracking()
+            .AsQueryable();
 
         if(isActive.HasValue)
         {
             query = query.Where(x => x.IsActive == isActive.Value);
         }
         
-        return await query.OrderBy(x => x.Code).ToListAsync(cancellationToken);
+        query = query.OrderBy(x => x.Code);
+
+        return query;
     }
 
     public async Task<Currency?> GetCurrencyAsync(Guid id, CancellationToken cancellationToken)
@@ -44,11 +47,6 @@ public class CurrencyRepository(AppDbContext context) : ICurrencyRepository
         return context.Currencies
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);   
     }
-
-    // public async Task RemoveCurrencyAsync(Currency currency, CancellationToken cancellationToken)
-    // {
-    //     context.Currencies.Remove(currency);
-    // }
 
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)
     {

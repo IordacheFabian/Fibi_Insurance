@@ -30,7 +30,7 @@ public class ClientRepository(AppDbContext context) : IClientRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task<List<Client>> ClientSearchAsync(string? name, string? identifier, CancellationToken cancellationToken)
+    public IQueryable<Client> ClientSearchAsync(string? name, string? identifier, CancellationToken cancellationToken)
     {
         var query = context.Clients
             .AsNoTracking()
@@ -46,12 +46,12 @@ public class ClientRepository(AppDbContext context) : IClientRepository
             query = query.Where(x => x.IdentificationNumber == identifier);
         }
 
-        return await query
+        return query
             .Include(x => x.Buildings)
                 .ThenInclude(x => x.Address)
                     .ThenInclude(x => x.City)
-            .OrderBy(x => x.Name)
-            .ToListAsync(cancellationToken);
+            .OrderBy(x => x.Name);
+            
     }
 
     public async Task<bool> IdentifierExistsAsync(string identifier, CancellationToken cancellationToken)

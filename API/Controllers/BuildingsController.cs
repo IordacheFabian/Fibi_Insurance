@@ -4,6 +4,7 @@ using Application.Buildings.Commands;
 using Application.Buildings.DTOs.Request;
 using Application.Buildings.DTOs.Response;
 using Application.Buildings.Queries;
+using Application.Core.PagedResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -12,9 +13,9 @@ namespace API.Controllers;
 public class BuildingsController : BrokerBaseController
 {
     [HttpGet("clients/{clientId:guid}/buildings")]
-    public async Task<ActionResult<List<BuildingListDto>>> GetBuildingsListAsync(Guid clientId)
+    public async Task<ActionResult<PagedResult<BuildingListDto>>> GetBuildingsListAsync(Guid clientId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var buildings = await Mediator.Send(new GetBuildingsList.Query { ClientId = clientId });
+        var buildings = await Mediator.Send(new GetBuildingsList.Query { ClientId = clientId, PageNumber = pageNumber, PageSize = pageSize });
         return Ok(buildings);
     }
 

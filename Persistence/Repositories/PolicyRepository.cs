@@ -49,7 +49,7 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);   
     }
 
-    public async Task<List<Policy>> ListPolicyAsync(Guid? clientId, Guid? brokerId, PolicyStatus? policyStatus, DateOnly? startDate, DateOnly? endDate, CancellationToken cancellationToken)
+    public IQueryable<Policy> ListPolicyAsync(Guid? clientId, Guid? brokerId, PolicyStatus? policyStatus, DateOnly? startDate, DateOnly? endDate, CancellationToken cancellationToken)
     {
         var query = context.Policies
             .AsNoTracking()
@@ -77,10 +77,9 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
                         .ThenInclude(x => x.City)
                 .Include(x => x.Currency);
 
-            return await query 
-                .OrderByDescending(x => x.CreatedAt)
-                .ToListAsync(cancellationToken);
-    }
+            return query; 
+            
+        }
 
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)
     {

@@ -4,6 +4,7 @@ using Application.Brokers.Command;
 using Application.Brokers.DTOs.Request;
 using Application.Brokers.DTOs.Response;
 using Application.Brokers.Queries;
+using Application.Core.PagedResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -11,9 +12,9 @@ namespace API.Controllers;
 public class BrokersController : AdminBaseController
 {
     [HttpGet("brokers")]
-    public async Task<ActionResult<List<BrokerDto>>> GetBrokersAsync([FromQuery] bool? isActive)
+    public async Task<ActionResult<PagedResult<BrokerDto>>> GetBrokersAsync([FromQuery] bool? isActive, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var brokers = await Mediator.Send(new GetBrokers.Query { IsActive = isActive });
+        var brokers = await Mediator.Send(new GetBrokers.Query { IsActive = isActive, PageNumber = pageNumber, PageSize = pageSize });
 
         return Ok(brokers);
     }

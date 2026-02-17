@@ -43,20 +43,20 @@ public class FeeConfigurationRepository(AppDbContext context) : IFeeConfiguratio
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task<List<FeeConfiguration>> GetFeeConfigurationsAsync(bool? isActive, CancellationToken cancellationToken)
+    public IQueryable<FeeConfiguration> GetFeeConfigurationsAsync(bool? isActive, CancellationToken cancellationToken)
     {
         var query = context.FeeConfigurations
-            .AsNoTracking();
+            .AsNoTracking()
+            .AsQueryable();
 
         if(isActive.HasValue  )
         {
             query = query.Where(x => x.IsActive == isActive.Value);
         }
 
-        return await query
-            .OrderBy(x => x.FeeType)
-            .ThenBy(x => x.Name)
-            .ToListAsync(cancellationToken);
+        query = query.OrderByDescending(x => x.EffectiveFrom);
+
+        return query;
     }
 
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)

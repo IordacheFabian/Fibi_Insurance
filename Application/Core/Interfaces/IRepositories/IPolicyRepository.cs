@@ -10,7 +10,7 @@ public interface IPolicyRepository
     Task<Policy?> GetPolicyForActivationAsync(Guid id,  CancellationToken cancellationToken);
     Task<Policy?> GetPolicyForCancellationAsync(Guid id, CancellationToken cancellationToken);
     Task CreatePolicyAsync(Policy policy, CancellationToken cancellationToken);
-    Task<List<Policy>> ListPolicyAsync(
+    IQueryable<Policy> ListPolicyAsync(
         Guid? clientId,
         Guid? brokerId,
         PolicyStatus? policyStatus,

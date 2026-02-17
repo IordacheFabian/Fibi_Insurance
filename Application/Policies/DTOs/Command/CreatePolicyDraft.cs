@@ -1,7 +1,13 @@
 using System;
+using Application.Brokers.DTOs.Response;
+using Application.Buildings.DTOs.Response;
+using Application.Clients.DTOs.Response;
 using Application.Core;
 using Application.Core.Interfaces.IRepositories;
+using Application.Metadatas.Currencies.DTOs.Response;
 using Application.Policies.DTOs.Requests;
+using Application.Policies.DTOs.Response;
+using AutoMapper;
 using Domain.Models.Brokers;
 using Domain.Models.Policies;
 using MediatR;
@@ -10,7 +16,7 @@ namespace Application.Policies.DTOs.Command;
 
 public class CreatePolicyDraft
 {
-    public class Command : IRequest<Guid>
+    public class Command : IRequest<PolicyDetailsDto>
     {
         public required CreatePolicyDraftDto CreatePolicyDraftDto { get; set; }
     }
@@ -21,9 +27,10 @@ public class CreatePolicyDraft
         IBuildingRepository buildingRepository,
         ICurrencyRepository currencyRepository,
         IBrokerRepository brokerRepository,
-        IPremiumCalculator premiumCalculator) : IRequestHandler<Command, Guid>
+        IPremiumCalculator premiumCalculator,
+        IMapper mapper) : IRequestHandler<Command, PolicyDetailsDto>
     {
-        public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<PolicyDetailsDto> Handle(Command request, CancellationToken cancellationToken)
         {
             var policyDto = request.CreatePolicyDraftDto;
 
@@ -47,6 +54,11 @@ public class CreatePolicyDraft
 
             var (finalPremium, policyAdjustements) = await premiumCalculator
                     .CalculateAsync(building, policyDto.BasePremium, policyDto.StartDate, cancellationToken);
+
+            var clientDto = mapper.Map<ClientDetailsDto>(client);
+            var buildingDto = mapper.Map<BuildingDetailsDto>(building);
+            var currencyDto = mapper.Map<CurrencyDto>(currency);
+            var brokerDto = mapper.Map<BrokerDetailsDto>(broker);
 
             var policyNumber = GeneratePolicyNumber();
             policyDto.PolicyNumber = policyNumber;
@@ -81,7 +93,12 @@ public class CreatePolicyDraft
             var result = await policyRepository.SaveChangesAsync(cancellationToken);
             if (!result) throw new Exception("Failed to create policy draft");
 
-            return policy.Id; 
+            var finalPolicy = mapper.Map<PolicyDetailsDto>(policy); 
+            finalPolicy.Client = clientDto;
+            finalPolicy.Building = buildingDto;
+            finalPolicy.CurrencyCode = currencyDto.Code;
+
+            return finalPolicy;
         }
 
         public static string GeneratePolicyNumber()

@@ -5,7 +5,7 @@ namespace Application.Core.Interfaces.IRepositories;
 
 public interface IFeeConfigurationRepository
 {
-    Task<List<FeeConfiguration>> GetFeeConfigurationsAsync(bool? isActive, CancellationToken cancellationToken);
+    IQueryable<FeeConfiguration> GetFeeConfigurationsAsync(bool? isActive, CancellationToken cancellationToken);
     Task CreateFeeConfigurationAsync(FeeConfiguration feeConfiguration, CancellationToken cancellationToken);
     Task<FeeConfiguration?> GetFeeConfigurationAsync(Guid id, CancellationToken cancellationToken);
     Task<List<FeeConfiguration>> GetActiveFeeConfigurationsAsync(DateOnly date, CancellationToken cancellationToken);

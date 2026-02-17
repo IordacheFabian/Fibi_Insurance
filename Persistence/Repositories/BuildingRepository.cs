@@ -36,15 +36,17 @@ public class BuildingRepository(AppDbContext context) : IBuildingRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task<List<Building>> GetBuildingForClientAsync(Guid id, CancellationToken cancellationToken)
+    public IQueryable<Building> GetBuildingForClientAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await context.Buildings
+        var buildings = context.Buildings
             .AsNoTracking()
+            .AsQueryable()
             .Where(x => x.ClientId == id)
             .Include(x => x.Address)
                 .ThenInclude(x => x.City)
-            .OrderBy(x => x.Address.Street)
-            .ToListAsync(cancellationToken);
+            .OrderBy(x => x.Address.Street);        
+        
+        return buildings;
     }
 
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)

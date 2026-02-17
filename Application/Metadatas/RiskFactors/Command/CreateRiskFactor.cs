@@ -13,7 +13,7 @@ public class CreateRiskFactor
 {
     public class Command : IRequest<RiskFactorDto>
     {
-        public CreateRiskFactorDto CreateRiskFactorDto { get; set; }
+        public required CreateRiskFactorDto CreateRiskFactorDto { get; set; }
     }
 
     public class Handler(IRiskFactorRepository riskFactorRepository, IMapper mapper) : IRequestHandler<Command, RiskFactorDto>
