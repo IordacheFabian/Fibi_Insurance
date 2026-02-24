@@ -52,6 +52,8 @@
     <Folder Include="Policies\DTOs\Command\" />
     <Folder Include="Policies\DTOs\Response\" />
     <Folder Include="Policies\Queries\" />
+    <Folder Include="Reports\DTOs\Request\" />
+    <Folder Include="Reports\Queries\" />
   </ItemGroup>
 
 </Project>

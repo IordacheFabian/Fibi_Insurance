@@ -40,6 +40,7 @@ builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
 builder.Services.AddScoped<IFeeConfigurationRepository, FeeConfigurationRepository>();
 builder.Services.AddScoped<IRiskFactorRepository, RiskFactorRepository>();
 builder.Services.AddScoped<IBrokerRepository, BrokerRepository>();
+builder.Services.AddScoped<IReportsRepository, ReportsRepository>();
 
 builder.Services.AddAutoMapper(x => {}, typeof(MappingProfiles).Assembly);
 
