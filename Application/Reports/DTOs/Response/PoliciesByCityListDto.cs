@@ -2,8 +2,11 @@ using System;
 
 namespace Application.Reports.DTOs.Response;
 
-public class PoliciesByCountyListDto
+public class PoliciesByCityListDto
 {
+    public Guid CityId { get; set; }
+    public string CityName { get; set; } = default!;
+
     public Guid CountyId { get; set; }
     public string CountyName { get; set; } = default!;
 

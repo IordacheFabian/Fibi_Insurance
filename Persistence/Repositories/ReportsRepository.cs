@@ -11,6 +11,108 @@ namespace Persistence.Repositories;
 
 public class ReportsRepository(AppDbContext context) : IReportsRepository
 {
+    public IQueryable<PoliciesByBrokerListDto> GetPoliciesByBrokerReport(PoliciesByBrokerReportDto reportRequest, CancellationToken cancellationToken)
+    {
+        var policies = context.Policies
+            .AsNoTracking()
+            .AsQueryable()
+            .Where(p => p.StartDate >= reportRequest.From && p.EndDate <= reportRequest.To);
+        
+        if(reportRequest.PolicyStatus.HasValue)
+        {
+            policies = policies.Where(p => p.PolicyStatus == reportRequest.PolicyStatus);
+        }
+
+        if(!string.IsNullOrWhiteSpace(reportRequest.Currency))
+        {
+            var code = reportRequest.Currency.Trim().ToUpper();
+            policies = policies.Where(p => p.Currency.Code == code);
+        }
+
+        if(reportRequest.BuildingType.HasValue)
+        {
+            policies = policies.Where(p => p.Building.BuildingType == reportRequest.BuildingType);
+        }
+
+        var query = policies
+            .GroupBy(p => new
+            {
+                BrokerId = p.BrokerId,
+                BrokerName = p.Broker.Name,
+                CurrencyId = p.CurrencyId,
+                CurrencyCode = p.Currency.Code
+            })
+            .Select(g => new PoliciesByBrokerListDto
+            {
+                BrokerId = g.Key.BrokerId,
+                BrokerName = g.Key.BrokerName,
+                CurrencyId = g.Key.CurrencyId,
+                CurrencyCode = g.Key.CurrencyCode,
+                PoliciesCount = g.Count(),
+                FinalPremium = g.Sum(x => x.FinalPremium),
+                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.FinalPremium * p.Currency.ExchangeRateToBase), 2)
+            })
+            .OrderBy(x => x.BrokerName)
+            .ThenBy(x => x.CurrencyCode);
+
+        return query;
+    }
+
+    public IQueryable<PoliciesByCityListDto> GetPoliciesByCityReport(PoliciesByCityReportDto reportRequest, CancellationToken cancellationToken)
+    {
+        var policies = context.Policies
+            .AsNoTracking()
+            .AsQueryable()
+            .Where(p => p.StartDate >= reportRequest.From && p.EndDate <= reportRequest.To);
+
+        if(reportRequest.PolicyStatus.HasValue)
+        {
+            policies = policies.Where(p => p.PolicyStatus == reportRequest.PolicyStatus);
+        }
+
+        if(!string.IsNullOrWhiteSpace(reportRequest.Currency))
+        {
+            var code = reportRequest.Currency.Trim().ToUpper();
+            policies = policies.Where(p => p.Currency.Code == code);
+        }
+
+        if(reportRequest.BuildingType.HasValue)
+        {
+            policies = policies.Where(p => p.Building.BuildingType == reportRequest.BuildingType);
+        }
+
+        var query = policies
+            .GroupBy(p => new
+            {
+                CityId = p.Building.Address.CityId,
+                CityName = p.Building.Address.City.Name,
+                CountyId = p.Building.Address.City.CountyId,
+                CountyName = p.Building.Address.City.County.Name,
+                CountryId = p.Building.Address.City.County.CountryId,
+                CountryName = p.Building.Address.City.County.Country.Name,
+                CurrencyId = p.CurrencyId,
+                CurrencyCode = p.Currency.Code
+            })
+            .Select(g => new PoliciesByCityListDto
+            {
+                CityId = g.Key.CityId,
+                CityName = g.Key.CityName,
+                CountyId = g.Key.CountyId,
+                CountyName = g.Key.CountyName,
+                CountryId = g.Key.CountryId,
+                CountryName = g.Key.CountryName,
+                CurrencyId = g.Key.CurrencyId,
+                CurrencyCode = g.Key.CurrencyCode,
+                PoliciesCount = g.Count(),
+                FinalPremium = g.Sum(x => x.FinalPremium),
+                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.FinalPremium * p.Currency.ExchangeRateToBase), 2)
+            })
+            .OrderBy(x => x.CityName)
+            .ThenBy(x => x.CurrencyCode);
+
+        return query;
+    }
+
     public IQueryable<PoliciesByCountryListDto> GetPoliciesByCountryReport(PoliciesByCountryReportDto reportRequest, CancellationToken cancellationToken)
     {
         var policies = context.Policies
@@ -49,10 +151,13 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
                 CurrencyId = g.Key.CurrencyId,
                 CurrencyCode = g.Key.CurrencyCode,
                 PoliciesCount = g.Count(),
-                FinalPremium = g.Sum(x => x.FinalPremium)
+                FinalPremium = g.Sum(x => x.FinalPremium),
+                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.FinalPremium * p.Currency.ExchangeRateToBase), 2)
             })
             .OrderBy(x => x.CountryName)
             .ThenBy(x => x.CurrencyCode);
+
+        
 
         return query;
     }
@@ -99,7 +204,8 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
                 CurrencyId = g.Key.CurrencyId,
                 CurrencyCode = g.Key.CurrencyCode,
                 PoliciesCount = g.Count(),
-                FinalPremium = g.Sum(x => x.FinalPremium)
+                FinalPremium = g.Sum(x => x.FinalPremium),
+                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.FinalPremium * p.Currency.ExchangeRateToBase), 2)
             })
             .OrderBy(x => x.CountryName)
             .ThenBy(x => x.CurrencyCode);

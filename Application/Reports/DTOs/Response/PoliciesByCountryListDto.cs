@@ -12,4 +12,5 @@ public class PoliciesByCountryListDto
 
     public int PoliciesCount { get; set; }  
     public decimal FinalPremium { get; set; }
+    public decimal FinalPremiumBaseCurrency { get; set; }
 }

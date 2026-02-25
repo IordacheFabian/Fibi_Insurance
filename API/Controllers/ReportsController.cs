@@ -39,4 +39,34 @@ public class ReportsController : AdminBaseController
 
         return Ok(result);
     }
+
+    [HttpGet("policies-by-city")]
+    public async Task<ActionResult<PagedResult<PoliciesByCityListDto>>> GetPoliciesByCityReport([FromQuery] PoliciesByCityReportDto reportRequest, int pageNumber = 1, int pageSize = 10)
+    {
+        var query = new GetPoliciesByCityReport.Query
+        {
+            ReportRequest = reportRequest,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await Mediator.Send(query);
+
+        return Ok(result);
+    }
+
+    [HttpGet("policies-by-broker")]
+    public async Task<ActionResult<PagedResult<PoliciesByBrokerListDto>>> GetPoliciesByBrokerReport([FromQuery] PoliciesByBrokerReportDto reportRequest, int pageNumber = 1, int pageSize = 10)
+    {
+        var query = new GetPoliciesByBrokerReport.Query
+        {
+            ReportDto = reportRequest,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await Mediator.Send(query);
+
+        return Ok(result);
+    }
 }

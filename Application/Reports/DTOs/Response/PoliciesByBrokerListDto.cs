@@ -2,13 +2,10 @@ using System;
 
 namespace Application.Reports.DTOs.Response;
 
-public class PoliciesByCountyListDto
+public class PoliciesByBrokerListDto
 {
-    public Guid CountyId { get; set; }
-    public string CountyName { get; set; } = default!;
-
-    public Guid CountryId { get; set; }
-    public string CountryName { get; set; } = default!;
+    public Guid BrokerId { get; set; }
+    public string BrokerName { get; set; } = default!;
 
     public Guid CurrencyId { get; set; }
     public string CurrencyCode { get; set; } = default!;
