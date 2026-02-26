@@ -72,6 +72,71 @@ public class CreatePolicyDraftHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ShouldThrowNotFound_WhenCurrencyMissing()
+    {
+        var dto = BuildDto();
+        SetupClientAndBuilding(dto);
+        _currencyRepo.Setup(x => x.GetCurrencyAsync(dto.CurrencyId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Currency?)null);
+
+        var command = new CreatePolicyDraft.Command { CreatePolicyDraftDto = dto };
+
+        await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowNotFound_WhenBrokerMissing()
+    {
+        var dto = BuildDto();
+        SetupClientBuildingCurrency(dto);
+        _brokerRepo.Setup(x => x.GetBrokerAsync(dto.BrokerId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Broker?)null);
+
+        var command = new CreatePolicyDraft.Command { CreatePolicyDraftDto = dto };
+
+        await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenBrokerInactive()
+    {
+        var dto = BuildDto();
+        SetupClientBuildingCurrency(dto);
+        _brokerRepo.Setup(x => x.GetBrokerAsync(dto.BrokerId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Broker { Id = dto.BrokerId, BrokerStatus = BrokerStatus.Inactive });
+
+        var command = new CreatePolicyDraft.Command { CreatePolicyDraftDto = dto };
+
+        await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(command, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenEndDateNotAfterStartDate()
+    {
+        var dto = BuildDto();
+        dto.EndDate = dto.StartDate;
+        SetupClientBuildingCurrency(dto);
+        SetupActiveBroker(dto);
+
+        var command = new CreatePolicyDraft.Command { CreatePolicyDraftDto = dto };
+
+        await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(command, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenBasePremiumNotPositive()
+    {
+        var dto = BuildDto();
+        dto.BasePremium = 0m;
+        SetupClientBuildingCurrency(dto);
+        SetupActiveBroker(dto);
+
+        var command = new CreatePolicyDraft.Command { CreatePolicyDraftDto = dto };
+
+        await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(command, CancellationToken.None));
+    }
+
+    [Fact]
     public async Task Handle_ShouldCreateDraftAndReturnDetails()
     {
         var dto = BuildDto();
@@ -150,4 +215,37 @@ public class CreatePolicyDraftHandlerTests
         EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30)),
         PolicyNumber = null
     };
+
+    private void SetupClientAndBuilding(CreatePolicyDraftDto dto)
+    {
+        _clientRepo.Setup(x => x.GetClientAsync(dto.ClientId, It.IsAny<CancellationToken>())).ReturnsAsync(new Client { Id = dto.ClientId });
+        _buildingRepo.Setup(x => x.GetBuildingAsync(dto.BuildingId, It.IsAny<CancellationToken>())).ReturnsAsync(CreateBuilding(dto.BuildingId));
+    }
+
+    private void SetupClientBuildingCurrency(CreatePolicyDraftDto dto)
+    {
+        SetupClientAndBuilding(dto);
+        _currencyRepo.Setup(x => x.GetCurrencyAsync(dto.CurrencyId, It.IsAny<CancellationToken>())).ReturnsAsync(new Currency { Id = dto.CurrencyId });
+    }
+
+    private void SetupActiveBroker(CreatePolicyDraftDto dto)
+    {
+        _brokerRepo.Setup(x => x.GetBrokerAsync(dto.BrokerId, It.IsAny<CancellationToken>())).ReturnsAsync(new Broker { Id = dto.BrokerId, BrokerStatus = BrokerStatus.Active });
+    }
+
+    private static Building CreateBuilding(Guid buildingId)
+    {
+        var country = new Country { Id = Guid.NewGuid(), Name = "Country" };
+        var county = new County { Id = Guid.NewGuid(), CountryId = country.Id, Country = country, Name = "County" };
+        var city = new City { Id = Guid.NewGuid(), CountyId = county.Id, County = county, Name = "City" };
+        var address = new Address { Id = Guid.NewGuid(), CityId = city.Id, City = city, Street = "Main", Number = "1" };
+
+        return new Building
+        {
+            Id = buildingId,
+            AddressId = address.Id,
+            Address = address,
+            BuildingType = BuildingType.Residential
+        };
+    }
 }

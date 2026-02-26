@@ -12,10 +12,13 @@ public class CancelPolicyValidator : AbstractValidator<CancelPolicy.Command>
             .NotEmpty().WithMessage("PolicyId is required");
 
         RuleFor(x => x.CancelPolicyDto)
-            .NotEmpty().WithMessage("CancelPolicyDto is required");
-        
-        RuleFor(x => x.CancelPolicyDto.CancellationReason)
-            .NotEmpty().WithMessage("Cancellation reason is required")
-            .MaximumLength(500).WithMessage("Cancellation reason cannot exceed 500 characters");
+            .NotNull().WithMessage("CancelPolicyDto is required");
+
+        When(x => x.CancelPolicyDto is not null, () =>
+        {
+            RuleFor(x => x.CancelPolicyDto!.CancellationReason)
+                .NotEmpty().WithMessage("Cancellation reason is required")
+                .MaximumLength(500).WithMessage("Cancellation reason cannot exceed 500 characters");
+        });
     }
 }

@@ -115,4 +115,89 @@ public class ActivatePolicyHandlerTests
         await act.Should().ThrowAsync<BadRequestException>();
         repo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenMandatoryReferencesMissing()
+    {
+        var policy = new Policy
+        {
+            Id = Guid.NewGuid(),
+            PolicyStatus = PolicyStatus.Draft,
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(10)),
+            ClientId = Guid.Empty,
+            BuildingId = Guid.NewGuid(),
+            BrokerId = Guid.NewGuid(),
+            CurrencyId = Guid.NewGuid(),
+            BasePremium = 500m,
+            FinalPremium = 600m
+        };
+
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForActivationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
+
+        var handler = new ActivatePolicy.Handler(repo.Object);
+
+        var act = async () => await handler.Handle(new ActivatePolicy.Command { PolicyId = policy.Id }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<BadRequestException>();
+        repo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenPolicyPeriodInvalid()
+    {
+        var policy = new Policy
+        {
+            Id = Guid.NewGuid(),
+            PolicyStatus = PolicyStatus.Draft,
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)),
+            ClientId = Guid.NewGuid(),
+            BuildingId = Guid.NewGuid(),
+            BrokerId = Guid.NewGuid(),
+            CurrencyId = Guid.NewGuid(),
+            BasePremium = 500m,
+            FinalPremium = 600m
+        };
+
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForActivationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
+
+        var handler = new ActivatePolicy.Handler(repo.Object);
+
+        var act = async () => await handler.Handle(new ActivatePolicy.Command { PolicyId = policy.Id }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<BadRequestException>();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenPremiumValuesInvalid()
+    {
+        var policy = new Policy
+        {
+            Id = Guid.NewGuid(),
+            PolicyStatus = PolicyStatus.Draft,
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)),
+            ClientId = Guid.NewGuid(),
+            BuildingId = Guid.NewGuid(),
+            BrokerId = Guid.NewGuid(),
+            CurrencyId = Guid.NewGuid(),
+            BasePremium = 0m,
+            FinalPremium = 10m
+        };
+
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForActivationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
+
+        var handler = new ActivatePolicy.Handler(repo.Object);
+
+        var act = async () => await handler.Handle(new ActivatePolicy.Command { PolicyId = policy.Id }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<BadRequestException>();
+    }
 }

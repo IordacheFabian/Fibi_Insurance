@@ -32,6 +32,18 @@ public class CreatePolicyDraftValidatorTests
         result.ShouldHaveValidationErrorFor(x => x.BrokerId);
     }
 
+    [Fact]
+    public void Validator_ShouldFail_WhenStartDateAfterEndDate()
+    {
+        var dto = BuildDto();
+        dto.StartDate = dto.EndDate.AddDays(1);
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(x => x.StartDate);
+        result.ShouldHaveValidationErrorFor(x => x.EndDate);
+    }
+
     private static CreatePolicyDraftDto BuildDto() => new()
     {
         ClientId = Guid.NewGuid(),

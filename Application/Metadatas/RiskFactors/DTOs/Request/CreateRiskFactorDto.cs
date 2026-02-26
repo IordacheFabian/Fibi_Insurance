@@ -9,8 +9,8 @@ public class CreateRiskFactorDto
 {
     public string Name { get; set; } = null!;
     public RiskLevel Level { get; set; }
-    public Guid ReferenceId { get; set; }
-    public BuildingType BuildingType { get; set; }
+    public Guid? ReferenceId { get; set; }
+    public BuildingType? BuildingType { get; set; }
     public decimal AdjustementPercentage { get; set; }
     public bool IsActive { get; set; } = true;
 }

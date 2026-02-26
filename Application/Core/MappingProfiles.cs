@@ -35,10 +35,19 @@ public class MappingProfiles : Profile
     {
 
         //client mappings
-        CreateMap<CreateClientDto, Client>();
-        CreateMap<UpdateClientDto, Client>();
+        CreateMap<CreateClientDto, Client>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Addresses, opt => opt.Ignore())
+            .ForMember(d => d.Buildings, opt => opt.Ignore());
+        CreateMap<UpdateClientDto, Client>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.ClientType, opt => opt.Ignore())
+            .ForMember(d => d.IdentificationNumber, opt => opt.Ignore())
+            .ForMember(d => d.Addresses, opt => opt.Ignore())
+            .ForMember(d => d.Buildings, opt => opt.Ignore());
 
-        CreateMap<Client, ClientDetailsDto>();
+        CreateMap<Client, ClientDetailsDto>()
+            .ForMember(d => d.Type, opt => opt.MapFrom(src => src.ClientType));
 
         CreateMap<Client, ClientSearchDto>() 
             .ForMember(d => d.IdentificationMasked,
@@ -47,12 +56,21 @@ public class MappingProfiles : Profile
         //building mappings
         CreateMap<CreateBuildingDto, Building>()
             .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.AddressId, opt => opt.Ignore())
+            .ForMember(d => d.Address, opt => opt.Ignore())
+            .ForMember(d => d.Client, opt => opt.Ignore())
+            .ForMember(d => d.RiskIndicatiors, opt => opt.MapFrom(src => src.RiskIndicators));
+        CreateMap<UpdateBuildingDto, Building>()
+            .ForMember(d => d.ClientId, opt => opt.Ignore())
+            .ForMember(d => d.AddressId, opt => opt.Ignore())
+            .ForMember(d => d.Client, opt => opt.Ignore())
             .ForMember(d => d.Address, opt => opt.Ignore());
-        CreateMap<UpdateBuildingDto, Building>();
 
         CreateMap<Building, BuildingDetailsDto>()
             .ForMember(d => d.Owner, 
-                opt => opt.MapFrom(src => src.Client));
+                opt => opt.MapFrom(src => src.Client))
+            .ForMember(d => d.CounstructionYear,
+                opt => opt.MapFrom(src => src.ConstructionYear));
         CreateMap<Building, BuildingListDto>()
             .ForMember(d => d.Address,
                 opt => opt.MapFrom(src => $"{src.Address.Street} {src.Address.Number}"))
@@ -67,8 +85,15 @@ public class MappingProfiles : Profile
       
         //address mappingss
         CreateMap<CreateAddressDto, Address>()
-            .ForMember(d => d.Id, opt => opt.Ignore());
-        CreateMap<UpdateAddressDto, Address>();
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Building, opt => opt.Ignore())
+            .ForMember(d => d.City, opt => opt.Ignore())
+            .ForMember(d => d.IsPrimary, opt => opt.Ignore());
+        CreateMap<UpdateAddressDto, Address>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Building, opt => opt.Ignore())
+            .ForMember(d => d.City, opt => opt.Ignore())
+            .ForMember(d => d.IsPrimary, opt => opt.Ignore());
 
         CreateMap<Address, AddressDetailsDto>()
             .ForMember(d => d.CityName,
@@ -118,34 +143,66 @@ public class MappingProfiles : Profile
             .ForMember(d => d.CurrencyId, o => o.MapFrom(s => s.Currency.Id))
             .ForMember(d => d.BrokerId, o => o.MapFrom(s => s.Broker.Id));
         
-        CreateMap<Policy, ActivatePolicyDto>();
-        CreateMap<Policy, CancelPolicyDto>();
+        CreateMap<Policy, ActivatePolicyDto>()
+            .ForMember(d => d.ActivationDate, opt => opt.Ignore());
+        CreateMap<Policy, CancelPolicyDto>()
+            .ForMember(d => d.CancellationDate, opt => opt.Ignore());
 
         // metadata and premium calculator mappings
         CreateMap<Currency, CurrencyDto>();
         CreateMap<Currency, CreateCurrencyDto>();
-        CreateMap<CreateCurrencyDto, Currency>();
+        CreateMap<CreateCurrencyDto, Currency>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Policies, opt => opt.Ignore());
         CreateMap<Currency, UpdateCurrencyDto>();
-        CreateMap<UpdateCurrencyDto, Currency>();   
+        CreateMap<UpdateCurrencyDto, Currency>()
+            .ForMember(d => d.Code, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.Policies, opt => opt.Ignore());   
 
         CreateMap<FeeConfiguration, FeeConfigurationDto>();
         CreateMap<FeeConfiguration, CreateFeeConfigurationDto>();
-        CreateMap<CreateFeeConfigurationDto, FeeConfiguration>();   
+        CreateMap<CreateFeeConfigurationDto, FeeConfiguration>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore());   
         CreateMap<FeeConfiguration, UpdateFeeConfigurationDto>();
-        CreateMap<UpdateFeeConfigurationDto, FeeConfiguration>();
+        CreateMap<UpdateFeeConfigurationDto, FeeConfiguration>()
+            .ForMember(d => d.FeeType, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore());
 
         CreateMap<RiskFactorConfiguration, RiskFactorDto>();
-        CreateMap<RiskFactorConfiguration, CreateRiskFactorDto>();
-        CreateMap<CreateRiskFactorDto, RiskFactorConfiguration>();
+        CreateMap<RiskFactorConfiguration, CreateRiskFactorDto>()
+            .ForMember(d => d.Level, opt => opt.MapFrom(src => src.RiskLevel))
+            .ForMember(d => d.ReferenceId, opt => opt.MapFrom(src => src.ReferenceID));
+        CreateMap<CreateRiskFactorDto, RiskFactorConfiguration>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.RiskLevel, opt => opt.MapFrom(src => src.Level))
+            .ForMember(d => d.ReferenceID, opt => opt.MapFrom(src => src.ReferenceId));
         CreateMap<RiskFactorConfiguration, UpdateRiskFactorDto>();
-        CreateMap<UpdateRiskFactorDto, RiskFactorConfiguration>();
+        CreateMap<UpdateRiskFactorDto, RiskFactorConfiguration>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.ReferenceID, opt => opt.Ignore())
+            .ForMember(d => d.BuildingType, opt => opt.Ignore());
 
         // broker mappings
         CreateMap<Broker, BrokerDto>();
         CreateMap<Broker, BrokerDetailsDto>();
-        CreateMap<CreateBrokerDto, Broker>();
+        CreateMap<CreateBrokerDto, Broker>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.Policies, opt => opt.Ignore());
         CreateMap<Broker, CreateBrokerDto>();
-        CreateMap<UpdateBrokerDto, Broker>();
+        CreateMap<UpdateBrokerDto, Broker>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.BrokerCode, opt => opt.Ignore())
+            .ForMember(d => d.BrokerStatus, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.Policies, opt => opt.Ignore());
         CreateMap<Broker, UpdateBrokerDto>();
     }
 }

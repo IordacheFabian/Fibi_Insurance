@@ -36,7 +36,7 @@ public class CreateBuildingsTests
         {
             Id = Guid.NewGuid(),
             Name = "Test Client",
-            ClientType = (Domain.Models.Clients.ClientType)Clients.DTOs.ClientType.Individual,
+            ClientType = Domain.Models.Clients.ClientType.Individual,
             IdentificationNumber = "1234567890123",
             Email = "test@test.com",
             PhoneNumber = "0712345678"

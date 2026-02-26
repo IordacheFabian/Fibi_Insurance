@@ -18,7 +18,7 @@ public class PremiumCalculator(
 
         foreach (var fee in fees)
         {
-            var amount = Math.Round(basePremium * fee.Percentage / 100m, 2);
+            var amount = RoundAmount(basePremium * fee.Percentage / 100m);
             policyAdjustements.Add(new PolicyAdjustement
             {
                 Id = Guid.NewGuid(),
@@ -54,7 +54,7 @@ public class PremiumCalculator(
 
             if (!matches) continue;
 
-            var amount = Math.Round(basePremium * riskFactor.AdjustementPercentage / 100m, 2);
+            var amount = RoundAmount(basePremium * riskFactor.AdjustementPercentage / 100m);
             policyAdjustements.Add(new PolicyAdjustement
             {
                 Id = Guid.NewGuid(),
@@ -66,8 +66,10 @@ public class PremiumCalculator(
         }
 
         var totalPolicyAdjustements = policyAdjustements.Sum(x => x.Amount);
-        var finalPremium = Math.Round(basePremium + totalPolicyAdjustements, 2);
+        var finalPremium = RoundAmount(Math.Max(0, basePremium + totalPolicyAdjustements));
 
         return (finalPremium, policyAdjustements);
     }
+
+    private static decimal RoundAmount(decimal value) => Math.Round(value, 2, MidpointRounding.AwayFromZero);
 }

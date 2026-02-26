@@ -134,6 +134,62 @@ public class PremiumCalculatorTests
         adjustments.Sum(a => a.Amount).Should().Be(68.88m);
     }
 
+    [Fact]
+    public async Task CalculateAsync_ShouldRoundMidpointsAwayFromZero()
+    {
+        var ids = (City: Guid.NewGuid(), County: Guid.NewGuid(), Country: Guid.NewGuid());
+        var building = CreateBuilding(ids.City, ids.County, ids.Country, BuildingType.MixedUse);
+
+        _fees.Setup(x => x.GetActiveFeeConfigurationsAsync(It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<FeeConfiguration>());
+
+        _riskFactors.Setup(x => x.GetActiveRiskFactorConfigurationsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<RiskFactorConfiguration>
+                {
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        RiskLevel = RiskLevel.City,
+                        ReferenceID = ids.City,
+                        AdjustementPercentage = 1.0005m
+                    }
+                });
+
+        var (finalPremium, adjustments) = await _sut.CalculateAsync(building, 1000m, DateOnly.FromDateTime(DateTime.UtcNow), CancellationToken.None);
+
+        adjustments.Should().ContainSingle().Which.Amount.Should().Be(10.01m);
+        finalPremium.Should().Be(1010.01m);
+    }
+
+    [Fact]
+    public async Task CalculateAsync_ShouldPreventNegativeFinalPremium()
+    {
+        var ids = (City: Guid.NewGuid(), County: Guid.NewGuid(), Country: Guid.NewGuid());
+        var building = CreateBuilding(ids.City, ids.County, ids.Country, BuildingType.Residential);
+
+        _fees.Setup(x => x.GetActiveFeeConfigurationsAsync(It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<FeeConfiguration>());
+
+        _riskFactors.Setup(x => x.GetActiveRiskFactorConfigurationsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<RiskFactorConfiguration>
+                {
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        RiskLevel = RiskLevel.City,
+                        ReferenceID = ids.City,
+                        AdjustementPercentage = -250m
+                    }
+                });
+
+        var (finalPremium, adjustments) = await _sut.CalculateAsync(building, 100m, DateOnly.FromDateTime(DateTime.UtcNow), CancellationToken.None);
+
+        adjustments.Should().ContainSingle().Which.Amount.Should().Be(-250m);
+        finalPremium.Should().Be(0m);
+    }
+
     private static Building CreateBuilding(Guid cityId, Guid countyId, Guid countryId, BuildingType type)
     {
         var country = new Country { Id = countryId, Name = "Test Country" };
