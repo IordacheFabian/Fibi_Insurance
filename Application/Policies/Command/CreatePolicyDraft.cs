@@ -12,7 +12,7 @@ using Domain.Models.Brokers;
 using Domain.Models.Policies;
 using MediatR;
 
-namespace Application.Policies.DTOs.Command;
+namespace Application.Policies.Command;
 
 public class CreatePolicyDraft
 {
@@ -68,24 +68,29 @@ public class CreatePolicyDraft
                 PolicyNumber = policyNumber,
                 ClientId = policyDto.ClientId,
                 BuildingId = policyDto.BuildingId,
-                CurrencyId = policyDto.CurrencyId,
                 BrokerId = policyDto.BrokerId,
-
+                PolicyVersions = new List<PolicyVersion>
+                {
+                    new PolicyVersion
+                    {
+                        Id = Guid.NewGuid(),
+                        VersionNumber = 1,
+                        StartDate = policyDto.StartDate,
+                        EndDate = policyDto.EndDate,
+                        BasePremium = policyDto.BasePremium,
+                        FinalPremium = finalPremium,
+                        CurrencyId = policyDto.CurrencyId,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = broker.Name,
+                        IsActiveVersion = true
+                    }
+                },
                 PolicyStatus = PolicyStatus.Draft,
-                StartDate = policyDto.StartDate,
-                EndDate = policyDto.EndDate,
-                PolicyAdjustements = policyAdjustements,
-
-                BasePremium = policyDto.BasePremium,
-                FinalPremium = finalPremium,
-
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
             };
 
             foreach (var policyAdjustement in policyAdjustements)
             {
-                policyAdjustement.Policy = policy;
+                policyAdjustement.PolicyVersion = policy.PolicyVersions.First();
             }
 
             await policyRepository.CreatePolicyAsync(policy, cancellationToken);  
@@ -96,7 +101,7 @@ public class CreatePolicyDraft
             var finalPolicy = mapper.Map<PolicyDetailsDto>(policy); 
             finalPolicy.Client = clientDto;
             finalPolicy.Building = buildingDto;
-            finalPolicy.CurrencyCode = currencyDto.Code;
+            finalPolicy.Currency.Code = currencyDto.Code;
 
             return finalPolicy;
         }

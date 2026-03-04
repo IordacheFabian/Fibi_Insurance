@@ -27,7 +27,9 @@ public class AppDbContext : DbContext
     public DbSet<Country> Countries { get; set; } = null!;
 
     public DbSet<Policy> Policies { get; set; } = null!;
-    public DbSet<PolicyAdjustement> PolicyAdjustements { get; set; } = null!;
+    public DbSet<PolicyAdjustment> PolicyAdjustments { get; set; } = null!;
+    public DbSet<PolicyVersion> PolicyVersions { get; set; } = null!;
+    public DbSet<PolicyEndorsement> PolicyEndorsements { get; set; } = null!;
 
     public DbSet<Currency> Currencies { get; set; } = null!;
     public DbSet<RiskFactorConfiguration> RiskFactorConfigurations { get; set; } = null!;

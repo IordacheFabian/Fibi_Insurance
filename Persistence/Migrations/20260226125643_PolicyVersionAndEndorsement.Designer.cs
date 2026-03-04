@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Context;
 
@@ -10,9 +11,11 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260226125643_PolicyVersionAndEndorsement")]
+    partial class PolicyVersionAndEndorsement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.12");
@@ -539,13 +542,13 @@ namespace Persistence.Migrations
                     b.ToTable("Policies");
                 });
 
-            modelBuilder.Entity("Domain.Models.Policies.PolicyAdjustment", b =>
+            modelBuilder.Entity("Domain.Models.Policies.PolicyAdjustement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("AdjustmentType")
+                    b.Property<int>("AdjustementType")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Amount")
@@ -561,14 +564,19 @@ namespace Persistence.Migrations
                         .HasPrecision(9, 6)
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("PolicyVersionId")
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PolicyVersionId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PolicyVersionId", "AdjustmentType");
+                    b.HasIndex("PolicyVersionId");
 
-                    b.ToTable("PolicyAdjustments");
+                    b.HasIndex("PolicyId", "AdjustementType");
+
+                    b.ToTable("PolicyAdjustements");
                 });
 
             modelBuilder.Entity("Domain.Models.Policies.PolicyEndorsement", b =>
@@ -752,15 +760,19 @@ namespace Persistence.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Domain.Models.Policies.PolicyAdjustment", b =>
+            modelBuilder.Entity("Domain.Models.Policies.PolicyAdjustement", b =>
                 {
-                    b.HasOne("Domain.Models.Policies.PolicyVersion", "PolicyVersion")
-                        .WithMany("PolicyAdjustments")
-                        .HasForeignKey("PolicyVersionId")
+                    b.HasOne("Domain.Models.Policies.Policy", "Policy")
+                        .WithMany()
+                        .HasForeignKey("PolicyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("PolicyVersion");
+                    b.HasOne("Domain.Models.Policies.PolicyVersion", null)
+                        .WithMany("PolicyAdjustement")
+                        .HasForeignKey("PolicyVersionId");
+
+                    b.Navigation("Policy");
                 });
 
             modelBuilder.Entity("Domain.Models.Policies.PolicyEndorsement", b =>
@@ -783,7 +795,7 @@ namespace Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Models.Policies.Policy", "Policy")
-                        .WithMany("PolicyVersions")
+                        .WithMany("PolicyVersion")
                         .HasForeignKey("PolicyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -834,12 +846,12 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Models.Policies.Policy", b =>
                 {
-                    b.Navigation("PolicyVersions");
+                    b.Navigation("PolicyVersion");
                 });
 
             modelBuilder.Entity("Domain.Models.Policies.PolicyVersion", b =>
                 {
-                    b.Navigation("PolicyAdjustments");
+                    b.Navigation("PolicyAdjustement");
                 });
 #pragma warning restore 612, 618
         }

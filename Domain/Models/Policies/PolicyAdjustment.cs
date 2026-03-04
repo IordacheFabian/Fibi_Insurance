@@ -2,21 +2,21 @@ using System;
 
 namespace Domain.Models.Policies;
 
-public enum AdjustementType
+public enum AdjustmentType
 {
     BrokerCommission, 
-    RiskAdjustement,
+    RiskAdjustment,
     AdminFee
 }
 
-public class PolicyAdjustement
+public class PolicyAdjustment
 {
     public Guid Id { get; set; }
-    public Guid PolicyId { get; set; }
-    public Policy Policy { get; set; } = default!;
+    public Guid PolicyVersionId { get; set; }
+    public PolicyVersion PolicyVersion { get; set; } = default!;
 
     public string Name { get; set; } = default!;
-    public AdjustementType AdjustementType { get; set; }
+    public AdjustmentType AdjustmentType { get; set; }
     public decimal Percentage { get; set; }
     public decimal Amount { get; set; }
 }

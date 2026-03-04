@@ -116,31 +116,39 @@ public class MappingProfiles : Profile
 
         CreateMap<Country, CountryDto>();
         CreateMap<County, CountyDto>();
-        CreateMap<City, CityDto>(); 
+        CreateMap<City, CityDto>();
 
         // policies mappings
         CreateMap<Policy, PolicyListItemDto>()
-            .ForMember(d => d.ClientName,
-                o => o.MapFrom(src => src.Client.Name))
+            .ForMember(d => d.ClientName, o => o.MapFrom(s => s.Client.Name))
             .ForMember(d => d.BuildingStreet, o => o.MapFrom(s => s.Building.Address.Street))
             .ForMember(d => d.BuildingNumber, o => o.MapFrom(s => s.Building.Address.Number))
             .ForMember(d => d.CityName, o => o.MapFrom(s => s.Building.Address.City.Name))
-            .ForMember(d => d.CurrencyCode, o => o.MapFrom(s => s.Currency.Code));
+            .ForMember(d => d.CurrencyCode, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).Currency.Code));
 
         CreateMap<Policy, PolicyDetailsDto>()
-                .ForMember(d => d.CurrencyCode, o => o.MapFrom(s => s.Currency.Code))
-                .ForMember(d => d.CurrencyName, o => o.MapFrom(s => s.Currency.Name))
-                .ForMember(d => d.Client, o => o.MapFrom(s => s.Client))
-                .ForMember(d => d.Building, o => o.MapFrom(s => s.Building))
-                .ForMember(d => d.Broker, o => o.MapFrom(s => s.Broker))
-                .ForMember(d => d.PolicyAdjustements, o => o.MapFrom(s => s.PolicyAdjustements));
+            .ForMember(d => d.Client, o => o.MapFrom(s => s.Client))
+            .ForMember(d => d.Building, o => o.MapFrom(s => s.Building))
+            .ForMember(d => d.Broker, o => o.MapFrom(s => s.Broker))
+            .ForMember(d => d.StartDate, o => o.MapFrom(s =>
+                s.PolicyVersions.Single(v => v.IsActiveVersion).StartDate))
+            .ForMember(d => d.EndDate, o => o.MapFrom(s =>
+                s.PolicyVersions.Single(v => v.IsActiveVersion).EndDate))
+            .ForMember(d => d.BasePremium, o => o.MapFrom(s =>
+                s.PolicyVersions.Single(v => v.IsActiveVersion).BasePremium))
+            .ForMember(d => d.FinalPremium, o => o.MapFrom(s =>
+                s.PolicyVersions.Single(v => v.IsActiveVersion).FinalPremium))
+            .ForMember(d => d.Currency, o => o.MapFrom(s =>
+                s.PolicyVersions.Single(v => v.IsActiveVersion).Currency))
+            .ForMember(d => d.PolicyAdjustments, o => o.MapFrom(s =>
+        s.PolicyVersions.Single(v => v.IsActiveVersion).PolicyAdjustments));
 
-        CreateMap<PolicyAdjustement, PolicyAdjustementDto>();
+        CreateMap<PolicyAdjustment, PolicyAdjustmentDto>();
         
         CreateMap<Policy, CreatePolicyDraftDto>()
             .ForMember(d => d.ClientId, o => o.MapFrom(s => s.Client.Id))
             .ForMember(d => d.BuildingId, o => o.MapFrom(s => s.Building.Id))
-            .ForMember(d => d.CurrencyId, o => o.MapFrom(s => s.Currency.Id))
+            .ForMember(d => d.CurrencyId, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).Currency.Id))
             .ForMember(d => d.BrokerId, o => o.MapFrom(s => s.Broker.Id));
         
         CreateMap<Policy, ActivatePolicyDto>()

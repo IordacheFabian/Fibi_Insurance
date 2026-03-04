@@ -5,20 +5,20 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Context.Configurations.Policies;
 
-public class PolicyAdjustementConfiguration : IEntityTypeConfiguration<PolicyAdjustement>
+public class PolicyAdjustmentConfiguration : IEntityTypeConfiguration<PolicyAdjustment>
 {
-    public void Configure(EntityTypeBuilder<PolicyAdjustement> builder)
+    public void Configure(EntityTypeBuilder<PolicyAdjustment> builder)
     {
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.PolicyId)
+        builder.Property(x => x.PolicyVersionId)
             .IsRequired();
 
         builder.Property(x => x.Name)
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(x => x.AdjustementType)
+        builder.Property(x => x.AdjustmentType)
             .IsRequired();
 
         builder.Property(x => x.Percentage)
@@ -27,7 +27,7 @@ public class PolicyAdjustementConfiguration : IEntityTypeConfiguration<PolicyAdj
         builder.Property(x => x.Amount)
             .HasPrecision(18, 2);
 
-        builder.HasIndex(x => new { x.PolicyId, x.AdjustementType });
+        builder.HasIndex(x => new { x.PolicyVersionId, x.AdjustmentType });
             
     }
 }

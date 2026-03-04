@@ -6,7 +6,7 @@ namespace Application.Core.Interfaces.IRepositories;
 
 public interface IPremiumCalculator
 {
-    Task<(decimal finalPremium, List<PolicyAdjustement> policyAdjustements)> CalculateAsync(
+    Task<(decimal finalPremium, List<PolicyAdjustment> policyAdjustments)> CalculateAsync(
         Building building,
         decimal basePremium,
         DateOnly startDate,

@@ -25,9 +25,9 @@ public class CurrencyConfiguration : IEntityTypeConfiguration<Currency>
         builder.Property(x => x.ExchangeRateToBase)
             .HasPrecision(18, 6);
 
-        builder.HasMany(x => x.Policies)
-            .WithOne(x => x.Currency)
-            .HasForeignKey(x => x.CurrencyId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // builder.HasMany(x => x.Policies)
+        //     .WithOne(x => x.Currency)
+        //     .HasForeignKey(x => x.CurrencyId)
+        //     .OnDelete(DeleteBehavior.Restrict);
     }
 }

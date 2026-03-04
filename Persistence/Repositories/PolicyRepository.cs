@@ -1,5 +1,11 @@
 using System;
+using Application.Addresses.DTOs;
+using Application.Brokers.DTOs.Response;
+using Application.Buildings.DTOs.Response;
+using Application.Clients.DTOs.Response;
 using Application.Core.Interfaces.IRepositories;
+using Application.Policies.DTOs.Response;
+using Domain.Models.Metadatas;
 using Domain.Models.Policies;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
@@ -20,42 +26,129 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
  
-    public async Task<Policy?> GetPolicyDetailsAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<PolicyDetailsDto?> GetPolicyDetailsAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Policies
             .AsNoTracking()
-            .Include(x => x.Client)
-            .Include(x => x.Building)
-                .ThenInclude(x => x.Address)
-                    .ThenInclude(x => x.City)
-                        .ThenInclude(x => x.County)
-                            .ThenInclude(x => x.Country)
-            .Include(x => x.Broker)
-            .Include(x => x.Currency)
-            .Include(x => x.PolicyAdjustements)
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .Where(p => p.Id == id)
+            .Select(p => new
+            {
+                Policy = p,
+                ActiveVersion = p.PolicyVersions
+                    .Where(v => v.IsActiveVersion)
+                    .Select(v => new
+                    {
+                        v.VersionNumber,
+                        v.StartDate,
+                        v.EndDate,
+                        v.BasePremium,
+                        v.FinalPremium,
+                        CurrencyCode = v.Currency.Code,
+                        CurrencyName = v.Currency.Name,
+                        PolicyAdjustments = v.PolicyAdjustments
+                            .Select(a => new PolicyAdjustmentDto
+                            {
+                                Name = a.Name,
+                                AdjustmentType = a.AdjustmentType,
+                                Percentage = a.Percentage,
+                                Amount = a.Amount
+                            })
+                            .ToList()
+                    })
+                    .SingleOrDefault()
+            })
+            .Where(x => x.ActiveVersion != null)
+        .Select(x => new PolicyDetailsDto
+        {
+            Id = x.Policy.Id,
+            PolicyNumber = x.Policy.PolicyNumber,
+            PolicyStatus = x.Policy.PolicyStatus,
 
+            StartDate = x.ActiveVersion!.StartDate,
+            EndDate = x.ActiveVersion!.EndDate,
+            BasePremium = x.ActiveVersion!.BasePremium,
+            FinalPremium = x.ActiveVersion!.FinalPremium,
+            Currency = new Currency
+            {
+                Id = x.Policy.PolicyVersions.FirstOrDefault(v => v.IsActiveVersion)!.Currency.Id,
+                Code = x.ActiveVersion!.CurrencyCode,
+                Name = x.ActiveVersion!.CurrencyName
+            },
+
+            VersionNumber = x.ActiveVersion!.VersionNumber,
+
+            // CancelledAt = x.Policy.PolicyVersion.,
+            // CancellationReason = x.Policy.CancellationReason,
+
+            Client = new ClientDetailsDto
+            {
+                Id = x.Policy.Client.Id,
+                Name = x.Policy.Client.Name,
+                Email = x.Policy.Client.Email,
+                PhoneNumber = x.Policy.Client.PhoneNumber,
+                IdentificationNumber = x.Policy.Client.IdentificationNumber,
+            },
+
+            Building = new BuildingDetailsDto
+            {
+                Id = x.Policy.Building.Id,
+                BuildingType = x.Policy.Building.BuildingType,
+                InsuredValue = x.Policy.Building.InsuredValue,
+                Address = new AddressDetailsDto
+                {
+                    Street = x.Policy.Building.Address.Street,
+                    CityName = x.Policy.Building.Address.City.Name,
+                    Number = x.Policy.Building.Address.Number
+                },
+                Owner = new ClientDetailsDto
+                {
+                    Id = x.Policy.Building.Client.Id,
+                    Type = x.Policy.Building.Client.ClientType,
+                    Name = x.Policy.Building.Client.Name,
+                    IdentificationNumber = x.Policy.Building.Client.IdentificationNumber,
+                    Email = x.Policy.Building.Client.Email,
+                    PhoneNumber = x.Policy.Building.Client.PhoneNumber,
+                },
+                CounstructionYear = x.Policy.Building.ConstructionYear,
+                NumberOfFloors = x.Policy.Building.NumberOfFloors,
+                SurfaceArea = x.Policy.Building.SurfaceArea,
+                RiskIndicatiors = x.Policy.Building.RiskIndicatiors
+            },
+
+            Broker = new BrokerDto
+            {
+                Id = x.Policy.Broker.Id,
+                Name = x.Policy.Broker.Name,
+                BrokerCode = x.Policy.Broker.BrokerCode
+            },
+
+            PolicyAdjustments = x.ActiveVersion!.PolicyAdjustments
+        })
+        .SingleOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Policy?> GetPolicyForActivationAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Policies
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .Include(p => p.PolicyVersions.Where(v => v.IsActiveVersion))
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
     public async Task<Policy?> GetPolicyForCancellationAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Policies
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);   
+            .Include(p => p.PolicyVersions.Where(v => v.IsActiveVersion))
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
     public IQueryable<Policy> ListPolicyAsync(Guid? clientId, Guid? brokerId, PolicyStatus? policyStatus, DateOnly? startDate, DateOnly? endDate, CancellationToken cancellationToken)
     {
-        var query = context.Policies
+        var query = context.Policies   
+            .Include(x => x.PolicyVersions.Where(x => x.IsActiveVersion))
             .AsNoTracking()
             .AsQueryable();
 
-            if(clientId.HasValue) 
+            if (clientId.HasValue) 
                 query = query.Where(x => x.ClientId == clientId.Value);
             
             if(brokerId.HasValue)
@@ -65,17 +158,18 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
                 query = query.Where(x => x.PolicyStatus == policyStatus.Value);
 
             if(startDate.HasValue) 
-                query = query.Where(x => x.StartDate >= startDate.Value);
+                query = query.Where(x => x.PolicyVersions.Any(pv => pv.StartDate >= startDate.Value));
 
             if(endDate.HasValue)
-                query = query.Where(x => x.EndDate <= endDate.Value);
+                query = query.Where(x => x.PolicyVersions.Any(pv => pv.EndDate <= endDate.Value));
 
             query = query
                 .Include(x => x.Client)
                 .Include(x => x.Building)
                     .ThenInclude(x => x.Address)
                         .ThenInclude(x => x.City)
-                .Include(x => x.Currency);
+                .Include(x => x.PolicyVersions)
+                    .ThenInclude(x => x.Currency);
 
             return query; 
             

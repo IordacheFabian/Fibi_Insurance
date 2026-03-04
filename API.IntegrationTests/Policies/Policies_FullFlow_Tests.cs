@@ -266,8 +266,8 @@ public class Policies_FullFlow_Tests : IClassFixture<CustomWebApplicationFactory
         Assert.Equal(clientId, details.Client.Id);
         Assert.Equal(buildingId, details.Building.Id);
         Assert.Equal(brokerId, details.Broker.Id);
-        Assert.NotEmpty(details.PolicyAdjustements);
-        Assert.All(details.PolicyAdjustements, adj => Assert.True(adj.Amount >= 0));
+        Assert.NotEmpty(details.PolicyAdjustments);
+        Assert.All(details.PolicyAdjustments, adj => Assert.True(adj.Amount >= 0));
     }
 
     private async Task ResetDatabaseAsync()

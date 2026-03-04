@@ -5,7 +5,7 @@ using Domain.Models.Clients;
 using Domain.Models.Metadatas;
 
 namespace Domain.Models.Policies;
- 
+
 public enum PolicyStatus
 {
     Draft,
@@ -19,6 +19,9 @@ public class Policy
     public Guid Id { get; set; }
     public string PolicyNumber { get; set; } = default!;
 
+    public Guid PolicyVersionId { get; set; }
+    public ICollection<PolicyVersion> PolicyVersions { get; set; } = default!;
+
     public Guid BrokerId { get; set; }
     public Broker Broker { get; set; } = default!;
 
@@ -28,22 +31,6 @@ public class Policy
     public Guid BuildingId { get; set; }
     public Building Building { get; set; } = default!;
 
-    public Guid CurrencyId { get; set; }
-    public Currency Currency { get; set; } = default!;
-
-    public PolicyStatus PolicyStatus { get; set; } = PolicyStatus.Draft;
-
-    public DateOnly StartDate { get; set; }
-    public DateOnly EndDate { get; set; }   
-
-    public decimal BasePremium { get; set; }
-    public decimal FinalPremium { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-
-    public DateOnly? CancelledAt { get; set; }
-    public string? CancellationReason { get; set; }
-
-    public List<PolicyAdjustement> PolicyAdjustements { get; set; } = new();
+    public PolicyStatus PolicyStatus { get; set; }
+    public int CurrentVersionNumber { get; set; }
 }

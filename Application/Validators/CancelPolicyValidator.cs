@@ -1,5 +1,5 @@
 using System;
-using Application.Policies.DTOs.Command;
+using Application.Policies.Command;
 using FluentValidation;
 
 namespace Application.Validators;

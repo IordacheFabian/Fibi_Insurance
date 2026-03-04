@@ -1,5 +1,6 @@
 using System;
 using Application.Core.util;
+using Domain.Models.Clients;
 
 namespace Application.Clients.DTOs.Response;
 

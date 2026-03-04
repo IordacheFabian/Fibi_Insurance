@@ -1,14 +1,10 @@
 using System;
 using Application.Addresses.DTOs;
+using Domain.Models.Clients;
 using Domain.Models.Geography.Address;
 
 namespace Application.Clients.DTOs;
 
-public enum ClientType
-{
-    Individual,
-    Company
-}
 
 public class CreateClientDto
 {

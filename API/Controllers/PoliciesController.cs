@@ -1,7 +1,7 @@
 using System;
 using API.Controllers.BaseControllers;
 using Application.Core.PagedResults;
-using Application.Policies.DTOs.Command;
+using Application.Policies.Command;
 using Application.Policies.DTOs.Requests;
 using Application.Policies.DTOs.Response;
 using Application.Policies.Queries;

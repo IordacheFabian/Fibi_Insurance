@@ -4,6 +4,7 @@ using Application.Core.PagedResults;
 using Application.Reports.DTOs.Request;
 using Application.Reports.DTOs.Response;
 using AutoMapper;
+using Domain.Models.Policies;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 
@@ -15,32 +16,51 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
     {
         var policies = context.Policies
             .AsNoTracking()
-            .AsQueryable()
-            .Where(p => p.StartDate >= reportRequest.From && p.EndDate <= reportRequest.To);
+            .Select(p => new
+            {
+                Policy = p,
+                ActiveVersion = p.PolicyVersions
+                    .Where(v => v.IsActiveVersion)
+                    .Select(v => new
+                    {
+                        v.StartDate,
+                        v.EndDate,
+                        v.FinalPremium,
+                        v.CurrencyId,
+                        CurrencyCode = v.Currency.Code,
+                        ExchangeRateToBase = v.Currency.ExchangeRateToBase
+                    })
+                    .SingleOrDefault()
+            })
+            .Where(x => x.ActiveVersion != null);
+
+        policies = policies.Where(x => 
+            x.ActiveVersion!.StartDate >= reportRequest.From && 
+            x.ActiveVersion.EndDate <= reportRequest.To);
         
         if(reportRequest.PolicyStatus.HasValue)
         {
-            policies = policies.Where(p => p.PolicyStatus == reportRequest.PolicyStatus);
+            policies = policies.Where(p => p.Policy.PolicyStatus == reportRequest.PolicyStatus);
         }
 
         if(!string.IsNullOrWhiteSpace(reportRequest.Currency))
         {
             var code = reportRequest.Currency.Trim().ToUpper();
-            policies = policies.Where(p => p.Currency.Code == code);
+            policies = policies.Where(p => p.ActiveVersion!.CurrencyCode == code);
         }
 
         if(reportRequest.BuildingType.HasValue)
         {
-            policies = policies.Where(p => p.Building.BuildingType == reportRequest.BuildingType);
+            policies = policies.Where(p => p.Policy.Building.BuildingType == reportRequest.BuildingType);
         }
 
-        var query = policies
+        var result = policies
             .GroupBy(p => new
             {
-                BrokerId = p.BrokerId,
-                BrokerName = p.Broker.Name,
-                CurrencyId = p.CurrencyId,
-                CurrencyCode = p.Currency.Code
+                p.Policy.BrokerId,
+                BrokerName = p.Policy.Broker.Name,
+                p.ActiveVersion!.CurrencyId,
+                p.ActiveVersion.CurrencyCode
             })
             .Select(g => new PoliciesByBrokerListDto
             {
@@ -49,49 +69,69 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
                 CurrencyId = g.Key.CurrencyId,
                 CurrencyCode = g.Key.CurrencyCode,
                 PoliciesCount = g.Count(),
-                FinalPremium = g.Sum(x => x.FinalPremium),
-                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.FinalPremium * p.Currency.ExchangeRateToBase), 2)
+                FinalPremium = g.Sum(x => x.ActiveVersion!.FinalPremium),
+                FinalPremiumBaseCurrency = Math.Round(g.Sum(x => x.ActiveVersion!.FinalPremium *
+                    x.ActiveVersion!.ExchangeRateToBase), 2)
             })
             .OrderBy(x => x.BrokerName)
             .ThenBy(x => x.CurrencyCode);
 
-        return query;
+        return result;
     }
 
     public IQueryable<PoliciesByCityListDto> GetPoliciesByCityReport(PoliciesByCityReportDto reportRequest, CancellationToken cancellationToken)
     {
         var policies = context.Policies
             .AsNoTracking()
-            .AsQueryable()
-            .Where(p => p.StartDate >= reportRequest.From && p.EndDate <= reportRequest.To);
+            .Select(p => new
+            {
+                Policy = p,
+                ActiveVersion = p.PolicyVersions
+                    .Where(v => v.IsActiveVersion)
+                    .Select(v => new
+                    {
+                        v.StartDate,
+                        v.EndDate,
+                        v.FinalPremium,
+                        v.CurrencyId,
+                        CurrencyCode = v.Currency.Code,
+                        ExchangeRateToBase = v.Currency.ExchangeRateToBase
+                    })
+                    .SingleOrDefault()
+            })
+            .Where(x => x.ActiveVersion != null);
 
-        if(reportRequest.PolicyStatus.HasValue)
+        policies = policies.Where(x =>
+        x.ActiveVersion!.StartDate >= reportRequest.From &&
+        x.ActiveVersion!.EndDate <= reportRequest.To);
+
+        if (reportRequest.PolicyStatus.HasValue)
         {
-            policies = policies.Where(p => p.PolicyStatus == reportRequest.PolicyStatus);
+            policies = policies.Where(p => p.Policy.PolicyStatus == reportRequest.PolicyStatus);
         }
 
         if(!string.IsNullOrWhiteSpace(reportRequest.Currency))
         {
             var code = reportRequest.Currency.Trim().ToUpper();
-            policies = policies.Where(p => p.Currency.Code == code);
+            policies = policies.Where(p => p.ActiveVersion!.CurrencyCode == code);
         }
 
         if(reportRequest.BuildingType.HasValue)
         {
-            policies = policies.Where(p => p.Building.BuildingType == reportRequest.BuildingType);
+            policies = policies.Where(p => p.Policy.Building.BuildingType == reportRequest.BuildingType);
         }
 
         var query = policies
             .GroupBy(p => new
             {
-                CityId = p.Building.Address.CityId,
-                CityName = p.Building.Address.City.Name,
-                CountyId = p.Building.Address.City.CountyId,
-                CountyName = p.Building.Address.City.County.Name,
-                CountryId = p.Building.Address.City.County.CountryId,
-                CountryName = p.Building.Address.City.County.Country.Name,
-                CurrencyId = p.CurrencyId,
-                CurrencyCode = p.Currency.Code
+                p.Policy.Building.Address.CityId,
+                CityName = p.Policy.Building.Address.City.Name,
+                p.Policy.Building.Address.City.CountyId,
+                CountyName = p.Policy.Building.Address.City.County.Name,
+                p.Policy.Building.Address.City.County.CountryId,
+                CountryName = p.Policy.Building.Address.City.County.Country.Name,
+                p.ActiveVersion!.CurrencyId,
+                p.ActiveVersion.CurrencyCode
             })
             .Select(g => new PoliciesByCityListDto
             {
@@ -104,8 +144,8 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
                 CurrencyId = g.Key.CurrencyId,
                 CurrencyCode = g.Key.CurrencyCode,
                 PoliciesCount = g.Count(),
-                FinalPremium = g.Sum(x => x.FinalPremium),
-                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.FinalPremium * p.Currency.ExchangeRateToBase), 2)
+                FinalPremium = g.Sum(x => x.ActiveVersion!.FinalPremium),
+                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.ActiveVersion!.FinalPremium * p.ActiveVersion!.ExchangeRateToBase), 2)
             })
             .OrderBy(x => x.CityName)
             .ThenBy(x => x.CurrencyCode);
@@ -117,32 +157,51 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
     {
         var policies = context.Policies
             .AsNoTracking()
-            .AsQueryable()
-            .Where(p => p.StartDate >= reportRequest.From && p.EndDate <= reportRequest.To);
+            .Select(p => new
+            {
+                Policy = p,
+                ActiveVersion = p.PolicyVersions
+                    .Where(v => v.IsActiveVersion)
+                    .Select(v => new
+                    {
+                        v.StartDate,
+                        v.EndDate,
+                        v.FinalPremium,
+                        v.CurrencyId,
+                        CurrencyCode = v.Currency.Code,
+                        ExchangeRateToBase = v.Currency.ExchangeRateToBase
+                    })
+                    .SingleOrDefault()
+            })
+            .Where(x => x.ActiveVersion != null);
 
-        if(reportRequest.PolicyStatus.HasValue)
+        policies = policies.Where(x =>
+        x.ActiveVersion!.StartDate >= reportRequest.From &&
+        x.ActiveVersion!.EndDate <= reportRequest.To);
+
+        if (reportRequest.PolicyStatus.HasValue)
         {
-            policies = policies.Where(p => p.PolicyStatus == reportRequest.PolicyStatus);
+            policies = policies.Where(p => p.Policy.PolicyStatus == reportRequest.PolicyStatus);
         }
 
         if(!string.IsNullOrWhiteSpace(reportRequest.Currency))
         {
             var code = reportRequest.Currency.Trim().ToUpper();
-            policies = policies.Where(p => p.Currency.Code == code);
+            policies = policies.Where(p => p.ActiveVersion!.CurrencyCode == code);
         }
 
         if(reportRequest.BuildingType.HasValue)
         {
-            policies = policies.Where(p => p.Building.BuildingType == reportRequest.BuildingType);
+            policies = policies.Where(p => p.Policy.Building.BuildingType == reportRequest.BuildingType);
         }
 
         var query = policies
             .GroupBy(p => new
             {
-                CountryId = p.Building.Address.City.County.CountryId,
-                CountryName = p.Building.Address.City.County.Country.Name,
-                CurrencyId = p.CurrencyId,
-                CurrencyCode = p.Currency.Code
+                p.Policy.Building.Address.City.County.CountryId,
+                CountryName = p.Policy.Building.Address.City.County.Country.Name,
+                p.ActiveVersion!.CurrencyId,
+                p.ActiveVersion.CurrencyCode
             })
             .Select(g => new PoliciesByCountryListDto
             {
@@ -151,13 +210,11 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
                 CurrencyId = g.Key.CurrencyId,
                 CurrencyCode = g.Key.CurrencyCode,
                 PoliciesCount = g.Count(),
-                FinalPremium = g.Sum(x => x.FinalPremium),
-                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.FinalPremium * p.Currency.ExchangeRateToBase), 2)
+                FinalPremium = g.Sum(x => x.ActiveVersion!.FinalPremium),
+                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.ActiveVersion!.FinalPremium * p.ActiveVersion!.ExchangeRateToBase), 2)
             })
             .OrderBy(x => x.CountryName)
             .ThenBy(x => x.CurrencyCode);
-
-        
 
         return query;
     }
@@ -166,34 +223,53 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
     {
         var policies = context.Policies
             .AsNoTracking()
-            .AsQueryable()
-            .Where(p => p.StartDate >= reportRequest.From && p.EndDate <= reportRequest.To);
+            .Select(p => new
+            {
+                Policy = p,
+                ActiveVersion = p.PolicyVersions
+                    .Where(v => v.IsActiveVersion)
+                    .Select(v => new
+                    {
+                        v.StartDate,
+                        v.EndDate,
+                        v.FinalPremium,
+                        v.CurrencyId,
+                        CurrencyCode = v.Currency.Code,
+                        ExchangeRateToBase = v.Currency.ExchangeRateToBase
+                    })
+                    .SingleOrDefault()
+            })
+            .Where(x => x.ActiveVersion != null);
+
+        policies = policies.Where(x =>
+        x.ActiveVersion!.StartDate >= reportRequest.From &&
+        x.ActiveVersion!.EndDate <= reportRequest.To);
 
         if (reportRequest.PolicyStatus.HasValue)
         {
-            policies = policies.Where(p => p.PolicyStatus == reportRequest.PolicyStatus);
+            policies = policies.Where(p => p.Policy.PolicyStatus == reportRequest.PolicyStatus);
         }
 
         if (!string.IsNullOrWhiteSpace(reportRequest.Currency))
         {
             var code = reportRequest.Currency.Trim().ToUpper();
-            policies = policies.Where(p => p.Currency.Code == code);
+            policies = policies.Where(p => p.ActiveVersion!.CurrencyCode == code);
         }
 
         if (reportRequest.BuildingType.HasValue)
         {
-            policies = policies.Where(p => p.Building.BuildingType == reportRequest.BuildingType);
+            policies = policies.Where(p => p.Policy.Building.BuildingType == reportRequest.BuildingType);
         }
 
         var query = policies
             .GroupBy(p => new
             {
-                CountryId = p.Building.Address.City.County.CountryId,
-                CountryName = p.Building.Address.City.County.Country.Name,
-                CountyId = p.Building.Address.City.CountyId,
-                CountyName = p.Building.Address.City.County.Name,
-                CurrencyId = p.CurrencyId,
-                CurrencyCode = p.Currency.Code
+                p.Policy.Building.Address.City.County.CountryId,
+                CountryName = p.Policy.Building.Address.City.County.Country.Name,
+                p.Policy.Building.Address.City.CountyId,
+                CountyName = p.Policy.Building.Address.City.County.Name,
+                p.ActiveVersion!.CurrencyId,
+                p.ActiveVersion.CurrencyCode
             })
             .Select(g => new PoliciesByCountyListDto
             {
@@ -204,8 +280,8 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
                 CurrencyId = g.Key.CurrencyId,
                 CurrencyCode = g.Key.CurrencyCode,
                 PoliciesCount = g.Count(),
-                FinalPremium = g.Sum(x => x.FinalPremium),
-                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.FinalPremium * p.Currency.ExchangeRateToBase), 2)
+                FinalPremium = g.Sum(x => x.ActiveVersion!.FinalPremium),
+                FinalPremiumBaseCurrency = Math.Round(g.Sum(p => p.ActiveVersion!.FinalPremium * p.ActiveVersion!.ExchangeRateToBase), 2)
             })
             .OrderBy(x => x.CountryName)
             .ThenBy(x => x.CurrencyCode);

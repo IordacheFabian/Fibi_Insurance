@@ -10,20 +10,20 @@ public class PremiumCalculator(
     IRiskFactorRepository riskFactorRepository,
     IFeeConfigurationRepository feeConfigurationRepository) : IPremiumCalculator
 {
-    public async Task<(decimal finalPremium, List<PolicyAdjustement> policyAdjustements)> CalculateAsync(Building building, decimal basePremium, DateOnly startDate, CancellationToken cancellationToken)
+    public async Task<(decimal finalPremium, List<PolicyAdjustment> policyAdjustments)> CalculateAsync(Building building, decimal basePremium, DateOnly startDate, CancellationToken cancellationToken)
     {
-        var policyAdjustements = new List<PolicyAdjustement>();
+        var policyAdjustments = new List<PolicyAdjustment>();
 
         var fees = await feeConfigurationRepository.GetActiveFeeConfigurationsAsync(startDate, cancellationToken);
 
         foreach (var fee in fees)
         {
             var amount = RoundAmount(basePremium * fee.Percentage / 100m);
-            policyAdjustements.Add(new PolicyAdjustement
+            policyAdjustments.Add(new PolicyAdjustment
             {
                 Id = Guid.NewGuid(),
                 Name = fee.Name,
-                AdjustementType = AdjustementType.AdminFee,
+                AdjustmentType = AdjustmentType.AdminFee,
                 Percentage = fee.Percentage,
                 Amount = amount,
             });
@@ -55,20 +55,20 @@ public class PremiumCalculator(
             if (!matches) continue;
 
             var amount = RoundAmount(basePremium * riskFactor.AdjustementPercentage / 100m);
-            policyAdjustements.Add(new PolicyAdjustement
+            policyAdjustments.Add(new PolicyAdjustment
             {
                 Id = Guid.NewGuid(),
                 Name = $"Risk factor - {riskFactor.RiskLevel}",
-                AdjustementType = AdjustementType.RiskAdjustement,
+                AdjustmentType = AdjustmentType.RiskAdjustment,
                 Percentage = riskFactor.AdjustementPercentage,
                 Amount = amount,
             });
         }
 
-        var totalPolicyAdjustements = policyAdjustements.Sum(x => x.Amount);
-        var finalPremium = RoundAmount(Math.Max(0, basePremium + totalPolicyAdjustements));
+        var totalPolicyAdjustments = policyAdjustments.Sum(x => x.Amount);
+        var finalPremium = RoundAmount(Math.Max(0, basePremium + totalPolicyAdjustments));
 
-        return (finalPremium, policyAdjustements);
+        return (finalPremium, policyAdjustments);
     }
 
     private static decimal RoundAmount(decimal value) => Math.Round(value, 2, MidpointRounding.AwayFromZero);
