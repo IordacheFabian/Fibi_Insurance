@@ -88,9 +88,11 @@ public class CreatePolicyDraft
                 PolicyStatus = PolicyStatus.Draft,
             };
 
+            var version = policy.PolicyVersions.First();
             foreach (var policyAdjustement in policyAdjustements)
             {
-                policyAdjustement.PolicyVersion = policy.PolicyVersions.First();
+                policyAdjustement.PolicyVersion = version;
+                version.PolicyAdjustments.Add(policyAdjustement);
             }
 
             await policyRepository.CreatePolicyAsync(policy, cancellationToken);  
@@ -101,7 +103,8 @@ public class CreatePolicyDraft
             var finalPolicy = mapper.Map<PolicyDetailsDto>(policy); 
             finalPolicy.Client = clientDto;
             finalPolicy.Building = buildingDto;
-            finalPolicy.Currency.Code = currencyDto.Code;
+            finalPolicy.CurrencyCode = currencyDto.Code;
+            finalPolicy.CurrencyName = currencyDto.Name;
 
             return finalPolicy;
         }

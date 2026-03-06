@@ -31,7 +31,6 @@
     <Folder Include="Clients\Commands\" />
     <Folder Include="Clients\DTOs\Response\" />
     <Folder Include="Core\PagedResults\" />
-    <Folder Include="Core\util\" />
     <Folder Include="Geographies\" />
     <Folder Include="Geographies\Command\" />
     <Folder Include="Geographies\Queries\" />

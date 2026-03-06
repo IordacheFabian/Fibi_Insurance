@@ -138,8 +138,10 @@ public class MappingProfiles : Profile
                 s.PolicyVersions.Single(v => v.IsActiveVersion).BasePremium))
             .ForMember(d => d.FinalPremium, o => o.MapFrom(s =>
                 s.PolicyVersions.Single(v => v.IsActiveVersion).FinalPremium))
-            .ForMember(d => d.Currency, o => o.MapFrom(s =>
-                s.PolicyVersions.Single(v => v.IsActiveVersion).Currency))
+            .ForMember(d => d.CurrencyCode, o => o.MapFrom(s =>
+                s.PolicyVersions.Single(v => v.IsActiveVersion).Currency.Code))
+            .ForMember(d => d.CurrencyName, o => o.MapFrom(s =>
+                s.PolicyVersions.Single(v => v.IsActiveVersion).Currency.Name))
             .ForMember(d => d.PolicyAdjustments, o => o.MapFrom(s =>
         s.PolicyVersions.Single(v => v.IsActiveVersion).PolicyAdjustments));
 
@@ -155,6 +157,7 @@ public class MappingProfiles : Profile
             .ForMember(d => d.ActivationDate, opt => opt.Ignore());
         CreateMap<Policy, CancelPolicyDto>()
             .ForMember(d => d.CancellationDate, opt => opt.Ignore());
+        CreateMap<PolicyEndorsement, CreatePolicyEndorsementDto>().ReverseMap();
 
         // metadata and premium calculator mappings
         CreateMap<Currency, CurrencyDto>();

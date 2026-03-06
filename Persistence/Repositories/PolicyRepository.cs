@@ -3,7 +3,9 @@ using Application.Addresses.DTOs;
 using Application.Brokers.DTOs.Response;
 using Application.Buildings.DTOs.Response;
 using Application.Clients.DTOs.Response;
+using Application.Core;
 using Application.Core.Interfaces.IRepositories;
+using Application.Policies.DTOs.Requests;
 using Application.Policies.DTOs.Response;
 using Domain.Models.Metadatas;
 using Domain.Models.Policies;
@@ -17,6 +19,11 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
     public async Task CreatePolicyAsync(Policy policy, CancellationToken cancellationToken)
     {
         await context.Policies.AddAsync(policy, cancellationToken);
+    }
+
+    public async Task CreatePolicyEndorsementAsync(PolicyEndorsement policyEndorsement, CancellationToken cancellationToken)
+    {
+        await context.PolicyEndorsements.AddAsync(policyEndorsement, cancellationToken);
     }
 
     public async Task<Policy?> GetPolicyAsync(Guid id, CancellationToken cancellationToken)
@@ -68,12 +75,8 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
             EndDate = x.ActiveVersion!.EndDate,
             BasePremium = x.ActiveVersion!.BasePremium,
             FinalPremium = x.ActiveVersion!.FinalPremium,
-            Currency = new Currency
-            {
-                Id = x.Policy.PolicyVersions.FirstOrDefault(v => v.IsActiveVersion)!.Currency.Id,
-                Code = x.ActiveVersion!.CurrencyCode,
-                Name = x.ActiveVersion!.CurrencyName
-            },
+            CurrencyName = x.ActiveVersion!.CurrencyName,
+            CurrencyCode = x.ActiveVersion!.CurrencyCode,
 
             VersionNumber = x.ActiveVersion!.VersionNumber,
 
@@ -127,6 +130,22 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
         .SingleOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<Policy?> GetPolicyForEndorsementAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await context.Policies
+            .AsTracking()
+            .Include(p => p.Building)
+                .ThenInclude(b => b.Address)
+                    .ThenInclude(a => a.City)
+                        .ThenInclude(c => c.County)
+                            .ThenInclude(co => co.Country)
+            .Include(p => p.PolicyVersions.Where(v => v.IsActiveVersion))
+                .ThenInclude(v => v.Currency)
+            .Include(p => p.PolicyVersions.Where(v => v.IsActiveVersion))
+                .ThenInclude(v => v.PolicyAdjustments)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
+
     public async Task<Policy?> GetPolicyForActivationAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Policies
@@ -175,8 +194,14 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
             
         }
 
+    public async Task CreatePolicyVersionAsync(PolicyVersion policyVersion, CancellationToken cancellationToken)
+    {
+        await context.PolicyVersions.AddAsync(policyVersion, cancellationToken);
+    }
+
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)
     {
         return await context.SaveChangesAsync(cancellationToken) > 0;
     }
+
 }

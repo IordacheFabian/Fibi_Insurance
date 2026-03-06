@@ -19,5 +19,8 @@ public interface IPolicyRepository
         DateOnly? endDate,
         CancellationToken cancellationToken
     );
+    Task<Policy?> GetPolicyForEndorsementAsync(Guid id, CancellationToken cancellationToken);
+    Task CreatePolicyEndorsementAsync(PolicyEndorsement policyEndorsement, CancellationToken cancellationToken);
+    Task CreatePolicyVersionAsync(PolicyVersion policyVersion, CancellationToken cancellationToken);    
     Task<bool> SaveChangesAsync(CancellationToken cancellationToken);
 }

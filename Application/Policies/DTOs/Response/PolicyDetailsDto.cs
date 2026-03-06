@@ -20,7 +20,8 @@ public class PolicyDetailsDto
     public decimal BasePremium { get; set; }
     public decimal FinalPremium { get; set; }
 
-    public Currency Currency { get; set; } = default!;  
+    public string CurrencyCode { get; set; } = string.Empty;    
+    public string CurrencyName { get; set; } = string.Empty;
 
     public ClientDetailsDto Client { get; set; } = new ClientDetailsDto();
     public BuildingDetailsDto Building { get; set; } = new BuildingDetailsDto();
