@@ -76,4 +76,17 @@ public class PoliciesController : BrokerBaseController
 
         return NoContent();
     }
+
+    [HttpPost("policies/{policyId:guid}/endorsements")]
+    public async Task<ActionResult> CreatePolicyEndorsementAsync(Guid policyId, CreatePolicyEndorsementDto createPolicyEndorsementDto)
+    {
+        await Mediator.Send(new CreatePolicyEndorsement.Command
+        {
+            PolicyId = policyId,
+            CreatePolicyEndorsementDto = createPolicyEndorsementDto,
+            CreatedBy = User.Identity?.Name ?? "Unknown"
+        });
+
+        return NoContent();
+    }
 }
