@@ -199,9 +199,47 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
         await context.PolicyVersions.AddAsync(policyVersion, cancellationToken);
     }
 
+    public async Task<List<PolicyEndorsementsDto>> GetPolicyEndorsementForPolicyAsync(Guid policyId, CancellationToken cancellationToken)
+    {
+        return await context.PolicyEndorsements
+            .AsNoTracking()
+            .Where(p => p.PolicyId == policyId)
+            .Select(e => new PolicyEndorsementsDto
+            {
+                Id = e.Id,
+                PolicyId = e.PolicyId,
+                VersionNumber = e.NewVersionNumber,
+                EffectiveDate = e.EffectiveDate,
+                CreatedBy = e.CreatedBy,
+                CreatedAt = e.CreatedAt
+            })
+            .ToListAsync(cancellationToken);
+    }
+    public async Task<List<PolicyVersionsDto>> GetPolicyVersionsAsync(Guid policyId, CancellationToken cancellationToken)
+    {
+        return await context.PolicyVersions
+            .AsNoTracking()
+            .Where(p => p.PolicyId == policyId)
+            .Select(v => new PolicyVersionsDto
+            {
+                Id = v.Id,
+                PolicyId = v.PolicyId,
+                VersionNumber = v.VersionNumber,
+                StartDate = v.StartDate,
+                EndDate = v.EndDate,
+                BasePremium = v.BasePremium,
+                FinalPremium = v.FinalPremium,
+                CurrencyId = v.CurrencyId,
+                CurrencyCode = v.Currency.Code,
+                CreatedAt = v.CreatedAt,
+                CreatedBy = v.CreatedBy,
+            })
+            .ToListAsync(cancellationToken);
+    }
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)
     {
         return await context.SaveChangesAsync(cancellationToken) > 0;
     }
 
+    
 }

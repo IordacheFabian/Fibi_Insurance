@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using Application.Addresses;
 using Application.Addresses.DTOs;
@@ -158,6 +159,8 @@ public class MappingProfiles : Profile
         CreateMap<Policy, CancelPolicyDto>()
             .ForMember(d => d.CancellationDate, opt => opt.Ignore());
         CreateMap<PolicyEndorsement, CreatePolicyEndorsementDto>().ReverseMap();
+        CreateMap<PolicyEndorsement, PolicyEndorsementsDto>();
+        CreateMap<PolicyVersion, PolicyVersionsDto>();
 
         // metadata and premium calculator mappings
         CreateMap<Currency, CurrencyDto>();

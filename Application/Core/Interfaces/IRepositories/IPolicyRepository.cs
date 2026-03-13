@@ -20,6 +20,8 @@ public interface IPolicyRepository
         CancellationToken cancellationToken
     );
     Task<Policy?> GetPolicyForEndorsementAsync(Guid id, CancellationToken cancellationToken);
+    Task<List<PolicyEndorsementsDto>> GetPolicyEndorsementForPolicyAsync(Guid policyId, CancellationToken cancellationToken);
+    Task<List<PolicyVersionsDto>> GetPolicyVersionsAsync(Guid policyId, CancellationToken cancellationToken);
     Task CreatePolicyEndorsementAsync(PolicyEndorsement policyEndorsement, CancellationToken cancellationToken);
     Task CreatePolicyVersionAsync(PolicyVersion policyVersion, CancellationToken cancellationToken);    
     Task<bool> SaveChangesAsync(CancellationToken cancellationToken);
