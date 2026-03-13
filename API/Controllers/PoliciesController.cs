@@ -45,6 +45,21 @@ public class PoliciesController : BrokerBaseController
         return Ok(policy);
     }
 
+    [HttpGet("policies/{policyId:guid}/endorsements")]
+    public async Task<ActionResult<List<PolicyEndorsementsDto>>> GetPolicyEndorsementsAsync(Guid policyId)
+    {
+        var endorsements = await Mediator.Send(new GetPolicyEndorsementsPolicyId.Query { PolicyId = policyId });
+
+        return Ok(endorsements);
+    }
+
+    [HttpGet("policies/{policyId:guid}/versions")]
+    public async Task<ActionResult<List<PolicyVersionsDto>>> GetPolicyVersionsAsync(Guid policyId)
+    {
+        var versions = await Mediator.Send(new GetPolicyVersions.Query { PolicyId = policyId });
+
+        return Ok(versions);
+    }
     [HttpPost("policies")]
     public async Task<ActionResult<PolicyDetailsDto>> CreatePolicyDraftAsync(CreatePolicyDraftDto createPolicyDraftDto)
     {
@@ -89,4 +104,5 @@ public class PoliciesController : BrokerBaseController
 
         return NoContent();
     }
+    
 }
