@@ -125,12 +125,18 @@ public class MappingProfiles : Profile
             .ForMember(d => d.BuildingStreet, o => o.MapFrom(s => s.Building.Address.Street))
             .ForMember(d => d.BuildingNumber, o => o.MapFrom(s => s.Building.Address.Number))
             .ForMember(d => d.CityName, o => o.MapFrom(s => s.Building.Address.City.Name))
-            .ForMember(d => d.CurrencyCode, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).Currency.Code));
+            .ForMember(d => d.CurrencyId, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).CurrencyId))
+            .ForMember(d => d.CurrencyCode, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).Currency.Code))
+            .ForMember(d => d.StartDate, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).StartDate))
+            .ForMember(d => d.EndDate, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).EndDate))
+            .ForMember(d => d.BasePremium, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).BasePremium))
+            .ForMember(d => d.FinalPremium, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).FinalPremium));
 
         CreateMap<Policy, PolicyDetailsDto>()
             .ForMember(d => d.Client, o => o.MapFrom(s => s.Client))
             .ForMember(d => d.Building, o => o.MapFrom(s => s.Building))
             .ForMember(d => d.Broker, o => o.MapFrom(s => s.Broker))
+            .ForMember(d => d.VersionNumber, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).VersionNumber))
             .ForMember(d => d.StartDate, o => o.MapFrom(s =>
                 s.PolicyVersions.Single(v => v.IsActiveVersion).StartDate))
             .ForMember(d => d.EndDate, o => o.MapFrom(s =>
@@ -144,7 +150,9 @@ public class MappingProfiles : Profile
             .ForMember(d => d.CurrencyName, o => o.MapFrom(s =>
                 s.PolicyVersions.Single(v => v.IsActiveVersion).Currency.Name))
             .ForMember(d => d.PolicyAdjustments, o => o.MapFrom(s =>
-        s.PolicyVersions.Single(v => v.IsActiveVersion).PolicyAdjustments));
+        s.PolicyVersions.Single(v => v.IsActiveVersion).PolicyAdjustments))
+            .ForMember(d => d.CancelledAt, o => o.Ignore())
+            .ForMember(d => d.CancellationReason, o => o.Ignore());
 
         CreateMap<PolicyAdjustment, PolicyAdjustmentDto>();
         
@@ -152,15 +160,26 @@ public class MappingProfiles : Profile
             .ForMember(d => d.ClientId, o => o.MapFrom(s => s.Client.Id))
             .ForMember(d => d.BuildingId, o => o.MapFrom(s => s.Building.Id))
             .ForMember(d => d.CurrencyId, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).Currency.Id))
-            .ForMember(d => d.BrokerId, o => o.MapFrom(s => s.Broker.Id));
+            .ForMember(d => d.BrokerId, o => o.MapFrom(s => s.Broker.Id))
+            .ForMember(d => d.BasePremium, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).BasePremium))
+            .ForMember(d => d.StartDate, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).StartDate))
+            .ForMember(d => d.EndDate, o => o.MapFrom(s => s.PolicyVersions.Single(v => v.IsActiveVersion).EndDate));
         
         CreateMap<Policy, ActivatePolicyDto>()
             .ForMember(d => d.ActivationDate, opt => opt.Ignore());
         CreateMap<Policy, CancelPolicyDto>()
-            .ForMember(d => d.CancellationDate, opt => opt.Ignore());
-        CreateMap<PolicyEndorsement, CreatePolicyEndorsementDto>().ReverseMap();
-        CreateMap<PolicyEndorsement, PolicyEndorsementsDto>();
-        CreateMap<PolicyVersion, PolicyVersionsDto>();
+            .ForMember(d => d.CancellationDate, opt => opt.Ignore())
+            .ForMember(d => d.CancellationReason, opt => opt.Ignore());
+        CreateMap<PolicyEndorsement, CreatePolicyEndorsementDto>()
+            .ForMember(d => d.NewBasePremium, opt => opt.Ignore())
+            .ForMember(d => d.NewStartDate, opt => opt.Ignore())
+            .ForMember(d => d.NewEndDate, opt => opt.Ignore())
+            .ForMember(d => d.ManualAdjustementPercentage, opt => opt.Ignore())
+            .ReverseMap();
+        CreateMap<PolicyEndorsement, PolicyEndorsementsDto>()
+            .ForMember(d => d.VersionNumber, o => o.MapFrom(s => s.NewVersionNumber));
+        CreateMap<PolicyVersion, PolicyVersionsDto>()
+            .ForMember(d => d.CurrencyCode, o => o.MapFrom(s => s.Currency.Code));
 
         // metadata and premium calculator mappings
         CreateMap<Currency, CurrencyDto>();

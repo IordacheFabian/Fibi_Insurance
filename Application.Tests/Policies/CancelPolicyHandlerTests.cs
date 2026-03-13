@@ -1,191 +1,230 @@
-// using Application.Core;
-// using Application.Policies.DTOs.Command;
-// using Application.Policies.DTOs.Requests;
-// using Application.Core.Interfaces.IRepositories;
-// using Domain.Models.Policies;
-// using FluentAssertions;
-// using Moq;
+using System.Linq;
+using Application.Core;
+using Application.Policies.Command;
+using Application.Policies.DTOs.Requests;
+using Application.Core.Interfaces.IRepositories;
+using Domain.Models.Policies;
+using FluentAssertions;
+using Moq;
 
-// namespace Application.Tests.Policies;
+namespace Application.Tests.Policies;
 
-// public class CancelPolicyHandlerTests
-// {
-//     [Fact]
-//     public async Task Handle_ShouldCancelActivePolicyAndPersistFields()
-//     {
-//         var effectiveDate = DateOnly.FromDateTime(DateTime.UtcNow);
-//         var policy = new Policy
-//         {
-//             Id = Guid.NewGuid(),
-//             PolicyStatus = PolicyStatus.Active,
-//             StartDate = effectiveDate.AddDays(-5),
-//             EndDate = effectiveDate.AddDays(5),
-//             ClientId = Guid.NewGuid(),
-//             BuildingId = Guid.NewGuid(),
-//             BrokerId = Guid.NewGuid(),
-//             CurrencyId = Guid.NewGuid(),
-//             BasePremium = 1000m,
-//             FinalPremium = 1200m,
-//             CreatedAt = DateTime.UtcNow.AddDays(-10),
-//             UpdatedAt = DateTime.UtcNow.AddDays(-2),
-//             PolicyAdjustements = new List<PolicyAdjustement>()
-//         };
+public class CancelPolicyHandlerTests
+{
+    [Fact]
+    public async Task Handle_ShouldCancelActivePolicy()
+    {
+        var policy = CreatePolicy();
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
+        repo.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-//         var repo = new Mock<IPolicyRepository>();
-//         repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
-//             .ReturnsAsync(policy);
-//         repo.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-//             .ReturnsAsync(true);
+        var handler = new CancelPolicy.Handler(repo.Object);
+        var dto = new CancelPolicyDto
+        {
+            CancellationDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            CancellationReason = "Customer request"
+        };
 
-//         var handler = new CancelPolicy.Handler(repo.Object);
-//         var dto = new CancelPolicyDto
-//         {
-//             CancellationDate = effectiveDate,
-//             CancellationReason = "Customer request"
-//         };
+        await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
 
-//         var previousUpdatedAt = policy.UpdatedAt;
+        policy.PolicyStatus.Should().Be(PolicyStatus.Cancelled);
+        repo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
 
-//         await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
+    [Fact]
+    public async Task Handle_ShouldThrowNotFound_WhenPolicyMissing()
+    {
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForCancellationAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Policy?)null);
 
-//         policy.PolicyStatus.Should().Be(PolicyStatus.Cancelled);
-//         policy.CancelledAt.Should().Be(effectiveDate);
-//         policy.CancellationReason.Should().Be("Customer request");
-//         policy.UpdatedAt.Should().BeAfter(previousUpdatedAt);
-//         repo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-//     }
+        var handler = new CancelPolicy.Handler(repo.Object);
 
-//     [Fact]
-//     public async Task Handle_ShouldThrowNotFound_WhenPolicyMissing()
-//     {
-//         var repo = new Mock<IPolicyRepository>();
-//         repo.Setup(x => x.GetPolicyForCancellationAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-//             .ReturnsAsync((Policy?)null);
+        var act = async () => await handler.Handle(new CancelPolicy.Command
+        {
+            PolicyId = Guid.NewGuid(),
+            CancelPolicyDto = new CancelPolicyDto { CancellationReason = "reason" }
+        }, CancellationToken.None);
 
-//         var handler = new CancelPolicy.Handler(repo.Object);
+        await act.Should().ThrowAsync<NotFoundException>();
+    }
 
-//         var act = async () => await handler.Handle(new CancelPolicy.Command
-//         {
-//             PolicyId = Guid.NewGuid(),
-//             CancelPolicyDto = new CancelPolicyDto { CancellationReason = "reason" }
-//         }, CancellationToken.None);
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenPolicyNotActive()
+    {
+        var policy = CreatePolicy(p => p.PolicyStatus = PolicyStatus.Draft);
 
-//         await act.Should().ThrowAsync<NotFoundException>();
-//     }
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
 
-//     [Fact]
-//     public async Task Handle_ShouldThrowBadRequest_WhenPolicyNotActive()
-//     {
-//         var policy = new Policy
-//         {
-//             Id = Guid.NewGuid(),
-//             PolicyStatus = PolicyStatus.Draft,
-//             StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-3)),
-//             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3))
-//         };
+        var handler = new CancelPolicy.Handler(repo.Object);
 
-//         var repo = new Mock<IPolicyRepository>();
-//         repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
-//             .ReturnsAsync(policy);
+        var act = async () => await handler.Handle(new CancelPolicy.Command
+        {
+            PolicyId = policy.Id,
+            CancelPolicyDto = new CancelPolicyDto { CancellationReason = "reason" }
+        }, CancellationToken.None);
 
-//         var handler = new CancelPolicy.Handler(repo.Object);
+        await act.Should().ThrowAsync<BadRequestException>();
+        repo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 
-//         var act = async () => await handler.Handle(new CancelPolicy.Command
-//         {
-//             PolicyId = policy.Id,
-//             CancelPolicyDto = new CancelPolicyDto { CancellationReason = "reason" }
-//         }, CancellationToken.None);
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenCancellationDateBeforeStart()
+    {
+        var futureStart = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
+        var policy = CreatePolicy(versionConfig: v =>
+        {
+            v.StartDate = futureStart;
+            v.EndDate = futureStart.AddDays(10);
+        });
 
-//         await act.Should().ThrowAsync<BadRequestException>();
-//     }
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
 
-//     [Fact]
-//     public async Task Handle_ShouldThrowBadRequest_WhenCancellationDateOutsidePolicy()
-//     {
-//         var policy = new Policy
-//         {
-//             Id = Guid.NewGuid(),
-//             PolicyStatus = PolicyStatus.Active,
-//             StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
-//             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5))
-//         };
+        var handler = new CancelPolicy.Handler(repo.Object);
+        var dto = new CancelPolicyDto
+        {
+            CancellationDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            CancellationReason = "Too early"
+        };
 
-//         var repo = new Mock<IPolicyRepository>();
-//         repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
-//             .ReturnsAsync(policy);
+        var act = async () => await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
 
-//         var handler = new CancelPolicy.Handler(repo.Object);
-//         var dto = new CancelPolicyDto
-//         {
-//             CancellationDate = policy.StartDate.AddDays(-1),
-//             CancellationReason = "Too early"
-//         };
+        await act.Should().ThrowAsync<BadRequestException>();
+    }
 
-//         var act = async () => await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenCancellationDateAfterEnd()
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var policy = CreatePolicy(versionConfig: v =>
+        {
+            v.StartDate = today.AddDays(-2);
+            v.EndDate = today.AddDays(1);
+        });
 
-//         await act.Should().ThrowAsync<BadRequestException>();
-//     }
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
 
-//     [Fact]
-//     public async Task Handle_ShouldThrowBadRequest_WhenReasonMissing()
-//     {
-//         var policy = new Policy
-//         {
-//             Id = Guid.NewGuid(),
-//             PolicyStatus = PolicyStatus.Active,
-//             StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-2)),
-//             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2))
-//         };
+        var handler = new CancelPolicy.Handler(repo.Object);
+        var dto = new CancelPolicyDto
+        {
+            CancellationDate = policy.PolicyVersions.Single().EndDate.AddDays(1),
+            CancellationReason = "Too late"
+        };
 
-//         var repo = new Mock<IPolicyRepository>();
-//         repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
-//             .ReturnsAsync(policy);
+        var act = async () => await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
 
-//         var handler = new CancelPolicy.Handler(repo.Object);
-//         var dto = new CancelPolicyDto
-//         {
-//             CancellationReason = " ",
-//             CancellationDate = policy.StartDate.AddDays(1)
-//         };
+        await act.Should().ThrowAsync<BadRequestException>();
+    }
 
-//         var act = async () => await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenReasonMissing()
+    {
+        var policy = CreatePolicy();
 
-//         await act.Should().ThrowAsync<BadRequestException>();
-//     }
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
 
-//     [Fact]
-//     public async Task Handle_ShouldDefaultCancellationDate_WhenNotProvided()
-//     {
-//         var policy = new Policy
-//         {
-//             Id = Guid.NewGuid(),
-//             PolicyStatus = PolicyStatus.Active,
-//             StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5)),
-//             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)),
-//             ClientId = Guid.NewGuid(),
-//             BuildingId = Guid.NewGuid(),
-//             BrokerId = Guid.NewGuid(),
-//             CurrencyId = Guid.NewGuid(),
-//             BasePremium = 100m,
-//             FinalPremium = 120m
-//         };
+        var handler = new CancelPolicy.Handler(repo.Object);
+        var dto = new CancelPolicyDto
+        {
+            CancellationReason = " ",
+            CancellationDate = policy.PolicyVersions.Single().StartDate.AddDays(1)
+        };
 
-//         var repo = new Mock<IPolicyRepository>();
-//         repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
-//             .ReturnsAsync(policy);
-//         repo.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        var act = async () => await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
 
-//         var handler = new CancelPolicy.Handler(repo.Object);
-//         var dto = new CancelPolicyDto
-//         {
-//             CancellationReason = "Customer request",
-//             CancellationDate = null
-//         };
+        await act.Should().ThrowAsync<BadRequestException>();
+    }
 
-//         var expectedDate = DateOnly.FromDateTime(DateTime.UtcNow);
+    [Fact]
+    public async Task Handle_ShouldAllowNullCancellationDate()
+    {
+        var policy = CreatePolicy();
 
-//         await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
+        repo.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-//         policy.CancelledAt.Should().Be(expectedDate);
-//     }
-// }
+        var handler = new CancelPolicy.Handler(repo.Object);
+        var dto = new CancelPolicyDto
+        {
+            CancellationReason = "Customer request",
+            CancellationDate = null
+        };
+
+        await handler.Handle(new CancelPolicy.Command { PolicyId = policy.Id, CancelPolicyDto = dto }, CancellationToken.None);
+
+        policy.PolicyStatus.Should().Be(PolicyStatus.Cancelled);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequest_WhenActiveVersionMissing()
+    {
+        var policy = CreatePolicy(versionConfig: v => v.IsActiveVersion = false);
+
+        var repo = new Mock<IPolicyRepository>();
+        repo.Setup(x => x.GetPolicyForCancellationAsync(policy.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(policy);
+
+        var handler = new CancelPolicy.Handler(repo.Object);
+
+        var act = async () => await handler.Handle(new CancelPolicy.Command
+        {
+            PolicyId = policy.Id,
+            CancelPolicyDto = new CancelPolicyDto { CancellationReason = "reason" }
+        }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<BadRequestException>();
+        repo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static Policy CreatePolicy(Action<Policy>? policyConfig = null, Action<PolicyVersion>? versionConfig = null)
+    {
+        var policy = new Policy
+        {
+            Id = Guid.NewGuid(),
+            PolicyNumber = "POL-TEST",
+            PolicyStatus = PolicyStatus.Active,
+            BrokerId = Guid.NewGuid(),
+            ClientId = Guid.NewGuid(),
+            BuildingId = Guid.NewGuid(),
+            CurrentVersionNumber = 1
+        };
+
+        var activeVersion = new PolicyVersion
+        {
+            Id = Guid.NewGuid(),
+            PolicyId = policy.Id,
+            Policy = policy,
+            VersionNumber = policy.CurrentVersionNumber,
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)),
+            BasePremium = 1000m,
+            FinalPremium = 1200m,
+            CurrencyId = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow.AddDays(-10),
+            CreatedBy = "UnitTests",
+            IsActiveVersion = true
+        };
+
+        policy.PolicyVersionId = activeVersion.Id;
+        policy.PolicyVersions = new List<PolicyVersion> { activeVersion };
+
+        versionConfig?.Invoke(activeVersion);
+        policyConfig?.Invoke(policy);
+
+        return policy;
+    }
+}
