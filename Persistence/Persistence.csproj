@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Context\Configurations\AppUsers\" />
     <Folder Include="Context\Configurations\Brokers\" />
     <Folder Include="Context\Configurations\Buildings\" />
     <Folder Include="Context\Configurations\Clients\" />

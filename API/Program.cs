@@ -11,6 +11,13 @@ using Application.Core.Interfaces.IRepositories;
 using Persistence.Repositories;
 using Application.Clients.DTOs.Validators;
 using API.Middleware;
+using Application.Common.Settings;
+using Infrastructure.Security;
+using Application.Core.Interfaces.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +29,39 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("JwtSettings")
+);
+
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+var jwtSettings = builder.Configuration
+    .GetSection("JwtSettings")
+    .Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JWT settings are not configured properly.");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.SecretKey)
+            )
+        };
+    }); 
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddCors();
 
@@ -41,6 +81,7 @@ builder.Services.AddScoped<IFeeConfigurationRepository, FeeConfigurationReposito
 builder.Services.AddScoped<IRiskFactorRepository, RiskFactorRepository>();
 builder.Services.AddScoped<IBrokerRepository, BrokerRepository>();
 builder.Services.AddScoped<IReportsRepository, ReportsRepository>();
+builder.Services.AddScoped<IAuthorizationRepository, AuthorizationRepository>();
 
 builder.Services.AddAutoMapper(x => {}, typeof(MappingProfiles).Assembly);
 
@@ -55,7 +96,32 @@ builder.Services.AddRouting(options =>
 {
     options.LowercaseUrls = true;
 });
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1" , new OpenApiInfo
+    {
+        Title = "Fibi Insurance API",
+        Version = "v1",
+    });
+
+    c.CustomSchemaIds(type =>
+        type.FullName?
+            .Replace("+", ".", StringComparison.Ordinal)
+            .Replace("`1", string.Empty, StringComparison.Ordinal)
+        ?? type.Name);
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+}
+);
 
 var app = builder.Build();
 
@@ -74,6 +140,9 @@ app.UseCors(x => x
     .AllowAnyMethod()
     .AllowAnyOrigin()
 );
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.MapControllers();

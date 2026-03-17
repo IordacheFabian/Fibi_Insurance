@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Authentication\Response\" />
     <Folder Include="Brokers\Command\" />
     <Folder Include="Brokers\DTOs\Response\" />
     <Folder Include="Brokers\Queries\" />
@@ -30,6 +31,9 @@
     <Folder Include="Buildings\DTOs\Response\" />
     <Folder Include="Clients\Commands\" />
     <Folder Include="Clients\DTOs\Response\" />
+    <Folder Include="Common\" />
+    <Folder Include="Common\Settings\" />
+    <Folder Include="Core\Interfaces\Security\" />
     <Folder Include="Core\PagedResults\" />
     <Folder Include="Geographies\" />
     <Folder Include="Geographies\Command\" />

@@ -1,5 +1,6 @@
 using System;
 using Domain.Models;
+using Domain.Models.AppUsers;
 using Domain.Models.Brokers;
 using Domain.Models.Buildings;
 using Domain.Models.Clients;
@@ -34,6 +35,8 @@ public class AppDbContext : DbContext
     public DbSet<Currency> Currencies { get; set; } = null!;
     public DbSet<RiskFactorConfiguration> RiskFactorConfigurations { get; set; } = null!;
     public DbSet<FeeConfiguration> FeeConfigurations { get; set; } = null!;
+
+    public DbSet<AppUser> Users { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

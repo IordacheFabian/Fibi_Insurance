@@ -6,12 +6,14 @@ using Application.Policies.DTOs.Requests;
 using Application.Policies.DTOs.Response;
 using Application.Policies.Queries;
 using Domain.Models.Policies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
 public class PoliciesController : BrokerBaseController
 {
+    [Authorize(Roles = "Broker")]
     [HttpGet("policies")]
     public async Task<ActionResult<PagedResult<PolicyListItemDto>>> GetPoliciesAsync(
         [FromQuery] Guid? clientId,
