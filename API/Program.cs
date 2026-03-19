@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi;
+using System.Security.Claims;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,7 +58,7 @@ builder.Services
             ValidAudience = jwtSettings.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtSettings.SecretKey)
-            )
+            ),
         };
     }); 
 
@@ -82,6 +83,7 @@ builder.Services.AddScoped<IRiskFactorRepository, RiskFactorRepository>();
 builder.Services.AddScoped<IBrokerRepository, BrokerRepository>();
 builder.Services.AddScoped<IReportsRepository, ReportsRepository>();
 builder.Services.AddScoped<IAuthorizationRepository, AuthorizationRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 builder.Services.AddAutoMapper(x => {}, typeof(MappingProfiles).Assembly);
 

@@ -13,7 +13,7 @@ namespace API.Controllers;
 
 public class PoliciesController : BrokerBaseController
 {
-    [Authorize(Roles = "Broker")]
+    // [Authorize(Roles = "Broker")]
     [HttpGet("policies")]
     public async Task<ActionResult<PagedResult<PolicyListItemDto>>> GetPoliciesAsync(
         [FromQuery] Guid? clientId,

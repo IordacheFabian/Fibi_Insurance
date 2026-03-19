@@ -52,6 +52,9 @@
     <Folder Include="Metadatas\RiskFactors\DTOs\Request\" />
     <Folder Include="Metadatas\RiskFactors\DTOs\Response\" />
     <Folder Include="Metadatas\RiskFactors\Queries\" />
+    <Folder Include="Payments\Command\" />
+    <Folder Include="Payments\Query\" />
+    <Folder Include="Payments\Request\" />
     <Folder Include="Policies\Queries\" />
     <Folder Include="Reports\DTOs\Request\" />
     <Folder Include="Reports\Queries\" />

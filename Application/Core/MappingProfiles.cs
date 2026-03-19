@@ -17,6 +17,7 @@ using Application.Metadatas.Fees.DTOs.Request;
 using Application.Metadatas.Fees.DTOs.Response;
 using Application.Metadatas.RiskFactors.DTOs.Request;
 using Application.Metadatas.RiskFactors.DTOs.Response;
+using Application.Payments.Response;
 using Application.Policies.DTOs.Requests;
 using Application.Policies.DTOs.Response;
 using AutoMapper;
@@ -26,6 +27,7 @@ using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using Domain.Models.Geography.Address;
 using Domain.Models.Metadatas;
+using Domain.Models.Payments;
 using Domain.Models.Policies;
 
 namespace Application.Core;
@@ -237,5 +239,10 @@ public class MappingProfiles : Profile
             .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
             .ForMember(d => d.Policies, opt => opt.Ignore());
         CreateMap<Broker, UpdateBrokerDto>();
+
+        // payment mappings
+        CreateMap<Payment, PaymentDto>()
+            .ForMember(d => d.Method, opt => opt.MapFrom(src => src.Method.ToString()))
+            .ForMember(d => d.Status, opt => opt.MapFrom(src => src.Status.ToString()));
     }
 }

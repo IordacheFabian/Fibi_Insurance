@@ -6,6 +6,7 @@ using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using Domain.Models.Geography.Address;
 using Domain.Models.Metadatas;
+using Domain.Models.Payments;
 using Domain.Models.Policies;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context.Seeds;
@@ -37,6 +38,8 @@ public class AppDbContext : DbContext
     public DbSet<FeeConfiguration> FeeConfigurations { get; set; } = null!;
 
     public DbSet<AppUser> Users { get; set; } = null!;
+
+    public DbSet<Payment> Payments { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -3,6 +3,7 @@ using Domain.Models.Brokers;
 using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using Domain.Models.Metadatas;
+using Domain.Models.Payments;
 
 namespace Domain.Models.Policies;
 
@@ -33,4 +34,6 @@ public class Policy
 
     public PolicyStatus PolicyStatus { get; set; }
     public int CurrentVersionNumber { get; set; }
+
+    public List<Payment> Payments { get; set; } = default!;
 }

@@ -5,6 +5,8 @@ using Application.Brokers.DTOs.Request;
 using Application.Brokers.DTOs.Response;
 using Application.Brokers.Queries;
 using Application.Core.PagedResults;
+using Application.Payments.Query;
+using Application.Payments.Response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -27,12 +29,20 @@ public class BrokersController : AdminBaseController
         return Ok(broker);
     }
 
+    [HttpGet("payments")]
+    public async Task<ActionResult<List<PaymentDto>>> GetAllPaymentsAsync()
+    {
+        var payments = await Mediator.Send(new GetAllPayments.Query());
+
+        return Ok(payments);
+    }
+
     [HttpPost("brokers")]
     public async Task<ActionResult<BrokerDetailsDto>> CreateBrokerAsync([FromBody] CreateBrokerDto createBrokerDto)
     {
         var broker = await Mediator.Send(new CreateBroker.Command { CreateBrokerDto = createBrokerDto });
 
-        return CreatedAtAction(nameof(GetBrokerAsync), new {broker }, broker);
+        return CreatedAtAction(nameof(GetBrokerAsync), new { broker }, broker);
     }
 
     [HttpPut("brokers/{id:guid}")]

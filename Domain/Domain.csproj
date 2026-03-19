@@ -12,6 +12,7 @@
     <Folder Include="Models\Buildings\" />
     <Folder Include="Models\Clients\" />
     <Folder Include="Models\Metadatas\" />
+    <Folder Include="Models\Payments\" />
   </ItemGroup>
 
 </Project>
