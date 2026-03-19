@@ -3,6 +3,7 @@ using Domain.Models;
 using Domain.Models.AppUsers;
 using Domain.Models.Brokers;
 using Domain.Models.Buildings;
+using Domain.Models.Claims;
 using Domain.Models.Clients;
 using Domain.Models.Geography.Address;
 using Domain.Models.Metadatas;
@@ -40,6 +41,8 @@ public class AppDbContext : DbContext
     public DbSet<AppUser> Users { get; set; } = null!;
 
     public DbSet<Payment> Payments { get; set; } = null!;
+
+    public DbSet<Claim> Claims { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

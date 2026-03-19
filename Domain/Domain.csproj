@@ -10,6 +10,7 @@
     <Folder Include="Models\AppUsers\" />
     <Folder Include="Models\Brokers\" />
     <Folder Include="Models\Buildings\" />
+    <Folder Include="Models\Claims\" />
     <Folder Include="Models\Clients\" />
     <Folder Include="Models\Metadatas\" />
     <Folder Include="Models\Payments\" />

@@ -15,6 +15,7 @@
     <Folder Include="Context\Configurations\AppUsers\" />
     <Folder Include="Context\Configurations\Brokers\" />
     <Folder Include="Context\Configurations\Buildings\" />
+    <Folder Include="Context\Configurations\Claims\" />
     <Folder Include="Context\Configurations\Clients\" />
     <Folder Include="Context\Configurations\Converters\" />
     <Folder Include="Context\Configurations\Geography\" />

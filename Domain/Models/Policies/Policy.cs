@@ -4,6 +4,7 @@ using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using Domain.Models.Metadatas;
 using Domain.Models.Payments;
+using Domain.Models.Claims;
 
 namespace Domain.Models.Policies;
 
@@ -36,4 +37,5 @@ public class Policy
     public int CurrentVersionNumber { get; set; }
 
     public List<Payment> Payments { get; set; } = default!;
+    public List<Claim> Claims { get; set; } = default!;
 }

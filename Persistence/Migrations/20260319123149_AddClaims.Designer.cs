@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Context;
 
@@ -10,9 +11,11 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260319123149_AddClaims")]
+    partial class AddClaims
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.12");
@@ -239,9 +242,6 @@ namespace Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -257,13 +257,7 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("IncidentDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("PaidAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("PolicyId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("RejectedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("RejectionReason")

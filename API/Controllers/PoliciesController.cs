@@ -1,5 +1,9 @@
 using System;
 using API.Controllers.BaseControllers;
+using Application.Claims.Command;
+using Application.Claims.Query;
+using Application.Claims.Request;
+using Application.Claims.Response;
 using Application.Core.PagedResults;
 using Application.Policies.Command;
 using Application.Policies.DTOs.Requests;
@@ -62,6 +66,23 @@ public class PoliciesController : BrokerBaseController
 
         return Ok(versions);
     }
+
+    [HttpGet("policies/{policyId:guid}/claims")]
+    public async Task<ActionResult<List<ClaimDto>>> GetPolicyClaimsAsync(Guid policyId)
+    {
+        var claims = await Mediator.Send(new GetPolicyClaims.Query { PolicyId = policyId });
+
+        return Ok(claims);
+    }
+
+    [HttpGet("claims/{claimId:guid}")]
+    public async Task<ActionResult<ClaimDto>> GetClaimAsync(Guid claimId)
+    {
+        var claim = await Mediator.Send(new GetClaim.Query { ClaimId = claimId });
+
+        return Ok(claim);
+    }
+
     [HttpPost("policies")]
     public async Task<ActionResult<PolicyDetailsDto>> CreatePolicyDraftAsync(CreatePolicyDraftDto createPolicyDraftDto)
     {
@@ -107,4 +128,15 @@ public class PoliciesController : BrokerBaseController
         return NoContent();
     }
     
+    [HttpPost("policies/{policyId:guid}/claims")]
+    public async Task<ActionResult<ClaimDto>> CreateClaimAsync(Guid policyId, CreateClaimDto createClaimDto)
+    {
+        var result = await Mediator.Send(new CreateClaim.Command
+        {
+            PolicyId = policyId,
+            Claim = createClaimDto,
+        });
+
+        return Ok(result);
+    }
 }

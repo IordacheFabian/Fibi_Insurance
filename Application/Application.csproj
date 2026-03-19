@@ -29,6 +29,9 @@
     <Folder Include="Buildings\DTOs\" />
     <Folder Include="Buildings\DTOs\Request\" />
     <Folder Include="Buildings\DTOs\Response\" />
+    <Folder Include="Claims\Command\" />
+    <Folder Include="Claims\Query\" />
+    <Folder Include="Claims\Request\" />
     <Folder Include="Clients\Commands\" />
     <Folder Include="Clients\DTOs\Response\" />
     <Folder Include="Common\" />

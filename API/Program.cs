@@ -84,6 +84,7 @@ builder.Services.AddScoped<IBrokerRepository, BrokerRepository>();
 builder.Services.AddScoped<IReportsRepository, ReportsRepository>();
 builder.Services.AddScoped<IAuthorizationRepository, AuthorizationRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
 
 builder.Services.AddAutoMapper(x => {}, typeof(MappingProfiles).Assembly);
 
