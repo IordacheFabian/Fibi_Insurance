@@ -23,4 +23,11 @@ coverage-report/
 
 # Packages
 node_modules/
+**/node_modules/
 packages/
+
+# Frontend build artifacts
+fibi-insurance-frontend/dist/
+fibi-insurance-frontend/dist-ssr/
+fibi-insurance-frontend/.vite/
+fibi-insurance-frontend/.env*
