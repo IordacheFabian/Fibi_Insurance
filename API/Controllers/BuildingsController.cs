@@ -19,7 +19,7 @@ public class BuildingsController : BrokerBaseController
         return Ok(buildings);
     }
 
-    [HttpGet("buildings/{buildingId:guid}", Name = "GetBuilding")]
+    [HttpGet("buildings/{buildingId:guid}")]
     public async Task<ActionResult<BuildingDetailsDto>> GetBuildingDetailsAsync(Guid buildingId)
     {
         var buildingDetails = await Mediator.Send(new GetBuildingDetails.Query { Id = buildingId });

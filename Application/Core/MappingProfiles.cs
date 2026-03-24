@@ -72,8 +72,10 @@ public class MappingProfiles : Profile
         CreateMap<Building, BuildingDetailsDto>()
             .ForMember(d => d.Owner, 
                 opt => opt.MapFrom(src => src.Client))
-            .ForMember(d => d.CounstructionYear,
-                opt => opt.MapFrom(src => src.ConstructionYear));
+            .ForMember(d => d.ConstructionYear,
+                opt => opt.MapFrom(src => src.ConstructionYear))
+            .ForMember(d => d.RiskIndicators,
+                opt => opt.MapFrom(src => src.RiskIndicatiors));
         CreateMap<Building, BuildingListDto>()
             .ForMember(d => d.Address,
                 opt => opt.MapFrom(src => $"{src.Address.Street} {src.Address.Number}"))

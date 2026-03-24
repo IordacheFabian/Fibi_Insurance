@@ -1,5 +1,6 @@
 using System;
 using Application.Addresses.DTOs;
+using Application.Buildings.DTOs.Response;
 using Domain.Models.Clients;
 
 namespace Application.Clients.DTOs.Response;
@@ -14,5 +15,7 @@ public class ClientDetailsDto
 
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
+
+    public List<BuildingListDto> Buildings { get; set; } = new List<BuildingListDto>();
 
 }

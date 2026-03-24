@@ -13,10 +13,10 @@ public class BuildingDetailsDto
     public AddressDetailsDto Address { get; set; } = default!;
     
     public ClientDetailsDto Owner { get; set; } = default!;
-    public int CounstructionYear { get; set; }
+    public int ConstructionYear { get; set; }
     public BuildingType BuildingType { get; set; }
     public int NumberOfFloors { get; set; }
     public int SurfaceArea { get; set; }
     public int InsuredValue { get; set; }
-    public string RiskIndicatiors { get; set; } = string.Empty;
+    public string RiskIndicators { get; set; } = string.Empty;
 }

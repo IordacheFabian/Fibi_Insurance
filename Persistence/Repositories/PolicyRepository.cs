@@ -112,10 +112,10 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
                     Email = x.Policy.Building.Client.Email,
                     PhoneNumber = x.Policy.Building.Client.PhoneNumber,
                 },
-                CounstructionYear = x.Policy.Building.ConstructionYear,
+                ConstructionYear = x.Policy.Building.ConstructionYear,
                 NumberOfFloors = x.Policy.Building.NumberOfFloors,
                 SurfaceArea = x.Policy.Building.SurfaceArea,
-                RiskIndicatiors = x.Policy.Building.RiskIndicatiors
+                RiskIndicators = x.Policy.Building.RiskIndicatiors
             },
 
             Broker = new BrokerDto
