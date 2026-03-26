@@ -6,7 +6,7 @@ public interface IClaimRepository
 {
     Task<Claim?> GetClaimByIdAsync(Guid claimId, CancellationToken cancellationToken);
     Task AddAsync (Claim claim, CancellationToken cancellationToken);
-    Task<List<Claim>> GetAllClaimsAsync(CancellationToken cancellationToken);
+    IQueryable<Claim> GetAllClaimsAsync(CancellationToken cancellationToken);
     Task<List<Claim>> GetClaimsByPolicyIdAsync(Guid policyId, CancellationToken cancellationToken);
     Task<bool> SaveChangesAsync(CancellationToken cancellationToken);
 }

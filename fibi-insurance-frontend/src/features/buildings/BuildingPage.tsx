@@ -7,53 +7,61 @@ export default function BuildingPage() {
     const {data: buildings, isLoading, isError, error } = useBuildings(id);
 
     if(isLoading) {
-        return <div>Loading building details...</div>
+        return <div className="state-box loading">Loading building details...</div>
     }
 
     if(isError) {
-        return <div>Error loading building details: {error instanceof Error ? error.message : "Unknown error"}</div>
+        return <div className="state-box error">Error loading building details: {error instanceof Error ? error.message : "Unknown error"}</div>
     }
     if(!buildings || buildings.length === 0) {
         return (
-          <div>
-            <h2 className="text-2xl font-bold">Buildings</h2>
-            <p className="mt-2 text-gray-600">No buildings found.</p>
-          </div>
+          <section className="page-surface">
+            <div className="page-header">
+              <div>
+                <h2 className="page-title">Buildings</h2>
+                <p className="page-subtitle">No buildings found.</p>
+              </div>
+            </div>
+            <div className="state-box empty">No insured building records for this client yet.</div>
+          </section>
         );
     }
 
     return (
-      <div>
-        <div>
-          <h2 className="text-2xl font-bold">Buildings</h2>
+      <section className="page-surface">
+        <div className="page-header">
+          <div>
+            <h2 className="page-title">Buildings</h2>
+            <p className="page-subtitle">Client building portfolio and insured values.</p>
+          </div>
           <Link
             to="/broker/buildings/new"
-            className="rounded-lg bg-black px-4 py-2 text-white"
+            className="btn btn-accent"
           >
             Add Building
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-xl border bg-white">
-          <table className="min-w-full border-collapse">
+        <div className="table-wrap">
+          <table className="data-table">
             <thead>
-              <tr className="border-b bg-gray-50 text-left">
-                <th className="px-4 py-3">Building-Type</th>
-                <th className="px-4 py-3">Insured Value</th>
-                <th className="px-4 py-3">Actions</th>
+              <tr>
+                <th>Building type</th>
+                <th>Insured value</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {buildings.map((building) => (
-                <tr key={building.id} className="border-b last:border-b-0">
-                  <td className="px-4 py-3">
+                <tr key={building.id}>
+                  <td>
                     {buildingTypeLabels[building.buildingType] ?? "Unknown"}
                   </td>
-                  <td className="px-4 py-3">{building.insuredValue}</td>
-                  <td className="px-4 py-3">
+                  <td>{building.insuredValue}</td>
+                  <td>
                     <Link
                       to={`/broker/buildings/${building.id}`}
-                      className="text-sm font-medium text-blue-600 hover:underline"
+                      className="inline-link"
                     >
                       View Details
                     </Link>
@@ -63,6 +71,6 @@ export default function BuildingPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     );
 }

@@ -4,16 +4,22 @@ export default function Header() {
     const { user, logout } = useAuth();
 
     return (
-        <header className="flex items-center justify-between border-b bg-white px-6 py-4">
-            <h1 className="text-xl font-semibold">FiBI Insurance</h1>
+        <header className="app-header">
+            <div className="brand">
+                <span className="brand-mark">FI</span>
+                <div>
+                    <p className="brand-title">FiBI Insurance</p>
+                    <p className="brand-subtitle">Risk and claims intelligence</p>
+                </div>
+            </div>
 
-            <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">
+            <div className="header-actions">
+                <span className="user-chip">
                     {user?.email} ({user?.role})
                 </span>
                 <button
                     onClick={logout}
-                    className="rounded-lg bg-black px-4 py-2 text-white"
+                    className="btn btn-ghost"
                 >
                     Logout
                 </button>

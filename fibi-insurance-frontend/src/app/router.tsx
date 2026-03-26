@@ -8,6 +8,7 @@ import NewClientPage from "../features/clients/NewClientPage";
 import ClientDetailsPage from "../features/clients/ClientDetailsPage";
 import BuildingPage from "../features/buildings/BuildingPage";
 import BuildingsDetailsPage from "../features/buildings/BuildingsDetailsPage";
+import ClaimsPage from "../features/claims/ClaimsPage";
 
 export const router = createBrowserRouter([
   {
@@ -93,6 +94,20 @@ export const router = createBrowserRouter([
           {
             path: "/broker/buildings/:id",
             element: <BuildingsDetailsPage />,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    element: <ProtectedRoute allowedRoles={["Broker"]} />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: [
+          {
+            path: "/admin/claims",
+            element: <ClaimsPage />,
           },
         ],
       },

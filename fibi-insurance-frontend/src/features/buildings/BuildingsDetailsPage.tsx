@@ -7,12 +7,12 @@ export default function BuildingPage() {
   const { data: building, isLoading, isError, error } = useBuildingDetails(id);
 
   if (isLoading) {
-    return <div>Loading building details...</div>;
+    return <div className="state-box loading">Loading building details...</div>;
   }
 
   if (isError) {
     return (
-      <div>
+      <div className="state-box error">
         Error loading building details:{" "}
         {error instanceof Error ? error.message : "Unknown error"}
       </div>
@@ -20,44 +20,47 @@ export default function BuildingPage() {
   }
   if (!building) {
     return (
-      <div>
-        <p className="mt-2 text-gray-600">No buildings found.</p>
+      <div className="state-box empty">
+        <p>No buildings found.</p>
       </div>
     );
   }
 
   return (
-    <div>
-      <div>
-        <h2 className="text-2xl font-bold">Building Details</h2>
+    <section className="page-surface">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Building details</h2>
+          <p className="page-subtitle">Full risk and structure overview.</p>
+        </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border bg-white">
-        <table className="min-w-full border-collapse">
+      <div className="table-wrap">
+        <table className="data-table">
           <thead>
-            <tr className="border-b bg-gray-50 text-left">
-              <th className="px-4 py-3">Building Type</th>
-              <th className="px-4 py-3">Insured Value</th>
-              <th className="px-4 py-3">Construction Year</th>
-              <th className="px-4 py-3">Number of Floors</th>
-              <th className="px-4 py-3">Risk Indicators</th>
-              <th className="px-4 py-3">Surface Area</th>
+            <tr>
+              <th>Building Type</th>
+              <th>Insured Value</th>
+              <th>Construction Year</th>
+              <th>Number of Floors</th>
+              <th>Risk Indicators</th>
+              <th>Surface Area</th>
             </tr>
           </thead>
           <tbody>
-              <tr key={building.id} className="border-b last:border-b-0">
-                <td className="px-4 py-3">
+              <tr key={building.id}>
+                <td>
                   {buildingTypeLabels[building.buildingType] ?? "Unknown"}
                 </td>
-                <td className="px-4 py-3">{building.insuredValue}</td>
-                <td className="px-4 py-3">{building.constructionYear}</td>
-                <td className="px-4 py-3">{building.numberOfFloors}</td>
-                <td className="px-4 py-3">{building.riskIndicators}</td>
-                <td className="px-4 py-3">{building.surfaceArea}</td>
+                <td>{building.insuredValue}</td>
+                <td>{building.constructionYear}</td>
+                <td>{building.numberOfFloors}</td>
+                <td>{building.riskIndicators}</td>
+                <td>{building.surfaceArea}</td>
               </tr>
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   );
 }

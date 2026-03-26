@@ -1,12 +1,14 @@
 using System;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
 using Application.Addresses;
 using Application.Addresses.DTOs;
 using Application.Brokers.DTOs.Request;
 using Application.Brokers.DTOs.Response;
 using Application.Buildings.DTOs.Request;
 using Application.Buildings.DTOs.Response;
+using Application.Claims.Response;
 using Application.Clients.DTOs;
 using Application.Clients.DTOs.Response;
 using Application.Core.util;
@@ -246,5 +248,6 @@ public class MappingProfiles : Profile
         CreateMap<Payment, PaymentDto>()
             .ForMember(d => d.Method, opt => opt.MapFrom(src => src.Method.ToString()))
             .ForMember(d => d.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
     }
 }

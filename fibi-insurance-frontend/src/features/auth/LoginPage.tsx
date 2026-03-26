@@ -26,43 +26,54 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-2xl bg-white p-8 shadow"
-      >
-        <h1 className="mb-6 text-2xl font-bold">Login</h1>
-
-        <div className="mb-4">
-          <label className="mb-1 block text-sm font-medium">Email</label>
-          <input
-            type="email"
-            className="w-full rounded-lg border px-3 py-2"
-            value={form.email}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, email: e.target.value }))
-            }
-          />
+    <div className="login-page">
+      <div className="login-backdrop">
+        <div className="login-panel">
+          <p className="login-accent">Broker Platform</p>
+          <h1 className="login-heading">Manage clients, buildings, and claims in one place.</h1>
+          <p className="login-copy">
+            Secure access for brokers and admins with an interface designed for
+            speed and clarity.
+          </p>
         </div>
 
-        <div className="mb-4">
-          <label className="mb-1 block text-sm font-medium">Password</label>
-          <input
-            type="password"
-            className="w-full rounded-lg border px-3 py-2"
-            value={form.password}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, password: e.target.value }))
-            }
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div>
+            <h2 className="page-title">Welcome back</h2>
+            <p className="page-subtitle">Sign in to continue to FiBI Insurance.</p>
+          </div>
 
-        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+          <div className="form-field">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="input-control"
+              value={form.email}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, email: e.target.value }))
+              }
+            />
+          </div>
 
-        <button className="w-full rounded-lg bg-black px-4 py-2 text-white">
-          Sign in
-        </button>
-      </form>
+          <div className="form-field">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              className="input-control"
+              value={form.password}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, password: e.target.value }))
+              }
+            />
+          </div>
+
+          {error && <p className="error-text">{error}</p>}
+
+          <button className="btn btn-primary" type="submit">
+            Sign in
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

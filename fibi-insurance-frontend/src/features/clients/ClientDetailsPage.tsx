@@ -8,48 +8,49 @@ export default function ClientDetailsPage() {
     const { data: client, isLoading, isError, error } = useClientDetails(id);
 
     if(isLoading) {
-        return <div>Loading client details...</div>
+        return <div className="state-box loading">Loading client details...</div>
     }
 
     if(isError) {
-        return <div>Error loading client details: {error instanceof Error ? error.message : "Unknown error"}</div>
+        return <div className="state-box error">Error loading client details: {error instanceof Error ? error.message : "Unknown error"}</div>
     }
 
     if(!client) {
-        return <div>Client not found.</div>
+        return <div className="state-box empty">Client not found.</div>
     }
 
     return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold">{client.name}</h2>
-          <p className="text-gray-600">Client details</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">Client Type</p>
-          <p>{clientTypeLabels[Number(client.type)] ?? "Unknown"}</p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 rounded-xl bg-white p-6 shadow md:grid-cols-2">
+      <section className="page-surface">
+        <div className="page-header">
           <div>
-            <p className="text-sm text-gray-500">Email</p>
-            <p>{client.email}</p>
+            <h2 className="page-title">{client.name}</h2>
+            <p className="page-subtitle">Client details</p>
           </div>
         </div>
 
-        <div>
-          <p className="text-sm text-gray-500">Phone number</p>
-          <p>{client.phoneNumber}</p>
+        <div className="detail-grid">
+          <div className="detail-item">
+            <p className="detail-label">Client Type</p>
+            <p className="detail-value">{clientTypeLabels[Number(client.type)] ?? "Unknown"}</p>
+          </div>
+          <div className="detail-item">
+            <p className="detail-label">Email</p>
+            <p className="detail-value">{client.email}</p>
+          </div>
+          <div className="detail-item">
+            <p className="detail-label">Phone number</p>
+            <p className="detail-value">{client.phoneNumber}</p>
+          </div>
+          <div className="detail-item">
+            <p className="detail-label">Identification number</p>
+            <p className="detail-value">{client.identificationNumber}</p>
+          </div>
         </div>
 
-        <div>
-          <p className="text-sm text-gray-500">Identification number</p>
-          <p>{client.identificationNumber}</p>
-        </div>
-
-        <div>
-          <p className="text-sm text-gray-500">Buildings</p>
+        <div className="panel" style={{ marginTop: "0.9rem" }}>
+          <p className="detail-label">Buildings</p>
           {client.buildings.length > 0 ? (
-            <ul className="list-disc pl-5">
+            <ul className="list-plain">
               {client.buildings.map((building) => (
                 <li key={building.clientId}>
                   {buildingTypeLabels[building.buildingType] ?? "Unknown"} -
@@ -62,11 +63,11 @@ export default function ClientDetailsPage() {
           )}
           <Link
             to={`/broker/clients/${client.id}/buildings`}
-            className="text-sm font-medium text-blue-600 hover:underline"
+            className="inline-link"
           >
             View Details
           </Link>
         </div>
-      </div>
+      </section>
     );
 }

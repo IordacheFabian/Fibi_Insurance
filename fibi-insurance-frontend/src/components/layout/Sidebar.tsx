@@ -1,40 +1,70 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function Sidebar() {
     const { user } = useAuth();
 
+    const navClassName = ({ isActive }: { isActive: boolean }) =>
+      `nav-link${isActive ? " is-active" : ""}`;
+
     return (
-        <aside className="w-64 border-r bg-white p-4">
-            <div className="mb-6 text-lg font-bold">Menu</div>
+      <aside className="app-sidebar">
+        <div>
+          <div className="sidebar-title">Control Center</div>
+          <p className="sidebar-subtitle">FiBI Insurance Workspace</p>
+        </div>
 
-            <nav className="flex flex-col gap-2">
-                <Link to="/" className="rounded px-3 py-2 hover:bg-gray-100">
-                    Dashboard                
-                </Link>
+        <nav className="nav-section">
+          <NavLink to="/" className={navClassName}>
+            <span className="nav-icon">DB</span>
+            Dashboard
+          </NavLink>
 
-                {user?.role === "Broker" && (
-                    <>
-                        <Link to="/broker/clients" className="rounded px-3 py-2 hover:bg-gray-100">
-                            Clients
-                        </Link>
-                        <Link to="/broker/policies" className="rounded px-3 py-2 hover:bg-gray-100">
-                            Policies
-                        </Link>
-                    </>
-                )}
+          {user?.role === "Broker" && (
+            <>
+              <NavLink
+                to="/broker/clients"
+                className={navClassName}
+              >
+                <span className="nav-icon">CL</span>
+                Clients
+              </NavLink>
+              <NavLink
+                to="/broker/policies"
+                className={navClassName}
+              >
+                <span className="nav-icon">PO</span>
+                Policies
+              </NavLink>
+              <NavLink
+                to="/admin/claims"
+                className={navClassName}
+              >
+                <span className="nav-icon">CM</span>
+                Claims
+              </NavLink>
+            </>
+          )}
 
-                {user?.role === "Admin" && (
-                    <>
-                        <Link to="admin/brokers" className="rounded px-3 py-2 hover:bg-gray-100">
-                            Brokers                        
-                        </Link>
-                        <Link to="admin/reports/country" className="rounded px-3 py-2 hover:bg-gray-100">
-                            Reports
-                        </Link>
-                    </>
-                )}
-            </nav>
-        </aside>
-    )
+          {user?.role === "Admin" && (
+            <>
+              <NavLink
+                to="/admin/brokers"
+                className={navClassName}
+              >
+                <span className="nav-icon">BR</span>
+                Brokers
+              </NavLink>
+              <NavLink
+                to="/admin/reports/country"
+                className={navClassName}
+              >
+                <span className="nav-icon">RP</span>
+                Reports
+              </NavLink>
+            </>
+          )}
+        </nav>
+      </aside>
+    );
 }

@@ -36,55 +36,53 @@ export default function ClientForm({ onSubmit, isSubmitting = false }: Props) {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 rounded-xl bg-white p-6 shadow"
-    >
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-medium">Name</label>
+    <form onSubmit={handleSubmit} className="form-card">
+      <div className="form-grid">
+        <div className="form-field">
+          <label className="form-label">Name</label>
           <input
-            className="w-full rounded-lg border px-3 py-2"
+            className="input-control"
             value={form.name}
             onChange={handleChange("name")}
           />
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">Email</label>
+        <div className="form-field">
+          <label className="form-label">Email</label>
           <input
             type="email"
-            className="w-full rounded-lg border px-3 py-2"
+            className="input-control"
             value={form.email}
             onChange={handleChange("email")}
           />
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">Phone number</label>
+        <div className="form-field">
+          <label className="form-label">Phone number</label>
           <input
-            className="w-full rounded-lg border px-3 py-2"
+            className="input-control"
             value={form.phoneNumber}
             onChange={handleChange("phoneNumber")}
           />
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">CNP</label>
+        <div className="form-field">
+          <label className="form-label">CNP</label>
           <input
-            className="w-full rounded-lg border px-3 py-2"
+            className="input-control"
             value={form.identificationNumber}
             onChange={handleChange("identificationNumber")}
           />
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="error-text" style={{ marginTop: "0.8rem" }}>{error}</p>}
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
+        className="btn btn-primary"
+        style={{ marginTop: "0.9rem" }}
       >
         {isSubmitting ? "Submitting..." : "Submit"}
       </button>

@@ -13,9 +13,12 @@ public class ClaimRepository(AppDbContext context) : IClaimRepository
         await context.Claims.AddAsync(claim, cancellationToken);
     }
 
-    public Task<List<Claim>> GetAllClaimsAsync(CancellationToken cancellationToken)
+    public IQueryable<Claim> GetAllClaimsAsync(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return context.Claims
+            .AsNoTracking()
+            .Include(c => c.Policy)
+                .ThenInclude(p => p.Client);
     }
 
     public async Task<Claim?> GetClaimByIdAsync(Guid claimId, CancellationToken cancellationToken)

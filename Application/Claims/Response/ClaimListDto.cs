@@ -3,12 +3,14 @@ using Domain.Models.Claims;
 
 namespace Application.Claims.Response;
 
-public class RejectedClaimDto
+public class ClaimListDto
 {
     public Guid Id { get; set; }
     public Guid PolicyId { get; set; }
+    public string PolicyNumber { get; set; } = string.Empty;
+    public string ClientName { get; set; } = string.Empty;
     public ClaimStatus Status { get; set; }
     public decimal EstimatedDamage { get; set; }
-    public string? RejectionReason { get; set; }
-    public DateOnly? ReviewedAt { get; set; }
+    public decimal? ApprovedAmount { get; set; }
+    public DateOnly CreatedAt { get; set; }
 }

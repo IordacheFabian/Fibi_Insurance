@@ -4,6 +4,7 @@ using Application.Claims.Command;
 using Application.Claims.Query;
 using Application.Claims.Request;
 using Application.Claims.Response;
+using Application.Core.PagedResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -12,13 +13,17 @@ public class ClaimsController : AdminBaseController
 {
 
 
-    // [HttpGet("claims/{claimId:guid}")]
-    // public async Task<ActionResult<ClaimDto>> GetClaimAsync(Guid claimId)
-    // {
-    //     var claim = await Mediator.Send(new GetClaim.Query { ClaimId = claimId });
-
-    //     return Ok(claim);
-    // }
+    [HttpGet("claims")]
+    public async Task<ActionResult<PagedResult<ClaimListDto>>> GetClaimsList([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        var query = new GetClaimsList.Query
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        var result = await Mediator.Send(query);
+        return Ok(result);
+    }
 
     [HttpPost("claims/{claimId:guid}/approve")]
     public async Task<ActionResult<ClaimDto>> ApproveClaim(Guid claimId, ApproveClaimDto approveClaimDto)

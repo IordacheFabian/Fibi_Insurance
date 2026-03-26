@@ -33,7 +33,7 @@ public class MoveToReview
             }
 
             claim.Status = ClaimStatus.UnderReview;
-            claim.ReviewedAt = DateTime.UtcNow;
+            claim.ReviewedAt = DateOnly.FromDateTime(DateTime.UtcNow);
 
             var result = await claimRepository.SaveChangesAsync(cancellationToken);
             if (!result)

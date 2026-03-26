@@ -15,9 +15,14 @@ export default function NewClientPage() {
   };
 
   return (
-    <div>
-      <h2 className="mb-6 text-2xl font-bold">Add client</h2>
+    <section className="page-surface">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Add client</h2>
+          <p className="page-subtitle">Create a new customer profile.</p>
+        </div>
+      </div>
       <ClientForm onSubmit={handleSubmit} isSubmitting={isPending} />
-    </div>
+    </section>
   );
 }

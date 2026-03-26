@@ -1,62 +1,70 @@
 import { useClients } from "./hooks/useClients";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 export default function ClientsPage() {
   const { data: clients, isLoading, isError, error} = useClients();
 
   if(isLoading) {
-    return <div>Loading clients...</div>
+    return <div className="state-box loading">Loading clients...</div>
   }
 
   if(isError) {
-    return <div>Error loading clients: {error instanceof Error ? error.message : "Unknown error"}</div>
+    return <div className="state-box error">Error loading clients: {error instanceof Error ? error.message : "Unknown error"}</div>
   }
 
   if(!clients || clients.length === 0) {
     return (
-      <div>
-        <h2 className="text-2xl font-bold">Clients</h2>
-        <p className="mt-2 text-gray-600">No clients found.</p>
-      </div>
+      <section className="page-surface">
+        <div className="page-header">
+          <div>
+            <h2 className="page-title">Clients</h2>
+            <p className="page-subtitle">No clients found.</p>
+          </div>
+          <Link to="/broker/clients/new" className="btn btn-accent">
+            Add Client
+          </Link>
+        </div>
+        <div className="state-box empty">Add your first client to get started.</div>
+      </section>
     )
   }
 
 
   return (
-    <div>
-      <div>
-        <h2 className="text-2xl font-bold">Clients</h2>
+    <section className="page-surface">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Clients</h2>
+          <p className="page-subtitle">Manage customer records and drill into details.</p>
+        </div>
         <Link
           to="/broker/clients/new"
-          className="rounded-lg bg-black px-4 py-2 text-white"
+          className="btn btn-accent"
         >
-          AddClient
+          Add Client
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-xl border bg-white">
-        <table className="min-w-full border-collapse">
+      <div className="table-wrap">
+        <table className="data-table">
           <thead>
-            <tr className="border-b bg-gray-50 text-left">
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">City</th>
-              <th className="px-4 py-3">Actions</th>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {clients.map((client) => (
-              <tr key={client.id} className="border-b last:border-b-0">
-                <td className="px-4 py-3">
-                  {client.name} 
-                </td>
-                <td className="px-4 py-3">{client.email}</td>
-                <td className="px-4 py-3">{client.phoneNumber}</td>
-                <td className="px-4 py-3">
+              <tr key={client.id}>
+                <td>{client.name}</td>
+                <td>{client.email}</td>
+                <td>{client.phoneNumber}</td>
+                <td>
                   <Link
                     to={`/broker/clients/${client.id}`}
-                    className="text-sm font-medium text-blue-600 hover:underline"
+                    className="inline-link"
                   >
                     View Details
                   </Link>
@@ -66,6 +74,6 @@ export default function ClientsPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   );
 }

@@ -8,5 +8,5 @@ public class ApprovedClaimDto
     public Guid PolicyId { get; set; }
     public decimal EstimatedDamage { get; set; }
     public decimal? ApprovedAmount { get; set; }
-    public DateTime? ApprovedAt { get; set; }
+    public DateOnly? ApprovedAt { get; set; }
 }

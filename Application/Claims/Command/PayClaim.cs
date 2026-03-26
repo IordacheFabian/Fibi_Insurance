@@ -37,7 +37,7 @@ public class PayClaim
             }
 
             claim.Status = ClaimStatus.Paid;
-            claim.PaidAt = DateTime.UtcNow;
+            claim.PaidAt = DateOnly.FromDateTime(DateTime.UtcNow);
             var result = await claimRepository.SaveChangesAsync(cancellationToken);
             if (!result)
             {

@@ -41,7 +41,7 @@ public class CreateClaim
                 IncidentDate = request.Claim.IncidentDate,
                 EstimatedDamage = request.Claim.EstimatedDamage,
                 Status = ClaimStatus.Submitted,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow)
             };
 
             await claimRepository.AddAsync(claim, cancellationToken);

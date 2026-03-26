@@ -34,7 +34,7 @@ public class ApproveClaim
 
             claim.Status = ClaimStatus.Approved;
             claim.ApprovedAmount = request.ApproveClaimDto.ApprovedAmount;
-            claim.ReviewedAt = DateTime.UtcNow;
+            claim.ReviewedAt = DateOnly.FromDateTime(DateTime.UtcNow);
             claim.RejectionReason = null;
 
             await claimRepository.SaveChangesAsync(cancellationToken);

@@ -10,7 +10,17 @@ export default function AppProviders({ children }: PropsWithChildren) {
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 {children}
-                <Toaster position="top-right" />
+                <Toaster
+                    position="top-right"
+                    toastOptions={{
+                        style: {
+                            borderRadius: "12px",
+                            border: "1px solid #d8e4ef",
+                            background: "#ffffff",
+                            color: "#182431",
+                        },
+                    }}
+                />
             </AuthProvider>
         </QueryClientProvider>
     )
