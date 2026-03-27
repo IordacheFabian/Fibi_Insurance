@@ -45,6 +45,7 @@ export default function BuildingPage() {
               <th>Number of Floors</th>
               <th>Risk Indicators</th>
               <th>Surface Area</th>
+              <th>Address</th>
             </tr>
           </thead>
           <tbody>
@@ -57,6 +58,7 @@ export default function BuildingPage() {
                 <td>{building.numberOfFloors}</td>
                 <td>{building.riskIndicators}</td>
                 <td>{building.surfaceArea}</td>
+                <td>{`${building.address.street} ${building.address.number}, ${building.address.cityName}`}</td>
               </tr>
           </tbody>
         </table>

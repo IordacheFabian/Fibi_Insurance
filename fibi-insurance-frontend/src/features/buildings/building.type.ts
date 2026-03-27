@@ -1,9 +1,10 @@
+import type { Address } from "../addresses/address.type";
 import type { Client } from "../clients/client.types";
 
 export interface Building {
     id: string;
     clientId: string;
-    //address
+    address: Address;
     constructionYear: number;
     buildingType: string;
     numberOfFloors: number;
@@ -15,9 +16,13 @@ export interface Building {
 }
 
 export interface CreateBuildingRequest {
-  clientId: string;
+  address: {
+    street: string;
+    number: string;
+    cityId: string;
+  };
   constructionYear: number;
-  buildingType: string;
+  buildingType: number;
   numberOfFloors: number;
   surfaceArea: number;
   insuredValue: number;

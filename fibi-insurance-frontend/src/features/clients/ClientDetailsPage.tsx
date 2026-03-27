@@ -26,12 +26,17 @@ export default function ClientDetailsPage() {
             <h2 className="page-title">{client.name}</h2>
             <p className="page-subtitle">Client details</p>
           </div>
+          <Link to={`/broker/clients/${client.id}/update`} className="btn btn-accent">
+            Update Client
+          </Link>{" "}
         </div>
 
         <div className="detail-grid">
           <div className="detail-item">
             <p className="detail-label">Client Type</p>
-            <p className="detail-value">{clientTypeLabels[Number(client.type)] ?? "Unknown"}</p>
+            <p className="detail-value">
+              {clientTypeLabels[Number(client.type)] ?? "Unknown"}
+            </p>
           </div>
           <div className="detail-item">
             <p className="detail-label">Email</p>

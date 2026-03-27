@@ -42,7 +42,7 @@ public class BrokersController : AdminBaseController
     {
         var broker = await Mediator.Send(new CreateBroker.Command { CreateBrokerDto = createBrokerDto });
 
-        return CreatedAtAction(nameof(GetBrokerAsync), new { broker }, broker);
+        return CreatedAtAction(nameof(GetBrokersAsync), broker);
     }
 
     [HttpPut("brokers/{id:guid}")]

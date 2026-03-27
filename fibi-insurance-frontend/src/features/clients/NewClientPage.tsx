@@ -11,7 +11,8 @@ export default function NewClientPage() {
   const handleSubmit = async (values: CreateClientRequest) => {
     const createdClient = await mutateAsync(values);
     toast.success("Client created successfully.");
-    navigate(`/broker/clients/${createdClient.id}`);
+    console.log(createdClient);
+    navigate(`/broker/clients/${createdClient}`);
   };
 
   return (

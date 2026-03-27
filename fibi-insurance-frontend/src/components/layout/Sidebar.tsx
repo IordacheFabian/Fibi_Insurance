@@ -22,43 +22,32 @@ export default function Sidebar() {
 
           {user?.role === "Broker" && (
             <>
-              <NavLink
-                to="/broker/clients"
-                className={navClassName}
-              >
+              <NavLink to="/broker/clients" className={navClassName}>
                 <span className="nav-icon">CL</span>
                 Clients
               </NavLink>
-              <NavLink
-                to="/broker/policies"
-                className={navClassName}
-              >
+              <NavLink to="/broker/policies" className={navClassName}>
                 <span className="nav-icon">PO</span>
                 Policies
               </NavLink>
-              <NavLink
-                to="/admin/claims"
-                className={navClassName}
-              >
+              <NavLink to="/admin/claims" className={navClassName}>
                 <span className="nav-icon">CM</span>
                 Claims
+              </NavLink>
+              <NavLink to="/broker/clients/:id/buildings/new" className={navClassName}>
+                <span className="nav-icon">BU</span>
+                Buildings
               </NavLink>
             </>
           )}
 
           {user?.role === "Admin" && (
             <>
-              <NavLink
-                to="/admin/brokers"
-                className={navClassName}
-              >
+              <NavLink to="/admin/brokers" className={navClassName}>
                 <span className="nav-icon">BR</span>
                 Brokers
               </NavLink>
-              <NavLink
-                to="/admin/reports/country"
-                className={navClassName}
-              >
+              <NavLink to="/admin/reports/country" className={navClassName}>
                 <span className="nav-icon">RP</span>
                 Reports
               </NavLink>

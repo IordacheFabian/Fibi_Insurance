@@ -21,8 +21,16 @@ export default function BuildingPage() {
                 <h2 className="page-title">Buildings</h2>
                 <p className="page-subtitle">No buildings found.</p>
               </div>
+              <Link
+                to={`/broker/clients/${id}/buildings/new`}
+                className="btn btn-accent"
+              >
+                Add Building
+              </Link>
             </div>
-            <div className="state-box empty">No insured building records for this client yet.</div>
+            <div className="state-box empty">
+              No insured building records for this client yet.
+            </div>
           </section>
         );
     }
@@ -35,7 +43,7 @@ export default function BuildingPage() {
             <p className="page-subtitle">Client building portfolio and insured values.</p>
           </div>
           <Link
-            to="/broker/buildings/new"
+            to={`/broker/clients/${id}/buildings/new`}
             className="btn btn-accent"
           >
             Add Building

@@ -9,6 +9,8 @@ import ClientDetailsPage from "../features/clients/ClientDetailsPage";
 import BuildingPage from "../features/buildings/BuildingPage";
 import BuildingsDetailsPage from "../features/buildings/BuildingsDetailsPage";
 import ClaimsPage from "../features/claims/ClaimsPage";
+import ClientUpdatePage from "../features/clients/ClientUpdatePage";
+import NewBuildingPage from "../features/buildings/NewBuildingPage";
 
 export const router = createBrowserRouter([
   {
@@ -64,6 +66,20 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           {
+            path: "/broker/clients/:id/update",
+            element: <ClientUpdatePage />,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    element: <ProtectedRoute allowedRoles={["Broker"]} />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: [
+          {
             path: "/broker/clients/:id",
             element: <ClientDetailsPage />,
           },
@@ -71,6 +87,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
   {
     element: <ProtectedRoute allowedRoles={["Broker"]} />,
     children: [
@@ -94,6 +111,20 @@ export const router = createBrowserRouter([
           {
             path: "/broker/buildings/:id",
             element: <BuildingsDetailsPage />,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    element: <ProtectedRoute allowedRoles={["Broker"]} />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: [
+          {
+            path: "/broker/clients/:id/buildings/new",
+            element: <NewBuildingPage />,
           },
         ],
       },
