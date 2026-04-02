@@ -5,6 +5,7 @@ using Application.Core.Interfaces.IRepositories;
 using AutoMapper;
 using Domain.Models.Clients;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Clients.Commands;
 
@@ -23,8 +24,15 @@ public class CreateClient
 
             await clientRepository.AddClientAsync(client, cancellationToken);
 
-            var result = await clientRepository.SaveChangesAsync(cancellationToken);
-            if(!result) throw new BadRequestException("Failed to create client");
+            try
+            {
+                var result = await clientRepository.SaveChangesAsync(cancellationToken);
+                if(!result) throw new BadRequestException("Failed to create client");
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                throw new BadRequestException("A client with this identification number already exists.");
+            }
 
             return client.Id.ToString();
         }

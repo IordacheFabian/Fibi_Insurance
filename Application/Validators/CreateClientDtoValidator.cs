@@ -1,5 +1,6 @@
 using System;
 using Application.Clients.Commands;
+using Application.Core.Interfaces.IRepositories;
 using Application.Validators.Extensions;
 using FluentValidation;
 
@@ -7,7 +8,7 @@ namespace Application.Clients.DTOs.Validators;
 
 public class CreateClientDtoValidator : AbstractValidator<CreateClient.Command>
 {
-    public CreateClientDtoValidator()
+    public CreateClientDtoValidator(IClientRepository clientRepository)
     {
         RuleFor(x => x.ClientDto).NotNull().WithMessage("Client data is required.");
 
@@ -18,6 +19,11 @@ public class CreateClientDtoValidator : AbstractValidator<CreateClient.Command>
                 .MaximumLength(200);
 
             RuleFor(x => x.ClientDto.IdentificationNumber).ValidCnp();
+
+            RuleFor(x => x.ClientDto.IdentificationNumber)
+                .MustAsync(async (identifier, cancellationToken) =>
+                    !await clientRepository.IdentifierExistsAsync(identifier, cancellationToken))
+                .WithMessage("A client with this identification number already exists.");
 
             RuleFor(x => x.ClientDto.Email).ValidEmail();
 
