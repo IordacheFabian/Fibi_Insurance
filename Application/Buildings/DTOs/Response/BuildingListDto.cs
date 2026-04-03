@@ -12,4 +12,7 @@ public class BuildingListDto
     public string CityName { get; set; } = string.Empty;
     public BuildingType BuildingType { get; set; }
     public int InsuredValue { get; set; }
+    public Guid CurrencyId { get; set; }
+    public string CurrencyCode { get; set; } = string.Empty;
+    public string CurrencyName { get; set; } = string.Empty;
 }

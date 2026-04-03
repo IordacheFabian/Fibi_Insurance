@@ -5,8 +5,8 @@ import { AlertCircle, Building2, Plus, Search, Users } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getClients } from "@/lib/api";
-import type { ClientListItem, ClientTypeValue } from "@/lib/types";
+import { getClients } from "@/lib/clients/client.api";
+import type { ClientListItem, ClientTypeValue } from "@/lib/clients/client.types";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
@@ -70,7 +70,10 @@ export default function ClientsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Clients" description="Manage your client portfolio">
-        <Link to="/clients/new" className="flex items-center gap-2 h-9 px-4 rounded-lg gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+        <Link
+          to="/clients/new"
+          className="flex items-center gap-2 h-9 px-4 rounded-lg gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+        >
           <Plus className="h-4 w-4" /> Add Client
         </Link>
       </PageHeader>
@@ -95,7 +98,9 @@ export default function ClientsPage() {
                 onClick={() => setTab(t)}
                 className={cn(
                   "px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize",
-                  tab === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  tab === t
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {t}
@@ -117,7 +122,10 @@ export default function ClientsPage() {
         {isLoading ? (
           <div className="p-4 space-y-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="grid grid-cols-6 gap-4 items-center rounded-lg border border-border/50 p-4">
+              <div
+                key={index}
+                className="grid grid-cols-6 gap-4 items-center rounded-lg border border-border/50 p-4"
+              >
                 <div className="flex items-center gap-3 col-span-2">
                   <Skeleton className="h-9 w-9 rounded-full" />
                   <div className="space-y-2 w-full">
@@ -140,7 +148,9 @@ export default function ClientsPage() {
             <div>
               <h3 className="text-lg font-semibold">Could not load clients</h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                {error instanceof Error ? error.message : "The client list request failed."}
+                {error instanceof Error
+                  ? error.message
+                  : "The client list request failed."}
               </p>
             </div>
             <button
@@ -154,7 +164,11 @@ export default function ClientsPage() {
           <EmptyState
             icon={Users}
             title="No clients found"
-            description={search.trim() ? "Try a different search term or switch to another client type." : "No clients are available in the database yet."}
+            description={
+              search.trim()
+                ? "Try a different search term or switch to another client type."
+                : "No clients are available in the database yet."
+            }
           />
         ) : (
           <div className="overflow-x-auto">
@@ -185,23 +199,37 @@ export default function ClientsPage() {
                         </div>
                         <div>
                           <p className="font-medium text-sm">{client.name}</p>
-                          <p className="text-xs text-muted-foreground">{client.email}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {client.email}
+                          </p>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <span className="capitalize text-xs">{getClientTypeLabel(client.clientType)}</span>
-                    </td>
-                    <td className="font-mono text-xs text-muted-foreground">{client.identificationMasked}</td>
-                    <td className="text-xs text-muted-foreground">{client.phoneNumber}</td>
-                    <td>
-                      <span className="flex items-center gap-1 text-xs">
-                        <Building2 className="h-3 w-3 text-muted-foreground" /> {client.buildings.length}
+                      <span className="capitalize text-xs">
+                        {getClientTypeLabel(client.clientType)}
                       </span>
                     </td>
-                    <td className="text-xs text-muted-foreground">{getPrimaryCity(client)}</td>
+                    <td className="font-mono text-xs text-muted-foreground">
+                      {client.identificationMasked}
+                    </td>
+                    <td className="text-xs text-muted-foreground">
+                      {client.phoneNumber}
+                    </td>
                     <td>
-                      <Link to={`/clients/${client.id}`} className="text-primary hover:underline">
+                      <span className="flex items-center gap-1 text-xs">
+                        <Building2 className="h-3 w-3 text-muted-foreground" />{" "}
+                        {client.buildings.length}
+                      </span>
+                    </td>
+                    <td className="text-xs text-muted-foreground">
+                      {getPrimaryCity(client)}
+                    </td>
+                    <td>
+                      <Link
+                        to={`/clients/${client.id}`}
+                        className="text-primary hover:underline"
+                      >
                         View Details
                       </Link>
                     </td>

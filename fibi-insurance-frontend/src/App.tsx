@@ -9,6 +9,9 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
 import ClientsPage from "./pages/ClientsPage";
 import BuildingsPage from "./pages/BuildingsPage";
+import BuildingDetailsPage from "./pages/BuildingDetailsPage";
+import CreateBuildingPage from "./pages/CreateBuildingPage";
+import EditBuildingPage from "./pages/EditBuildingPage";
 import PoliciesPage from "./pages/PoliciesPage";
 import ClaimsPage from "./pages/ClaimsPage";
 import PaymentsPage from "./pages/PaymentsPage";
@@ -49,6 +52,9 @@ const App = () => (
               <Route path="/clients/:id/edit" element={<EditClientPage />} />
               <Route path="/clients/new" element={<ClientForm />} />
               <Route path="/buildings" element={<BuildingsPage />} />
+              <Route path="/buildings/new" element={<CreateBuildingPage />} />
+              <Route path="/buildings/:id" element={<BuildingDetailsPage />} />
+              <Route path="/buildings/:id/edit" element={<EditBuildingPage />} />
               <Route path="/policies" element={<PoliciesPage />} />
               <Route path="/endorsements" element={<EndorsementsPage />} />
               <Route path="/payments" element={<PaymentsPage />} />

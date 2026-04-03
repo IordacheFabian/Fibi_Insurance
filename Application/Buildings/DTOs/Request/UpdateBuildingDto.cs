@@ -7,6 +7,7 @@ namespace Application.Buildings.DTOs.Request;
 public class UpdateBuildingDto
 {
     public Guid Id { get; set; }
+    public Guid CurrencyId { get; set; }
 
     public UpdateAddressDto? Address { get; set; }
 

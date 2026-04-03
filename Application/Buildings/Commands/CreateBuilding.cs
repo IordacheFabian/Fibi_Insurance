@@ -18,13 +18,17 @@ public class CreateBuilding
         public required CreateBuildingDto BuildingDto { get; set; }
     }
 
-    public class Handler(IBuildingRepository buildingRepository, IClientRepository clientRepository, IAddressRepository addressRepository, IMapper mapper) : IRequestHandler<Command, string>
+    public class Handler(IBuildingRepository buildingRepository, IClientRepository clientRepository, IAddressRepository addressRepository, ICurrencyRepository currencyRepository, IMapper mapper) : IRequestHandler<Command, string>
     {
         public async Task<string> Handle(Command request, CancellationToken cancellationToken)
         {
             var client = await clientRepository.GetClientAsync(request.ClientId, cancellationToken);
 
             if(client == null) throw new NotFoundException("Client not found");
+
+            var currency = await currencyRepository.GetCurrencyAsync(request.BuildingDto.CurrencyId, cancellationToken);
+
+            if(currency == null || !currency.IsActive) throw new NotFoundException("Currency not found");
 
             var address = mapper.Map<Address>(request.BuildingDto.Address);
 

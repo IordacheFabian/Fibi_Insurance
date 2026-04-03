@@ -1,5 +1,5 @@
-import { getClientById } from "@/lib/api";
-import { ClientDetails, ClientTypeValue } from "@/lib/types";
+import { getClientById } from "@/lib/clients/client.api";
+import { ClientDetails, ClientTypeValue } from "@/lib/clients/client.types";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Building2, Mail, Pencil, Phone } from "lucide-react";
 import { Link, useParams } from "react-router-dom";

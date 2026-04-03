@@ -17,6 +17,7 @@ public class BuildingRepository(AppDbContext context) : IBuildingRepository
     {
         return await context.Buildings
             .AsNoTracking()
+            .Include(b => b.Currency)
             .Include(b => b.Address)
                 .ThenInclude(a => a.City)
                     .ThenInclude(c => c.County)
@@ -29,6 +30,7 @@ public class BuildingRepository(AppDbContext context) : IBuildingRepository
         return await context.Buildings
             .AsNoTracking()
             .Include(x => x.Client)
+            .Include(x => x.Currency)
             .Include(x => x.Address)
                 .ThenInclude(x => x.City)
                     .ThenInclude(x => x.County)
@@ -42,6 +44,7 @@ public class BuildingRepository(AppDbContext context) : IBuildingRepository
             .AsNoTracking()
             .AsQueryable()
             .Where(x => x.ClientId == id)
+            .Include(x => x.Currency)
             .Include(x => x.Address)
                 .ThenInclude(x => x.City)
             .OrderBy(x => x.Address.Street);        

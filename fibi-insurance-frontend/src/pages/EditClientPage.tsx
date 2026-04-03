@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import ClientForm from "./ClientForm";
-import { getClientById, updateClient } from "@/lib/api";
-import type { CreateClient } from "@/lib/types";
+import { getClientById, updateClient } from "@/lib/clients/client.api";
+import type { CreateClient } from "@/lib/clients/client.types";
 
 export default function EditClientPage() {
   const { id } = useParams<{ id: string }>();

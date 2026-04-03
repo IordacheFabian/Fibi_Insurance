@@ -1,4 +1,5 @@
 using System;
+using Domain.Models.Buildings;
 using Domain.Models.Policies;
 
 namespace Domain.Models.Metadatas;
@@ -14,5 +15,6 @@ public class Currency
     public DateTime CreatedAt { get; set; } 
     public DateTime? UpdatedAt { get; set; }
 
+    public ICollection<Building> Buildings { get; set; } = new List<Building>();
     public ICollection<Policy> Policies { get; set; } = new List<Policy>();
 }

@@ -1,5 +1,6 @@
 using System;
 using Domain.Models.Clients;
+using Domain.Models.Metadatas;
 using Domain.Models.Geography.Address;
 
 namespace Domain.Models.Buildings;
@@ -17,6 +18,7 @@ public class Building
 
     public Guid ClientId { get; set; }
     public Guid AddressId { get; set; } 
+    public Guid CurrencyId { get; set; }
 
     public int ConstructionYear { get; set; }
     public BuildingType BuildingType { get; set; }
@@ -28,4 +30,5 @@ public class Building
     // nav props
     public Client Client { get; set; } = null!;
     public Address Address { get; set; } = null!;
+    public Currency Currency { get; set; } = null!;
 }

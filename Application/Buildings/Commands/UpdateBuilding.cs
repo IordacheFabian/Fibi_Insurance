@@ -14,12 +14,15 @@ public class UpdateBuilding
         public required UpdateBuildingDto BuildingDto { get; set; }
     }
 
-    public class Handler(IBuildingRepository buildingRepository, IMapper mapper) : IRequestHandler<Command, Unit>
+    public class Handler(IBuildingRepository buildingRepository, ICurrencyRepository currencyRepository, IMapper mapper) : IRequestHandler<Command, Unit>
     {
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var building = await buildingRepository.GetBuildingAsync(request.BuildingDto.Id, cancellationToken);
             if(building == null) throw new NotFoundException("Building not found");
+
+            var currency = await currencyRepository.GetCurrencyAsync(request.BuildingDto.CurrencyId, cancellationToken);
+            if(currency == null || !currency.IsActive) throw new NotFoundException("Currency not found");
 
             mapper.Map(request.BuildingDto, building);
 

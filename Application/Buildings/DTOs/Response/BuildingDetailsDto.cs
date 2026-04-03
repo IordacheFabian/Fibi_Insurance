@@ -13,6 +13,9 @@ public class BuildingDetailsDto
     public AddressDetailsDto Address { get; set; } = default!;
     
     public ClientDetailsDto Owner { get; set; } = default!;
+    public Guid CurrencyId { get; set; }
+    public string CurrencyCode { get; set; } = string.Empty;
+    public string CurrencyName { get; set; } = string.Empty;
     public int ConstructionYear { get; set; }
     public BuildingType BuildingType { get; set; }
     public int NumberOfFloors { get; set; }

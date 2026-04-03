@@ -17,9 +17,17 @@ public class BuildingConfiguration : IEntityTypeConfiguration<Building>
         builder.Property(x => x.AddressId)
             .IsRequired();
 
+        builder.Property(x => x.CurrencyId)
+            .IsRequired();
+
         builder.HasOne(x => x.Address)
             .WithOne(x => x.Building)
             .HasForeignKey<Building>(x => x.AddressId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.Currency)
+            .WithMany(x => x.Buildings)
+            .HasForeignKey(x => x.CurrencyId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

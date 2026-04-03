@@ -7,6 +7,7 @@ namespace Application.Buildings.DTOs.Request;
 public class CreateBuildingDto
 {
     public Guid ClientId { get; set; }
+    public Guid CurrencyId { get; set; }
     public CreateAddressDto Address { get; set;  } = default!;
 
     public int ConstructionYear { get; set; }

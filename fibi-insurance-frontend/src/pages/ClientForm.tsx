@@ -1,6 +1,6 @@
-import { CreateClient } from "@/lib/types";
+import { CreateClient } from "@/lib/clients/client.types";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { createClient } from "@/lib/api";
+import { createClient } from "@/lib/clients/client.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/ui/PageHeader";

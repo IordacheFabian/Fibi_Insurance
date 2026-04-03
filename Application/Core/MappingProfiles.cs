@@ -64,16 +64,22 @@ public class MappingProfiles : Profile
             .ForMember(d => d.AddressId, opt => opt.Ignore())
             .ForMember(d => d.Address, opt => opt.Ignore())
             .ForMember(d => d.Client, opt => opt.Ignore())
+            .ForMember(d => d.Currency, opt => opt.Ignore())
             .ForMember(d => d.RiskIndicatiors, opt => opt.MapFrom(src => src.RiskIndicators));
         CreateMap<UpdateBuildingDto, Building>()
             .ForMember(d => d.ClientId, opt => opt.Ignore())
             .ForMember(d => d.AddressId, opt => opt.Ignore())
             .ForMember(d => d.Client, opt => opt.Ignore())
+            .ForMember(d => d.Currency, opt => opt.Ignore())
             .ForMember(d => d.Address, opt => opt.Ignore());
 
         CreateMap<Building, BuildingDetailsDto>()
             .ForMember(d => d.Owner, 
                 opt => opt.MapFrom(src => src.Client))
+            .ForMember(d => d.CurrencyCode,
+                opt => opt.MapFrom(src => src.Currency.Code))
+            .ForMember(d => d.CurrencyName,
+                opt => opt.MapFrom(src => src.Currency.Name))
             .ForMember(d => d.ConstructionYear,
                 opt => opt.MapFrom(src => src.ConstructionYear))
             .ForMember(d => d.RiskIndicators,
@@ -82,7 +88,11 @@ public class MappingProfiles : Profile
             .ForMember(d => d.Address,
                 opt => opt.MapFrom(src => $"{src.Address.Street} {src.Address.Number}"))
             .ForMember(d => d.CityName,
-                opt => opt.MapFrom(src => src.Address.City.Name));
+                opt => opt.MapFrom(src => src.Address.City.Name))
+            .ForMember(d => d.CurrencyCode,
+                opt => opt.MapFrom(src => src.Currency.Code))
+            .ForMember(d => d.CurrencyName,
+                opt => opt.MapFrom(src => src.Currency.Name));
         
         CreateMap<Building, ClientBuildingSummaryDto>()
             .ForMember(d => d.Address, 
