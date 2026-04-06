@@ -109,8 +109,17 @@ export interface PolicyVersion {
 export interface PolicyEndorsement {
 	id: string;
 	policyId: string;
+	policyNumber?: string;
+	clientName?: string;
+	endorsementType?: EndorsementTypeValue | string;
+	reason?: string;
+	oldVersionNumber?: number;
 	versionNumber: number;
 	effectiveDate: string;
+	previousFinalPremium?: number;
+	newFinalPremium?: number;
+	currencyCode?: string;
+	policyStatus?: PolicyStatusValue;
 	createdBy: string;
 	createdAt: string;
 }

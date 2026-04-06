@@ -84,8 +84,11 @@ public class CreatePayment
             {
                 Id = payment.Id,
                 PolicyId = payment.PolicyId,
+                PolicyNumber = policy.PolicyNumber,
+                ClientName = policy.Client.Name,
                 Amount = payment.Amount,
                 CurrencyId = payment.CurrencyId,
+                CurrencyCode = activeVersion.Currency.Code,
                 PaymentDate = payment.PaymentDate,
                 Method = payment.Method.ToString(),
                 Status = payment.Status.ToString()

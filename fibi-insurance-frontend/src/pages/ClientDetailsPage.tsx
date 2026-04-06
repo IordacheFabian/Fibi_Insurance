@@ -1,9 +1,14 @@
 import { getClientById } from "@/lib/clients/client.api";
 import { ClientDetails, ClientTypeValue } from "@/lib/clients/client.types";
+import { getPolicies, normalizePolicyStatus } from "@/lib/policies/policy.api";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, Building2, Mail, Pencil, Phone } from "lucide-react";
+import { AlertCircle, Building2, Calendar, FileText, Mail, Pencil, Phone } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusChip } from "@/components/ui/StatusChip";
+import { formatMoney } from "@/lib/utils";
 
 function getClientTypeLabel(clientType: ClientTypeValue): "individual" | "company" {
   if (typeof clientType === "number") {
@@ -32,6 +37,20 @@ function getClientInitials(name: string) {
     .toUpperCase();
 }
 
+function formatDateOnly(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return value;
+  }
+
+  return new Date(year, month - 1, day).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export default function ClientDetailsPage() {
 
     const { id } = useParams<{ id: string }>();
@@ -46,6 +65,20 @@ export default function ClientDetailsPage() {
         queryKey: ["clients", id],
         queryFn: () => getClientById(id!),
         staleTime: 30000,
+      enabled: Boolean(id),
+    });
+
+    const {
+      data: policies = [],
+      isLoading: arePoliciesLoading,
+      isError: policiesError,
+      error: policiesQueryError,
+      refetch: refetchPolicies,
+    } = useQuery({
+      queryKey: ["clients", id, "policies"],
+      queryFn: () => getPolicies({ clientId: id! }),
+      staleTime: 30000,
+      enabled: Boolean(id),
     });
 
     if (isLoading) {
@@ -65,6 +98,8 @@ export default function ClientDetailsPage() {
         </div>
       );
     }
+
+    const activePoliciesCount = policies.filter((policy) => normalizePolicyStatus(policy.policyStatus) === "active").length;
 
     return (
       <div className="space-y-6">
@@ -115,6 +150,83 @@ export default function ClientDetailsPage() {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-4 space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="font-semibold">Policies</h3>
+              <p className="text-sm text-muted-foreground">All policies issued for this client.</p>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span>Total: {policies.length}</span>
+              <span>Active: {activePoliciesCount}</span>
+            </div>
+          </div>
+
+          {arePoliciesLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="rounded-lg border border-border/60 p-4 space-y-2">
+                  <Skeleton className="h-4 w-36" />
+                  <Skeleton className="h-4 w-56" />
+                  <Skeleton className="h-4 w-40" />
+                </div>
+              ))}
+            </div>
+          ) : policiesError ? (
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-destructive/20 bg-destructive/5 p-4 text-destructive">
+              <div>
+                <p className="font-medium">Could not load client policies</p>
+                <p className="text-sm">{policiesQueryError instanceof Error ? policiesQueryError.message : "The client policies request failed."}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => refetchPolicies()}
+                className="h-9 rounded-lg border border-destructive/30 px-4 text-sm font-medium hover:bg-destructive/10 transition-colors"
+              >
+                Try again
+              </button>
+            </div>
+          ) : policies.length === 0 ? (
+            <EmptyState
+              icon={FileText}
+              title="No policies yet"
+              description="This client does not have any policies assigned yet."
+            />
+          ) : (
+            <div className="space-y-3">
+              {policies.map((policy) => (
+                <Link
+                  key={policy.id}
+                  to={`/policies/${policy.id}`}
+                  className="block rounded-lg border border-border/60 p-4 transition-colors hover:bg-muted/30"
+                >
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" />
+                        <span className="font-mono text-sm font-semibold">{policy.policyNumber}</span>
+                        <StatusChip status={normalizePolicyStatus(policy.policyStatus)} />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {`${policy.buildingStreet} ${policy.buildingNumber}`.trim()}, {policy.cityName}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>{formatDateOnly(policy.startDate)} - {formatDateOnly(policy.endDate)}</span>
+                      </div>
+                    </div>
+
+                    <div className="text-left lg:text-right">
+                      <p className="text-xs text-muted-foreground">Final premium</p>
+                      <p className="text-sm font-semibold">{formatMoney(policy.finalPremium, policy.currencyCode)}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     )

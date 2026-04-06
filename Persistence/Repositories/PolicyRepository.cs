@@ -55,6 +55,7 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
                         PolicyAdjustments = v.PolicyAdjustments
                             .Select(a => new PolicyAdjustmentDto
                             {
+                                Id = a.Id,
                                 Name = a.Name,
                                 AdjustmentType = a.AdjustmentType,
                                 Percentage = a.Percentage,
@@ -134,6 +135,7 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
     {
         return await context.Policies
             .AsTracking()
+            .Include(p => p.Broker)
             .Include(p => p.Building)
                 .ThenInclude(b => b.Address)
                     .ThenInclude(a => a.City)
@@ -199,17 +201,71 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
         await context.PolicyVersions.AddAsync(policyVersion, cancellationToken);
     }
 
+    public async Task<List<PolicyEndorsementsDto>> GetPolicyEndorsementsAsync(CancellationToken cancellationToken)
+    {
+        return await context.PolicyEndorsements
+            .AsNoTracking()
+            .OrderByDescending(endorsement => endorsement.CreatedAt)
+            .Select(endorsement => new PolicyEndorsementsDto
+            {
+                Id = endorsement.Id,
+                PolicyId = endorsement.PolicyId,
+                PolicyNumber = endorsement.Policy.PolicyNumber,
+                ClientName = endorsement.Policy.Client.Name,
+                EndorsementType = endorsement.EndorsementType,
+                Reason = endorsement.Reason,
+                OldVersionNumber = endorsement.OldVersionNumber,
+                VersionNumber = endorsement.NewVersionNumber,
+                EffectiveDate = endorsement.EffectiveDate,
+                PreviousFinalPremium = endorsement.Policy.PolicyVersions
+                    .Where(version => version.VersionNumber == endorsement.OldVersionNumber)
+                    .Select(version => version.FinalPremium)
+                    .FirstOrDefault(),
+                NewFinalPremium = endorsement.Policy.PolicyVersions
+                    .Where(version => version.VersionNumber == endorsement.NewVersionNumber)
+                    .Select(version => version.FinalPremium)
+                    .FirstOrDefault(),
+                CurrencyCode = endorsement.Policy.PolicyVersions
+                    .Where(version => version.VersionNumber == endorsement.NewVersionNumber)
+                    .Select(version => version.Currency.Code)
+                    .FirstOrDefault() ?? string.Empty,
+                PolicyStatus = endorsement.Policy.PolicyStatus,
+                CreatedBy = endorsement.CreatedBy,
+                CreatedAt = endorsement.CreatedAt
+            })
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<PolicyEndorsementsDto>> GetPolicyEndorsementForPolicyAsync(Guid policyId, CancellationToken cancellationToken)
     {
         return await context.PolicyEndorsements
             .AsNoTracking()
             .Where(p => p.PolicyId == policyId)
+            .OrderByDescending(endorsement => endorsement.CreatedAt)
             .Select(e => new PolicyEndorsementsDto
             {
                 Id = e.Id,
                 PolicyId = e.PolicyId,
+                PolicyNumber = e.Policy.PolicyNumber,
+                ClientName = e.Policy.Client.Name,
+                EndorsementType = e.EndorsementType,
+                Reason = e.Reason,
+                OldVersionNumber = e.OldVersionNumber,
                 VersionNumber = e.NewVersionNumber,
                 EffectiveDate = e.EffectiveDate,
+                PreviousFinalPremium = e.Policy.PolicyVersions
+                    .Where(version => version.VersionNumber == e.OldVersionNumber)
+                    .Select(version => version.FinalPremium)
+                    .FirstOrDefault(),
+                NewFinalPremium = e.Policy.PolicyVersions
+                    .Where(version => version.VersionNumber == e.NewVersionNumber)
+                    .Select(version => version.FinalPremium)
+                    .FirstOrDefault(),
+                CurrencyCode = e.Policy.PolicyVersions
+                    .Where(version => version.VersionNumber == e.NewVersionNumber)
+                    .Select(version => version.Currency.Code)
+                    .FirstOrDefault() ?? string.Empty,
+                PolicyStatus = e.Policy.PolicyStatus,
                 CreatedBy = e.CreatedBy,
                 CreatedAt = e.CreatedAt
             })

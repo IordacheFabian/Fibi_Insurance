@@ -11,6 +11,14 @@ namespace API.Controllers;
 
 public class PaymentsController : BrokerBaseController
 {
+    [HttpGet("payments")]
+    public async Task<ActionResult<List<PaymentDto>>> GetPaymentsAsync()
+    {
+        var payments = await Mediator.Send(new GetAllPayments.Query());
+
+        return Ok(payments);
+    }
+
     [HttpPost("policies/{policyId:guid}/payments")]
     public async Task<ActionResult<PaymentDto>> CreatePaymentAsync(Guid policyId, [FromBody] CreatePaymentDto createPaymentDto)
     {

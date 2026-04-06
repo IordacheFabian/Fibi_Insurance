@@ -19,6 +19,9 @@ public class PaymentRepository(AppDbContext context) : IPaymentRepository
     {
         return await context.Payments
             .AsNoTracking()
+            .Include(x => x.Policy)
+                .ThenInclude(x => x.Client)
+            .Include(x => x.Currency)
             .OrderByDescending(x => x.PaymentDate)
             .ToListAsync(cancellationToken);
     }
@@ -40,6 +43,9 @@ public class PaymentRepository(AppDbContext context) : IPaymentRepository
     {
         return await context.Payments
             .AsNoTracking()
+            .Include(x => x.Policy)
+                .ThenInclude(x => x.Client)
+            .Include(x => x.Currency)
             .Where(x => x.PolicyId == policyId)
             .OrderByDescending(x => x.PaymentDate)
             .ToListAsync(cancellationToken);
@@ -48,7 +54,9 @@ public class PaymentRepository(AppDbContext context) : IPaymentRepository
     public async Task<Policy?> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken)
     {
         return await context.Policies
-        .Include(X => X.PolicyVersions)
+        .Include(x => x.Client)
+        .Include(x => x.PolicyVersions)
+            .ThenInclude(x => x.Currency)
         .FirstOrDefaultAsync(x => x.Id == policyId, cancellationToken);
     }
 

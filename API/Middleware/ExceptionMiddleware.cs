@@ -19,14 +19,14 @@ public class ExceptionMiddleware(ILogger<ExceptionMiddleware> logger, IHostEnvir
             context.Response.StatusCode = StatusCodes.Status404NotFound;
             context.Response.ContentType = "application/json";
 
-            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message, message = ex.Message });
         } 
         catch (BadRequestException ex)
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
             context.Response.ContentType = "application/json";
 
-            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message, message = ex.Message });
         }
         catch (ValidationException ex)
         {
@@ -37,7 +37,7 @@ public class ExceptionMiddleware(ILogger<ExceptionMiddleware> logger, IHostEnvir
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             context.Response.ContentType = "application/json";
 
-            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message, message = ex.Message });
         }
         catch (Exception ex)
         {

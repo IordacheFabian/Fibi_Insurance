@@ -23,17 +23,21 @@ public class GetPolicyPayments
                 throw new NotFoundException("Policy not found");
             }
 
-            return await paymentRepository.GetPaymentsByPolicyIdAsync(request.PolicyId, cancellationToken)
-                .ContinueWith(t => t.Result.Select(payment => new PaymentDto
-                {
-                    Id = payment.Id,
-                    PolicyId = payment.PolicyId,
-                    Amount = payment.Amount,
-                    CurrencyId = payment.CurrencyId,
-                    PaymentDate = payment.PaymentDate,
-                    Method = payment.Method.ToString(),
-                    Status = payment.Status.ToString()
-                }).ToList(), cancellationToken);
+            var payments = await paymentRepository.GetPaymentsByPolicyIdAsync(request.PolicyId, cancellationToken);
+
+            return payments.Select(payment => new PaymentDto
+            {
+                Id = payment.Id,
+                PolicyId = payment.PolicyId,
+                PolicyNumber = payment.Policy.PolicyNumber,
+                ClientName = payment.Policy.Client.Name,
+                Amount = payment.Amount,
+                CurrencyId = payment.CurrencyId,
+                CurrencyCode = payment.Currency.Code,
+                PaymentDate = payment.PaymentDate,
+                Method = payment.Method.ToString(),
+                Status = payment.Status.ToString()
+            }).ToList();
         }
     }
 }

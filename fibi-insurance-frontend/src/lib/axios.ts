@@ -98,16 +98,16 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 		}
 
 		try {
-			const parsed = JSON.parse(data) as { message?: string; title?: string };
-			return parsed.message || parsed.title || data;
+			const parsed = JSON.parse(data) as { message?: string; title?: string; error?: string };
+			return parsed.message || parsed.title || parsed.error || data;
 		} catch {
 			return data;
 		}
 	}
 
 	if (data && typeof data === "object") {
-		const apiError = data as { message?: string; title?: string };
-		return apiError.message || apiError.title || fallback;
+		const apiError = data as { message?: string; title?: string; error?: string };
+		return apiError.message || apiError.title || apiError.error || fallback;
 	}
 
 	return error.message || fallback;

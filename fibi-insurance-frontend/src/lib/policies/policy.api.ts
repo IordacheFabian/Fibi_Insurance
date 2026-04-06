@@ -99,6 +99,15 @@ export async function getPolicyEndorsements(policyId: string): Promise<PolicyEnd
 	}
 }
 
+export async function getEndorsements(): Promise<PolicyEndorsement[]> {
+	try {
+		const { data } = await apiClient.get<PolicyEndorsement[]>("/api/brokers/endorsements");
+		return data;
+	} catch (error) {
+		throw new Error(getApiErrorMessage(error, "Failed to fetch endorsements"));
+	}
+}
+
 export async function getPolicyVersions(policyId: string): Promise<PolicyVersion[]> {
 	try {
 		const { data } = await apiClient.get<PolicyVersion[]>(`/api/brokers/policies/${policyId}/versions`);

@@ -12,6 +12,7 @@ using Application.Policies.Queries;
 using Domain.Models.Policies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers;
 
@@ -55,6 +56,14 @@ public class PoliciesController : BrokerBaseController
     public async Task<ActionResult<List<PolicyEndorsementsDto>>> GetPolicyEndorsementsAsync(Guid policyId)
     {
         var endorsements = await Mediator.Send(new GetPolicyEndorsementsPolicyId.Query { PolicyId = policyId });
+
+        return Ok(endorsements);
+    }
+
+    [HttpGet("endorsements")]
+    public async Task<ActionResult<List<PolicyEndorsementsDto>>> GetEndorsementsAsync()
+    {
+        var endorsements = await Mediator.Send(new GetPolicyEndorsementsList.Query());
 
         return Ok(endorsements);
     }
@@ -122,7 +131,9 @@ public class PoliciesController : BrokerBaseController
         {
             PolicyId = policyId,
             CreatePolicyEndorsementDto = createPolicyEndorsementDto,
-            CreatedBy = User.Identity?.Name ?? "Unknown"
+            CreatedBy = User.FindFirstValue(ClaimTypes.Name)
+                ?? User.FindFirstValue(ClaimTypes.Email)
+                ?? string.Empty
         });
 
         return NoContent();

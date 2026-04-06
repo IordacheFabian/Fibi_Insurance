@@ -228,6 +228,15 @@ export default function ClaimsPage() {
     }
   };
 
+    const policyNumberShort = (policyNumber: string) => {
+      if (policyNumber.length <= 18) {
+        return policyNumber;
+      }
+
+      return `${policyNumber.slice(0, 12)}-${policyNumber.slice(12, 18)}`;
+    };
+
+
   return (
     <div className="space-y-6">
       <PageHeader title="Claims" description={role === "admin" ? "Review, approve, reject, and settle insurance claims" : "Track claim activity across your policies"}>
@@ -339,7 +348,7 @@ export default function ClaimsPage() {
                       <StatusChip status={claim.status} />
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {claim.clientName} · <Link to={`/policies/${claim.policyId}`} className="hover:text-foreground transition-colors">{claim.policyNumber}</Link>
+                      {claim.clientName} · <Link to={`/policies/${claim.policyId}`} className="hover:text-foreground transition-colors">{policyNumberShort(claim.policyNumber)}</Link>
                     </p>
                   </div>
                 </div>
@@ -423,7 +432,7 @@ export default function ClaimsPage() {
           <DialogHeader>
             <DialogTitle>{dialogMode === "approve" ? "Approve claim" : "Reject claim"}</DialogTitle>
             <DialogDescription>
-              {selectedClaim ? `${selectedClaim.reference} for policy ${selectedClaim.policyNumber}` : "Update the selected claim."}
+              {selectedClaim ? `${selectedClaim.reference} for policy ${policyNumberShort(selectedClaim.policyNumber)}` : "Update the selected claim."}
             </DialogDescription>
           </DialogHeader>
 

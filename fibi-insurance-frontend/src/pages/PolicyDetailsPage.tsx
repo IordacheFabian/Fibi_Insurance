@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
   CalendarDays,
+  CreditCard,
   FileClock,
   FilePlus2,
   FileStack,
@@ -37,6 +38,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/sonner";
+import { createPayment, getPolicyPayments } from "@/lib/payments/payment.api";
 import {
   activatePolicy,
   cancelPolicy,
@@ -71,6 +73,13 @@ type ClaimFormState = {
   estimatedDamage: string;
 };
 
+type PaymentFormState = {
+  amount: string;
+  paymentDate: string;
+  method: "Cash" | "Card" | "BankTransfer";
+  status: "Completed" | "Pending" | "Failed";
+};
+
 const initialCancelForm: CancelFormState = {
   cancellationDate: "",
   cancellationReason: "",
@@ -90,6 +99,13 @@ const initialClaimForm: ClaimFormState = {
   description: "",
   incidentDate: "",
   estimatedDamage: "",
+};
+
+const initialPaymentForm: PaymentFormState = {
+  amount: "",
+  paymentDate: new Date().toISOString().slice(0, 10),
+  method: "BankTransfer",
+  status: "Completed",
 };
 
 function formatDateOnly(value?: string | null) {
@@ -161,12 +177,15 @@ export default function PolicyDetailsPage() {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isEndorsementDialogOpen, setIsEndorsementDialogOpen] = useState(false);
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [cancelForm, setCancelForm] = useState(initialCancelForm);
   const [endorsementForm, setEndorsementForm] = useState(initialEndorsementForm);
   const [claimForm, setClaimForm] = useState(initialClaimForm);
+  const [paymentForm, setPaymentForm] = useState(initialPaymentForm);
   const [cancelError, setCancelError] = useState("");
   const [endorsementError, setEndorsementError] = useState("");
   const [claimError, setClaimError] = useState("");
+  const [paymentError, setPaymentError] = useState("");
 
   const { data: policy, isLoading, isError, error } = useQuery({
     queryKey: ["policies", id],
@@ -211,6 +230,18 @@ export default function PolicyDetailsPage() {
     staleTime: 30000,
   });
 
+  const {
+    data: payments = [],
+    isLoading: arePaymentsLoading,
+    isError: arePaymentsErrored,
+    error: paymentsError,
+  } = useQuery({
+    queryKey: ["policies", id, "payments"],
+    queryFn: () => getPolicyPayments(id!),
+    enabled: Boolean(id),
+    staleTime: 30000,
+  });
+
   const refreshPolicyQueries = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["policies"] }),
@@ -218,6 +249,8 @@ export default function PolicyDetailsPage() {
       queryClient.invalidateQueries({ queryKey: ["policies", id, "versions"] }),
       queryClient.invalidateQueries({ queryKey: ["policies", id, "endorsements"] }),
       queryClient.invalidateQueries({ queryKey: ["policies", id, "claims"] }),
+      queryClient.invalidateQueries({ queryKey: ["policies", id, "payments"] }),
+      queryClient.invalidateQueries({ queryKey: ["payments"] }),
     ]);
   };
 
@@ -303,6 +336,42 @@ export default function PolicyDetailsPage() {
     },
   });
 
+  const createPaymentMutation = useMutation({
+    mutationFn: async () => {
+      if (!id) {
+        throw new Error("Policy id is missing");
+      }
+
+      if (!activeVersion?.currencyId) {
+        throw new Error("Active policy version currency is not available.");
+      }
+
+      const amount = Number(paymentForm.amount);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new Error("Payment amount must be greater than zero.");
+      }
+
+      if (!paymentForm.paymentDate) {
+        throw new Error("Payment date is required.");
+      }
+
+      await createPayment(id, {
+        amount,
+        currencyId: activeVersion.currencyId,
+        paymentDate: new Date(`${paymentForm.paymentDate}T00:00:00`).toISOString(),
+        method: paymentForm.method,
+        status: paymentForm.status,
+      });
+    },
+    onSuccess: async () => {
+      await refreshPolicyQueries();
+      setIsPaymentDialogOpen(false);
+      setPaymentForm(initialPaymentForm);
+      setPaymentError("");
+      toast.success("Payment recorded");
+    },
+  });
+
   const policyStatus = useMemo(
     () => (policy ? normalizePolicyStatus(policy.policyStatus) : "draft"),
     [policy],
@@ -316,6 +385,21 @@ export default function PolicyDetailsPage() {
   const totalAdjustmentAmount = useMemo(
     () => policy?.policyAdjustments.reduce((sum, adjustment) => sum + adjustment.amount, 0) ?? 0,
     [policy?.policyAdjustments],
+  );
+
+  const completedPaidAmount = useMemo(
+    () => payments.filter((payment) => payment.status === "paid").reduce((sum, payment) => sum + payment.amount, 0),
+    [payments],
+  );
+
+  const pendingPaymentAmount = useMemo(
+    () => payments.filter((payment) => payment.status === "pending").reduce((sum, payment) => sum + payment.amount, 0),
+    [payments],
+  );
+
+  const remainingPremium = useMemo(
+    () => Math.max(0, (policy?.finalPremium ?? 0) - completedPaidAmount),
+    [completedPaidAmount, policy?.finalPremium],
   );
 
   const handleCancelSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -366,6 +450,14 @@ export default function PolicyDetailsPage() {
         }
       }
 
+      if (!policy) {
+        throw new Error("Policy details are not loaded.");
+      }
+
+      if (endorsementForm.effectiveDate < policy.startDate || endorsementForm.effectiveDate > policy.endDate) {
+        throw new Error(`Effective date must be between ${formatDateOnly(policy.startDate)} and ${formatDateOnly(policy.endDate)}.`);
+      }
+
       await createEndorsementMutation.mutateAsync();
     } catch (submitError) {
       setEndorsementError(submitError instanceof Error ? submitError.message : "Failed to create endorsement.");
@@ -392,6 +484,27 @@ export default function PolicyDetailsPage() {
     }
   };
 
+  const handlePaymentSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPaymentError("");
+
+    try {
+      const amount = Number(paymentForm.amount);
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new Error("Payment amount must be greater than zero.");
+      }
+
+      if (!paymentForm.paymentDate) {
+        throw new Error("Payment date is required.");
+      }
+
+      await createPaymentMutation.mutateAsync();
+    } catch (submitError) {
+      setPaymentError(submitError instanceof Error ? submitError.message : "Failed to record payment.");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -408,6 +521,14 @@ export default function PolicyDetailsPage() {
       </div>
     );
   }
+    const policyNumberShort = (policyNumber: string) => {
+      if (policyNumber.length <= 18) {
+        return policyNumber;
+      }
+
+      return `${policyNumber.slice(0, 12)}-${policyNumber.slice(12, 18)}`;
+    };
+
 
   if (isError || !policy) {
     return (
@@ -460,7 +581,14 @@ export default function PolicyDetailsPage() {
           <>
             <button
               type="button"
-              onClick={() => setIsEndorsementDialogOpen(true)}
+              onClick={() => {
+                setEndorsementForm((current) => ({
+                  ...current,
+                  effectiveDate: policy.startDate,
+                }));
+                setEndorsementError("");
+                setIsEndorsementDialogOpen(true);
+              }}
               className="flex items-center gap-2 h-9 px-4 rounded-lg gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
             >
               <PencilLine className="h-4 w-4" /> Add Endorsement
@@ -471,6 +599,22 @@ export default function PolicyDetailsPage() {
               className="flex items-center gap-2 h-9 px-4 rounded-lg border border-border text-sm font-medium hover:bg-muted transition-colors"
             >
               <FilePlus2 className="h-4 w-4" /> Submit Claim
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentForm((current) => ({
+                  ...current,
+                  amount: remainingPremium > 0 ? String(remainingPremium) : current.amount,
+                  paymentDate: new Date().toISOString().slice(0, 10),
+                }));
+                setPaymentError("");
+                setIsPaymentDialogOpen(true);
+              }}
+              disabled={remainingPremium <= 0 || !activeVersion?.currencyId}
+              className="flex items-center gap-2 h-9 px-4 rounded-lg border border-border text-sm font-medium hover:bg-muted transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <CreditCard className="h-4 w-4" /> Record Payment
             </button>
             <button
               type="button"
@@ -490,7 +634,7 @@ export default function PolicyDetailsPage() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold font-mono">{policy.policyNumber}</h2>
+            <h2 className="text-2xl font-bold font-mono">{policyNumberShort(policy.policyNumber)}</h2>
             <StatusChip status={policyStatus} />
           </div>
           <p className="text-sm text-muted-foreground mt-1">
@@ -544,11 +688,12 @@ export default function PolicyDetailsPage() {
       </div>
 
       <Tabs defaultValue="adjustments" className="space-y-4">
-        <TabsList className="grid h-auto grid-cols-2 md:grid-cols-4">
+        <TabsList className="grid h-auto grid-cols-2 md:grid-cols-5">
           <TabsTrigger value="adjustments">Adjustments</TabsTrigger>
           <TabsTrigger value="versions">Versions</TabsTrigger>
           <TabsTrigger value="endorsements">Endorsements</TabsTrigger>
           <TabsTrigger value="claims">Claims</TabsTrigger>
+          <TabsTrigger value="payments">Payments</TabsTrigger>
         </TabsList>
 
         <TabsContent value="adjustments">
@@ -655,6 +800,52 @@ export default function PolicyDetailsPage() {
             </div>
           )}
         </TabsContent>
+
+        <TabsContent value="payments">
+          {arePaymentsLoading ? (
+            <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">Loading payments...</div>
+          ) : arePaymentsErrored ? (
+            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
+              {paymentsError instanceof Error ? paymentsError.message : "Failed to load payments."}
+            </div>
+          ) : payments.length === 0 ? (
+            <EmptyState icon={CreditCard} title="No payments" description="No payments have been recorded for this policy yet." />
+          ) : (
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-lg border border-border bg-card p-4 space-y-2">
+                  <h3 className="text-sm font-semibold">Completed</h3>
+                  <p className="text-xl font-bold text-success">{formatMoney(completedPaidAmount, policy.currencyCode)}</p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 space-y-2">
+                  <h3 className="text-sm font-semibold">Pending</h3>
+                  <p className="text-xl font-bold text-warning">{formatMoney(pendingPaymentAmount, policy.currencyCode)}</p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 space-y-2">
+                  <h3 className="text-sm font-semibold">Remaining</h3>
+                  <p className="text-xl font-bold">{formatMoney(remainingPremium, policy.currencyCode)}</p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {payments
+                  .slice()
+                  .sort((left, right) => new Date(right.paymentDate).getTime() - new Date(left.paymentDate).getTime())
+                  .map((payment) => (
+                    <div key={payment.id} className="rounded-lg border border-border bg-card p-4 space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="font-semibold">{formatMoney(payment.amount, payment.currencyCode)}</h3>
+                        <StatusChip status={payment.status} />
+                      </div>
+                      <p className="text-sm text-muted-foreground">Method: {payment.methodLabel}</p>
+                      <p className="text-sm text-muted-foreground">Payment date: {formatDateTime(payment.paymentDate)}</p>
+                      <p className="text-sm text-muted-foreground">Recorded for {payment.policyNumber}</p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
@@ -757,8 +948,11 @@ export default function PolicyDetailsPage() {
                   onChange={(event) => setEndorsementForm((current) => ({ ...current, effectiveDate: event.target.value }))}
                   disabled={createEndorsementMutation.isPending}
                   required
+                  min={policy.startDate}
+                  max={policy.endDate}
                   className="w-full h-10 px-3 rounded-lg bg-muted/50 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all disabled:opacity-60"
                 />
+                <p className="text-xs text-muted-foreground">Policy coverage: {formatDateOnly(policy.startDate)} to {formatDateOnly(policy.endDate)}</p>
               </div>
 
               <div className="space-y-2">
@@ -928,6 +1122,103 @@ export default function PolicyDetailsPage() {
                 className="h-10 px-4 rounded-lg gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
               >
                 {createClaimMutation.isPending ? "Submitting..." : "Submit Claim"}
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Record payment</DialogTitle>
+            <DialogDescription>
+              Record a payment for this policy. Completed payments cannot exceed the remaining premium.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handlePaymentSubmit} className="space-y-4">
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+              Remaining premium: {formatMoney(remainingPremium, policy.currencyCode)}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="paymentAmount" className="text-sm font-medium">Amount</label>
+                <input
+                  id="paymentAmount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={paymentForm.amount}
+                  onChange={(event) => setPaymentForm((current) => ({ ...current, amount: event.target.value }))}
+                  disabled={createPaymentMutation.isPending}
+                  className="w-full h-10 px-3 rounded-lg bg-muted/50 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all disabled:opacity-60"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="paymentDate" className="text-sm font-medium">Payment Date</label>
+                <input
+                  id="paymentDate"
+                  type="date"
+                  value={paymentForm.paymentDate}
+                  onChange={(event) => setPaymentForm((current) => ({ ...current, paymentDate: event.target.value }))}
+                  disabled={createPaymentMutation.isPending}
+                  className="w-full h-10 px-3 rounded-lg bg-muted/50 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all disabled:opacity-60"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="paymentMethod" className="text-sm font-medium">Method</label>
+                <select
+                  id="paymentMethod"
+                  value={paymentForm.method}
+                  onChange={(event) => setPaymentForm((current) => ({ ...current, method: event.target.value as PaymentFormState["method"] }))}
+                  disabled={createPaymentMutation.isPending}
+                  className="w-full h-10 px-3 rounded-lg bg-muted/50 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all disabled:opacity-60"
+                >
+                  <option value="BankTransfer">Bank Transfer</option>
+                  <option value="Card">Card</option>
+                  <option value="Cash">Cash</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="paymentStatus" className="text-sm font-medium">Status</label>
+                <select
+                  id="paymentStatus"
+                  value={paymentForm.status}
+                  onChange={(event) => setPaymentForm((current) => ({ ...current, status: event.target.value as PaymentFormState["status"] }))}
+                  disabled={createPaymentMutation.isPending}
+                  className="w-full h-10 px-3 rounded-lg bg-muted/50 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all disabled:opacity-60"
+                >
+                  <option value="Completed">Completed</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Failed">Failed</option>
+                </select>
+              </div>
+            </div>
+
+            {paymentError && <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{paymentError}</div>}
+
+            <DialogFooter>
+              <button
+                type="button"
+                onClick={() => setIsPaymentDialogOpen(false)}
+                disabled={createPaymentMutation.isPending}
+                className="h-10 px-4 rounded-lg border border-border text-sm font-medium hover:bg-muted transition-colors disabled:opacity-60"
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                disabled={createPaymentMutation.isPending || remainingPremium <= 0 || !activeVersion?.currencyId}
+                className="h-10 px-4 rounded-lg gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
+              >
+                {createPaymentMutation.isPending ? "Recording..." : "Record Payment"}
               </button>
             </DialogFooter>
           </form>

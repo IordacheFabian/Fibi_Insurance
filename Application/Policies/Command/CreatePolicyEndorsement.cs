@@ -45,6 +45,9 @@ public class CreatePolicyEndorsement
                 throw new BadRequestException("Endorsement reason is required");
 
             var newVersionNumber = activeVersion.VersionNumber + 1;
+            var createdBy = string.IsNullOrWhiteSpace(request.CreatedBy) || request.CreatedBy == "Unknown"
+                ? policy.Broker?.Name ?? "Unknown"
+                : request.CreatedBy;
 
             var newPolicyVersion = new PolicyVersion
             {
@@ -57,7 +60,7 @@ public class CreatePolicyEndorsement
                 FinalPremium = activeVersion.FinalPremium,
                 CurrencyId = activeVersion.CurrencyId,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.CreatedBy,
+                CreatedBy = createdBy,
                 IsActiveVersion = true,
                 PolicyAdjustments = new List<PolicyAdjustment>()
             };
@@ -93,7 +96,7 @@ public class CreatePolicyEndorsement
                 OldVersionNumber = activeVersion.VersionNumber,
                 NewVersionNumber = newVersionNumber,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.CreatedBy
+                CreatedBy = createdBy
             };
 
             await policyRepository.CreatePolicyEndorsementAsync(policyEndorsement, cancellationToken);

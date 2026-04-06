@@ -12,6 +12,7 @@ const statusStyles: Record<string, string> = {
   inactive: "bg-muted text-muted-foreground border-border",
   cancelled: "bg-destructive/10 text-destructive border-destructive/20",
   rejected: "bg-destructive/10 text-destructive border-destructive/20",
+  failed: "bg-destructive/10 text-destructive border-destructive/20",
   overdue: "bg-destructive/10 text-destructive border-destructive/20",
   partial: "bg-warning/10 text-warning border-warning/20",
   none: "bg-muted text-muted-foreground border-border",
@@ -41,7 +42,7 @@ export function StatusChip({ status, className }: StatusChipProps) {
         status === "active" || status === "paid" || status === "approved" || status === "low" ? "bg-success" :
         status === "pending" || status === "partial" || status === "medium" ? "bg-warning" :
         status === "submitted" || status === "under_review" ? "bg-info" :
-        status === "cancelled" || status === "rejected" || status === "overdue" || status === "high" ? "bg-destructive" :
+        status === "cancelled" || status === "rejected" || status === "failed" || status === "overdue" || status === "high" ? "bg-destructive" :
         "bg-muted-foreground"
       )} />
       {statusLabels[status] || status}
