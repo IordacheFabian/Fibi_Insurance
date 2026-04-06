@@ -23,10 +23,15 @@ public class GetPolicyClaims
                 Id = claim.Id,
                 PolicyId = claim.PolicyId,
                 Description = claim.Description,
+                IncidentDate = claim.IncidentDate,
+                EstimatedDamage = claim.EstimatedDamage,
                 Status = claim.Status.ToString(),
                 ApprovedAmount = claim.ApprovedAmount,
+                CreatedAt = claim.CreatedAt,
                 ReviewedAt = claim.ReviewedAt,
+                ApprovedAt = claim.ApprovedAt,
                 RejectionReason = claim.RejectionReason,
+                RejectedAt = claim.RejectedAt,
                 PaidAt = claim.PaidAt
             }).ToList();
         }

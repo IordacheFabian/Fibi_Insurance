@@ -50,7 +50,7 @@ public class PayClaim
                 PolicyId = claim.PolicyId,
                 EstimatedDamage = claim.EstimatedDamage,
                 ApprovedAmount = claim.ApprovedAmount,
-                ApprovedAt = claim.ReviewedAt,
+                ApprovedAt = claim.ApprovedAt,
                 PaidAt = claim.PaidAt
             };
         }

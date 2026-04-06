@@ -38,6 +38,7 @@ public class GetClaimsList
 
             var totalCount = await claims.CountAsync(cancellationToken);
             var items = await claims
+                .OrderByDescending(claim => claim.CreatedAt)
                 .Skip((paging.PageNumber - 1) * paging.PageSize)
                 .Take(paging.PageSize)
                 .ToListAsync(cancellationToken);
@@ -48,6 +49,7 @@ public class GetClaimsList
                 PolicyId = c.PolicyId,
                 PolicyNumber = c.Policy.PolicyNumber,
                 ClientName = c.Policy.Client.Name,
+                EstimatedDamage = c.EstimatedDamage,
                 ApprovedAmount = c.ApprovedAmount,
                 Status = c.Status,
                 CreatedAt = c.CreatedAt

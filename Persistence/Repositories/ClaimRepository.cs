@@ -29,7 +29,11 @@ public class ClaimRepository(AppDbContext context) : IClaimRepository
 
     public Task<List<Claim>> GetClaimsByPolicyIdAsync(Guid policyId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return context.Claims
+            .AsNoTracking()
+            .Where(claim => claim.PolicyId == policyId)
+            .OrderByDescending(claim => claim.CreatedAt)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)

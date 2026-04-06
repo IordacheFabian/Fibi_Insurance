@@ -60,9 +60,9 @@ public class ActivatePolicyHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldThrowBadRequest_WhenStartDateIsInPast()
+    public async Task Handle_ShouldThrowBadRequest_WhenStartDateIsInFuture()
     {
-        var policy = CreatePolicy(version: v => v.StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-2)));
+        var policy = CreatePolicy(version: v => v.StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2)));
 
         var repo = new Mock<IPolicyRepository>();
         repo.Setup(x => x.GetPolicyForActivationAsync(policy.Id, It.IsAny<CancellationToken>()))

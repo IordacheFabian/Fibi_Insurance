@@ -23,7 +23,9 @@ import NotFound from "./pages/NotFound";
 import ClientForm from "./pages/ClientForm";
 import ClientDetailsPage from "./pages/ClientDetailsPage";
 import LoginPage from "./pages/LoginPage";
+import CreatePolicyPage from "@/pages/CreatePolicyPage";
 import EditClientPage from "@/pages/EditClientPage";
+import PolicyDetailsPage from "@/pages/PolicyDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,8 @@ const App = () => (
               <Route path="/buildings/:id" element={<BuildingDetailsPage />} />
               <Route path="/buildings/:id/edit" element={<EditBuildingPage />} />
               <Route path="/policies" element={<PoliciesPage />} />
+              <Route path="/policies/new" element={<CreatePolicyPage />} />
+              <Route path="/policies/:id" element={<PolicyDetailsPage />} />
               <Route path="/endorsements" element={<EndorsementsPage />} />
               <Route path="/payments" element={<PaymentsPage />} />
               <Route path="/claims" element={<ClaimsPage />} />

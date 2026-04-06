@@ -34,7 +34,8 @@ public class ApproveClaim
 
             claim.Status = ClaimStatus.Approved;
             claim.ApprovedAmount = request.ApproveClaimDto.ApprovedAmount;
-            claim.ReviewedAt = DateOnly.FromDateTime(DateTime.UtcNow);
+            claim.ApprovedAt = DateOnly.FromDateTime(DateTime.UtcNow);
+            claim.ReviewedAt = claim.ApprovedAt;
             claim.RejectionReason = null;
 
             await claimRepository.SaveChangesAsync(cancellationToken);
@@ -45,7 +46,7 @@ public class ApproveClaim
                 PolicyId = claim.PolicyId,
                 EstimatedDamage = claim.EstimatedDamage,
                 ApprovedAmount = claim.ApprovedAmount,
-                ApprovedAt = claim.ReviewedAt
+                ApprovedAt = claim.ApprovedAt
             };
         }
     }

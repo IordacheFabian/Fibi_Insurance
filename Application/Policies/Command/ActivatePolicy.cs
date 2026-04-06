@@ -28,7 +28,7 @@ public class ActivatePolicy
                 throw new BadRequestException("Policy does not have an active version and cannot be activated");
 
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
-            if(activeVersion.StartDate < today) 
+            if(activeVersion.StartDate > today) 
                 throw new BadRequestException("Policy start date cannot be in the future");
 
             if (policy.ClientId == Guid.Empty ||
