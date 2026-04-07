@@ -4,9 +4,11 @@ import type { CurrencyDto } from "./currency.types";
 
 const DEFAULT_PAGE_SIZE = 100;
 
-async function getCurrenciesPage(pageNumber: number, pageSize: number, isActive = true): Promise<PagedResult<CurrencyDto>> {
+async function getCurrenciesPage(role: "admin" | "broker" = "admin", pageNumber: number, pageSize: number, isActive = true): Promise<PagedResult<CurrencyDto>> {
+  const path = role === "admin" ? "/api/admin/currencies" : "/api/brokers/currencies";
+
   try {
-    const { data } = await apiClient.get<PagedResult<CurrencyDto>>("/api/admin/currencies", {
+    const { data } = await apiClient.get<PagedResult<CurrencyDto>>(path, {
       params: {
         isActive,
         pageNumber,
@@ -20,13 +22,13 @@ async function getCurrenciesPage(pageNumber: number, pageSize: number, isActive 
   }
 }
 
-export async function getCurrencies(pageSize = DEFAULT_PAGE_SIZE): Promise<CurrencyDto[]> {
+export async function getCurrencies(role: "admin" | "broker" = "admin", pageSize = DEFAULT_PAGE_SIZE): Promise<CurrencyDto[]> {
   const currencies: CurrencyDto[] = [];
   let pageNumber = 1;
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const page = await getCurrenciesPage(pageNumber, pageSize, true);
+    const page = await getCurrenciesPage(role, pageNumber, pageSize, true);
     currencies.push(...page.items);
     hasNextPage = page.hasNextPage;
     pageNumber += 1;

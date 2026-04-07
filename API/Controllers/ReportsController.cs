@@ -10,6 +10,17 @@ namespace API.Controllers;
 
 public class ReportsController : AdminBaseController
 {
+    [HttpGet("reports/analytics")]
+    public async Task<ActionResult<ReportsAnalyticsDto>> GetAnalyticsAsync([FromQuery] ReportsAnalyticsRequestDto request)
+    {
+        var result = await Mediator.Send(new GetReportsAnalytics.Query
+        {
+            Request = request,
+        });
+
+        return Ok(result);
+    }
+
     [HttpGet("policies-by-country")]
     public async Task<ActionResult<PagedResult<PoliciesByCountryListDto>>> GetPoliciesByCountryReport([FromQuery] PoliciesByCountryReportDto reportRequest, int pageNumber = 1, int pageSize = 10)
     {

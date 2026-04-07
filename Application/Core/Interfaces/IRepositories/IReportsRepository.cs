@@ -11,4 +11,5 @@ public interface IReportsRepository
     IQueryable<PoliciesByCountyListDto> GetPoliciesByCountyReport(PoliciesByCountyReportDto reportRequest, CancellationToken cancellationToken);
     IQueryable<PoliciesByCityListDto> GetPoliciesByCityReport(PoliciesByCityReportDto reportRequest, CancellationToken cancellationToken);
     IQueryable<PoliciesByBrokerListDto> GetPoliciesByBrokerReport(PoliciesByBrokerReportDto reportRequest, CancellationToken cancellationToken);
+    Task<ReportsAnalyticsDto> GetAnalyticsAsync(DateOnly from, DateOnly to, Guid? brokerId, string? currencyCode, bool filterByCurrency, CancellationToken cancellationToken);
 }
