@@ -10,4 +10,5 @@ public class ReportsAnalyticsDto
     public List<ReportsMonthlyPointDto> Monthly { get; set; } = new();
     public List<ReportsGeographicPointDto> Geographic { get; set; } = new();
     public List<ReportsClaimsBreakdownPointDto> ClaimsBreakdown { get; set; } = new();
+    public List<ReportsBrokerPerformancePointDto> BrokerPerformance { get; set; } = new();
 }

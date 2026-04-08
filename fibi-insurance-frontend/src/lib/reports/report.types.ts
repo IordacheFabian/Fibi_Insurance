@@ -1,5 +1,7 @@
 export interface ReportSummary {
+  totalWrittenPremium: number;
   totalPremiumRevenue: number;
+  totalBrokerEarnings: number;
   claimsRatio: number;
   portfolioGrowth: number;
   collectionRate: number;
@@ -26,6 +28,17 @@ export interface ReportClaimsBreakdownPoint {
   value: number;
 }
 
+export interface ReportBrokerPerformancePoint {
+  brokerId: string;
+  brokerName: string;
+  totalPolicies: number;
+  activePolicies: number;
+  writtenPremium: number;
+  collectedPremium: number;
+  brokerEarnings: number;
+  commissionPercentage: number;
+}
+
 export interface ReportsAnalytics {
   currencyCode: string;
   currencyName: string;
@@ -33,4 +46,5 @@ export interface ReportsAnalytics {
   monthly: ReportMonthlyPoint[];
   geographic: ReportGeographicPoint[];
   claimsBreakdown: ReportClaimsBreakdownPoint[];
+  brokerPerformance: ReportBrokerPerformancePoint[];
 }

@@ -14,6 +14,7 @@ using Domain.Models.Buildings;
 using Domain.Models.Clients;
 using Domain.Models.Geography.Address;
 using Domain.Models.Metadatas;
+using Domain.Models.Payments;
 using Domain.Models.Policies;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,7 @@ namespace API.IntegrationTests.Reports;
 
 public class ReportsController_Tests : IClassFixture<CustomWebApplicationFactory>
 {
+    private const string AnalyticsPath = "/api/admin/reports/analytics";
     private const string CountryPath = "/api/admin/policies-by-country";
     private const string CountyPath = "/api/admin/policies-by-county";
     private const string CityPath = "/api/admin/policies-by-city";
@@ -109,6 +111,50 @@ public class ReportsController_Tests : IClassFixture<CustomWebApplicationFactory
     public async Task PoliciesByBroker_Should_ReturnEmptyList_WhenFiltersExcludeAll()
     {
         await AssertReportEmptyResultsAsync<PoliciesByBrokerListDto>(BrokerPath);
+    }
+
+    [Fact]
+    public async Task ReportsAnalytics_Should_ReturnBrokerEarningsAndPerformance()
+    {
+        var seeded = await ResetAndSeedPoliciesAsync();
+
+        var alphaRon = seeded.Single(policy => policy.BrokerName == "Alpha Broker" && policy.CurrencyCode == "RON" && policy.FinalPremium == 1000m);
+        var betaRon = seeded.Single(policy => policy.BrokerName == "Beta Broker" && policy.CurrencyCode == "RON" && policy.FinalPremium == 700m);
+        var betaEur = seeded.Single(policy => policy.BrokerName == "Beta Broker" && policy.CurrencyCode == "EUR" && policy.FinalPremium == 400m);
+
+        await SeedPaymentsAsync(
+            CreatePayment(alphaRon, 400m, new DateTime(2026, 1, 20), PaymentStatus.Completed),
+            CreatePayment(betaRon, 250m, new DateTime(2026, 2, 18), PaymentStatus.Pending),
+            CreatePayment(betaEur, 100m, new DateTime(2026, 2, 25), PaymentStatus.Completed));
+
+        var response = await GetAnalyticsAsync(new DateOnly(2026, 1, 1), new DateOnly(2026, 3, 31), "RON");
+
+        Assert.Equal("RON", response.CurrencyCode);
+        Assert.Equal(8738.32m, response.Summary.TotalWrittenPremium);
+        Assert.Equal(890m, response.Summary.TotalPremiumRevenue);
+        Assert.Equal(89m, response.Summary.TotalBrokerEarnings);
+        Assert.Equal(7, response.Summary.TotalPolicies);
+
+        Assert.Collection(
+            response.BrokerPerformance,
+            beta =>
+            {
+                Assert.Equal("Beta Broker", beta.BrokerName);
+                Assert.Equal(3, beta.TotalPolicies);
+                Assert.Equal(2, beta.ActivePolicies);
+                Assert.Equal(49m, beta.BrokerEarnings);
+                Assert.Equal(490m, beta.CollectedPremium);
+                Assert.Equal(10m, beta.CommissionPercentage);
+            },
+            alpha =>
+            {
+                Assert.Equal("Alpha Broker", alpha.BrokerName);
+                Assert.Equal(4, alpha.TotalPolicies);
+                Assert.Equal(2, alpha.ActivePolicies);
+                Assert.Equal(40m, alpha.BrokerEarnings);
+                Assert.Equal(400m, alpha.CollectedPremium);
+                Assert.Equal(10m, alpha.CommissionPercentage);
+            });
     }
 
     private async Task AssertReportTotalsAsync<TDto>(
@@ -352,6 +398,54 @@ public class ReportsController_Tests : IClassFixture<CustomWebApplicationFactory
         var payload = await response.Content.ReadFromJsonAsync<PagedResult<T>>();
         return payload ?? throw new XunitException("Response body was empty.");
     }
+
+    private async Task<ReportsAnalyticsDto> GetAnalyticsAsync(
+        DateOnly from,
+        DateOnly to,
+        string? currency = null,
+        bool filterByCurrency = false)
+    {
+        var query = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["From"] = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            ["To"] = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            ["filterByCurrency"] = filterByCurrency.ToString()
+        };
+
+        if (!string.IsNullOrWhiteSpace(currency))
+        {
+            query["Currency"] = currency;
+        }
+
+        var url = QueryHelpers.AddQueryString(AnalyticsPath, query!);
+        var response = await _http.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<ReportsAnalyticsDto>();
+        return payload ?? throw new XunitException("Response body was empty.");
+    }
+
+    private async Task SeedPaymentsAsync(params Payment[] payments)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        await db.Payments.AddRangeAsync(payments);
+        await db.SaveChangesAsync();
+    }
+
+    private static Payment CreatePayment(PolicySeedResult policy, decimal amount, DateTime paymentDate, PaymentStatus status) =>
+        new()
+        {
+            Id = Guid.NewGuid(),
+            PolicyId = policy.PolicyId,
+            Amount = amount,
+            CurrencyId = policy.CurrencyId,
+            PaymentDate = DateTime.SpecifyKind(paymentDate, DateTimeKind.Utc),
+            Method = PaymentMethod.BankTransfer,
+            Status = status,
+            CreatedAt = DateTime.SpecifyKind(paymentDate, DateTimeKind.Utc),
+        };
 
     private static IEnumerable<PolicySeedResult> FilterPolicies(
         IEnumerable<PolicySeedResult> policies,
@@ -659,6 +753,8 @@ public class ReportsController_Tests : IClassFixture<CustomWebApplicationFactory
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
                 AddressId = address.Id,
+                CurrencyId = currency.Id,
+                Currency = currency,
                 ConstructionYear = 2015,
                 BuildingType = options.BuildingType,
                 NumberOfFloors = 5,

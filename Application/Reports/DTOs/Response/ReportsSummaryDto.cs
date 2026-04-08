@@ -4,7 +4,9 @@ namespace Application.Reports.DTOs.Response;
 
 public class ReportsSummaryDto
 {
+    public decimal TotalWrittenPremium { get; set; }
     public decimal TotalPremiumRevenue { get; set; }
+    public decimal TotalBrokerEarnings { get; set; }
     public decimal ClaimsRatio { get; set; }
     public decimal PortfolioGrowth { get; set; }
     public decimal CollectionRate { get; set; }

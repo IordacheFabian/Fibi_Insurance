@@ -9,6 +9,8 @@ import type {
 	PaymentStatusValue,
 } from "./payment.type";
 
+export type PaymentsRole = "broker" | "admin";
+
 const PAYMENT_STATUS_BY_NUMBER = ["pending", "paid", "failed"] as const;
 const PAYMENT_METHOD_BY_NUMBER = ["cash", "card", "bank_transfer"] as const;
 
@@ -76,6 +78,10 @@ export function getPaymentStatusLabel(status: PaymentStatusValue) {
 	return normalizedStatus.charAt(0).toUpperCase() + normalizedStatus.slice(1);
 }
 
+function getPaymentsPath(role: PaymentsRole) {
+	return role === "admin" ? "/api/admin/payments" : "/api/brokers/payments";
+}
+
 function mapPaymentRecord(payment: PaymentListItem): PaymentRecord {
 	return {
 		...payment,
@@ -86,9 +92,9 @@ function mapPaymentRecord(payment: PaymentListItem): PaymentRecord {
 	};
 }
 
-export async function getPayments(): Promise<PaymentRecord[]> {
+export async function getPayments(role: PaymentsRole = "broker"): Promise<PaymentRecord[]> {
 	try {
-		const { data } = await apiClient.get<PaymentListItem[]>("/api/brokers/payments");
+		const { data } = await apiClient.get<PaymentListItem[]>(getPaymentsPath(role));
 		return data.map(mapPaymentRecord);
 	} catch (error) {
 		throw new Error(getApiErrorMessage(error, "Failed to fetch payments"));

@@ -40,6 +40,10 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
             .Select(p => new
             {
                 p.Id,
+                p.BrokerId,
+                BrokerName = p.Broker.Name,
+                CommissionPercentage = p.Broker.CommissionPercentage,
+                p.PolicyStatus,
                 Region = p.Building.Address.City.Name,
                 StartDate = p.PolicyVersions
                     .Where(v => v.IsActiveVersion)
@@ -76,6 +80,10 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
             .Select(p => new
             {
                 p.Id,
+                p.BrokerId,
+                p.BrokerName,
+                CommissionPercentage = p.CommissionPercentage ?? 0m,
+                p.PolicyStatus,
                 p.Region,
                 StartDate = p.StartDate!.Value,
                 EndDate = p.EndDate!.Value,
@@ -100,6 +108,9 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
             .Select(p => new
             {
                 p.PolicyId,
+                BrokerId = p.Policy.BrokerId,
+                BrokerName = p.Policy.Broker.Name,
+                CommissionPercentage = p.Policy.Broker.CommissionPercentage,
                 p.PaymentDate,
                 p.Amount,
                 p.Status,
@@ -167,6 +178,59 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
             .Take(8)
             .ToList();
 
+        var completedPayments = payments
+            .Where(payment => payment.Status == PaymentStatus.Completed)
+            .Select(payment => new
+            {
+                payment.PolicyId,
+                payment.BrokerId,
+                payment.BrokerName,
+                CommissionPercentage = payment.CommissionPercentage ?? 0m,
+                AmountBase = Math.Round(payment.Amount * payment.ExchangeRateToBase, 2),
+            })
+            .ToList();
+
+        var collectedPremiumByBrokerId = completedPayments
+            .GroupBy(payment => payment.BrokerId)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Sum(payment => payment.AmountBase));
+
+        var brokerEarningsByBrokerId = completedPayments
+            .GroupBy(payment => payment.BrokerId)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Sum(payment => Math.Round(payment.AmountBase * payment.CommissionPercentage / 100m, 2)));
+
+        var brokerPerformance = policiesInRange
+            .GroupBy(policy => new
+            {
+                policy.BrokerId,
+                policy.BrokerName,
+            })
+            .Select(group =>
+            {
+                var commissionPercentage = Math.Round(group.Max(policy => policy.CommissionPercentage), 2);
+                var writtenPremiumBase = group.Sum(policy => policy.FinalPremiumBase);
+                var collectedPremiumBase = collectedPremiumByBrokerId.GetValueOrDefault(group.Key.BrokerId, 0m);
+                var brokerEarningsBase = brokerEarningsByBrokerId.GetValueOrDefault(group.Key.BrokerId, 0m);
+
+                return new ReportsBrokerPerformancePointDto
+                {
+                    BrokerId = group.Key.BrokerId,
+                    BrokerName = group.Key.BrokerName,
+                    TotalPolicies = group.Count(),
+                    ActivePolicies = group.Count(policy => policy.PolicyStatus == PolicyStatus.Active),
+                    WrittenPremium = ConvertFromBase(writtenPremiumBase, targetCurrencyRate),
+                    CollectedPremium = ConvertFromBase(collectedPremiumBase, targetCurrencyRate),
+                    BrokerEarnings = ConvertFromBase(brokerEarningsBase, targetCurrencyRate),
+                    CommissionPercentage = commissionPercentage,
+                };
+            })
+            .OrderByDescending(item => item.BrokerEarnings)
+            .ThenByDescending(item => item.WrittenPremium)
+            .ToList();
+
         var claimsBreakdown = claims
             .GroupBy(claim => claim.Status)
             .Select(group => new ReportsClaimsBreakdownPointDto
@@ -178,9 +242,8 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
             .ToList();
 
         var totalPolicyPremium = policiesInRange.Sum(policy => policy.FinalPremiumBase);
-        var totalPremiumRevenue = payments
-            .Where(payment => payment.Status == PaymentStatus.Completed)
-            .Sum(payment => Math.Round(payment.Amount * payment.ExchangeRateToBase, 2));
+        var totalPremiumRevenue = completedPayments.Sum(payment => payment.AmountBase);
+        var totalBrokerEarnings = brokerEarningsByBrokerId.Values.Sum();
         var totalClaimsIncurred = claims
             .Sum(claim => Math.Round(GetClaimAmount(claim.Status, claim.EstimatedDamage, claim.ApprovedAmount) * claim.ExchangeRateToBase, 2));
 
@@ -199,7 +262,9 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
             CurrencyName = targetCurrency.Name,
             Summary = new ReportsSummaryDto
             {
+                TotalWrittenPremium = ConvertFromBase(totalPolicyPremium, targetCurrencyRate),
                 TotalPremiumRevenue = ConvertFromBase(totalPremiumRevenue, targetCurrencyRate),
+                TotalBrokerEarnings = ConvertFromBase(totalBrokerEarnings, targetCurrencyRate),
                 ClaimsRatio = totalPolicyPremium == 0 ? 0 : Math.Round((totalClaimsIncurred / totalPolicyPremium) * 100m, 2),
                 PortfolioGrowth = portfolioGrowth,
                 CollectionRate = totalPolicyPremium == 0 ? 0 : Math.Round((totalPremiumRevenue / totalPolicyPremium) * 100m, 2),
@@ -215,6 +280,7 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
             }).ToList(),
             Geographic = geographic,
             ClaimsBreakdown = claimsBreakdown,
+            BrokerPerformance = brokerPerformance,
         };
     }
 
@@ -556,7 +622,11 @@ public class ReportsRepository(AppDbContext context) : IReportsRepository
             return targetCurrency;
         }
 
-        targetCurrency = await query.OrderBy(currency => Math.Abs(currency.ExchangeRateToBase - 1m)).ThenBy(currency => currency.Code).FirstOrDefaultAsync(cancellationToken);
+        var activeCurrencies = await query.ToListAsync(cancellationToken);
+        targetCurrency = activeCurrencies
+            .OrderBy(currency => Math.Abs((double)(currency.ExchangeRateToBase - 1m)))
+            .ThenBy(currency => currency.Code)
+            .FirstOrDefault();
         if (targetCurrency is null)
         {
             throw new BadRequestException("No active currencies are configured.");

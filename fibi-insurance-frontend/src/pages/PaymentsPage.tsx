@@ -57,7 +57,7 @@ export default function PaymentsPage() {
 
   const { data: payments = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ["payments"],
-    queryFn: getPayments,
+    queryFn: () => getPayments(),
     staleTime: 30000,
   });
 
@@ -180,6 +180,14 @@ export default function PaymentsPage() {
     setPaymentError("");
     await recordPaymentMutation.mutateAsync();
   };
+
+    const policyNumberShort = (policyNumber: string) => {
+      if (policyNumber.length <= 18) {
+        return policyNumber;
+      }
+
+      return `${policyNumber.slice(0, 12)}-${policyNumber.slice(12, 18)}`;
+    };
 
   return (
     <div className="space-y-6">
@@ -323,7 +331,7 @@ export default function PaymentsPage() {
                     <td className="text-sm font-medium">{payment.clientName}</td>
                     <td>
                       <Link to={`/policies/${payment.policyId}`} className="font-mono text-xs hover:text-primary transition-colors">
-                        {payment.policyNumber}
+                        {policyNumberShort(payment.policyNumber)}
                       </Link>
                     </td>
                     <td className="text-sm font-semibold">{formatMoney(payment.amount, payment.currencyCode)}</td>
@@ -376,7 +384,7 @@ export default function PaymentsPage() {
                 <option value="">Select a policy</option>
                 {activePolicies.map((policy) => (
                   <option key={policy.id} value={policy.id}>
-                    {policy.policyNumber} · {policy.clientName}
+                    {policyNumberShort(policy.policyNumber)} · {policy.clientName}
                   </option>
                 ))}
               </select>
