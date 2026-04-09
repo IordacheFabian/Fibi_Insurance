@@ -15,14 +15,14 @@ public class BuildingsController : BrokerBaseController
     [HttpGet("clients/{clientId:guid}/buildings")]
     public async Task<ActionResult<PagedResult<BuildingListDto>>> GetBuildingsListAsync(Guid clientId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var buildings = await Mediator.Send(new GetBuildingsList.Query { ClientId = clientId, PageNumber = pageNumber, PageSize = pageSize });
+        var buildings = await Mediator.Send(new GetBuildingsList.Query { ClientId = clientId, BrokerId = CurrentBrokerId, PageNumber = pageNumber, PageSize = pageSize });
         return Ok(buildings);
     }
 
     [HttpGet("buildings/{buildingId:guid}", Name = nameof(GetBuildingDetailsAsync))]
     public async Task<ActionResult<BuildingDetailsDto>> GetBuildingDetailsAsync(Guid buildingId)
     {
-        var buildingDetails = await Mediator.Send(new GetBuildingDetails.Query { Id = buildingId });
+        var buildingDetails = await Mediator.Send(new GetBuildingDetails.Query { Id = buildingId, BrokerId = CurrentBrokerId });
         return Ok(buildingDetails);
     }
 
@@ -32,6 +32,7 @@ public class BuildingsController : BrokerBaseController
         var buildingId = await Mediator.Send(new CreateBuilding.Command
         {
             ClientId = clientId,
+            BrokerId = CurrentBrokerId,
             BuildingDto = buildingDto   
         });
         
@@ -41,8 +42,10 @@ public class BuildingsController : BrokerBaseController
     [HttpPut("buildings/{buildingId:guid}")]
     public async Task<ActionResult> UpdateBuildingAsync(Guid buildingId, UpdateBuildingDto buildingDto)
     {
+        buildingDto.Id = buildingId;
         var command = new UpdateBuilding.Command
         {
+            BrokerId = CurrentBrokerId,
             BuildingDto = buildingDto
         };
         await Mediator.Send(command);

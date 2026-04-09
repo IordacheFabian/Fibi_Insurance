@@ -18,6 +18,7 @@ public class CreatePolicyDraft
 {
     public class Command : IRequest<PolicyDetailsDto>
     {
+        public Guid BrokerId { get; set; }
         public required CreatePolicyDraftDto CreatePolicyDraftDto { get; set; }
     }
 
@@ -34,16 +35,16 @@ public class CreatePolicyDraft
         {
             var policyDto = request.CreatePolicyDraftDto;
 
-            var client = await clientRepository.GetClientAsync(policyDto.ClientId, cancellationToken);
+            var client = await clientRepository.GetClientAsync(policyDto.ClientId, request.BrokerId, cancellationToken);
             if (client == null) throw new NotFoundException("Client not found");
 
-            var building = await buildingRepository.GetBuildingAsync(policyDto.BuildingId, cancellationToken);
+            var building = await buildingRepository.GetBuildingAsync(policyDto.BuildingId, request.BrokerId, cancellationToken);
             if (building == null) throw new NotFoundException("Building not found");
 
             var currency = await currencyRepository.GetCurrencyAsync(policyDto.CurrencyId, cancellationToken);
             if (currency == null) throw new NotFoundException("Currency not found");
 
-            var broker = await brokerRepository.GetBrokerAsync(policyDto.BrokerId, cancellationToken);
+            var broker = await brokerRepository.GetBrokerAsync(request.BrokerId, cancellationToken);
             if (broker == null) throw new NotFoundException("Broker not found");
             if (broker.BrokerStatus != BrokerStatus.Active)
                 throw new BadRequestException("Broker is not active");
@@ -68,7 +69,7 @@ public class CreatePolicyDraft
                 PolicyNumber = policyNumber,
                 ClientId = policyDto.ClientId,
                 BuildingId = policyDto.BuildingId,
-                BrokerId = policyDto.BrokerId,
+                BrokerId = request.BrokerId,
                 PolicyVersions = new List<PolicyVersion>
                 {
                     new PolicyVersion

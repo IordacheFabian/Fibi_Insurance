@@ -20,7 +20,7 @@ public class RejectClaim
     {
         public async Task<RejectedClaimDto> Handle(Command request, CancellationToken cancellationToken)
         {
-            var claim = await claimRepository.GetClaimByIdAsync(request.ClaimId, cancellationToken);
+            var claim = await claimRepository.GetClaimByIdAsync(request.ClaimId, null, cancellationToken);
 
             if(claim == null) 
             {

@@ -21,17 +21,17 @@ public class ClaimRepository(AppDbContext context) : IClaimRepository
                 .ThenInclude(p => p.Client);
     }
 
-    public async Task<Claim?> GetClaimByIdAsync(Guid claimId, CancellationToken cancellationToken)
+        public async Task<Claim?> GetClaimByIdAsync(Guid claimId, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Claims
-            .FirstOrDefaultAsync(x => x.Id == claimId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == claimId && (!brokerId.HasValue || x.Policy.BrokerId == brokerId.Value), cancellationToken);
     }
 
-    public Task<List<Claim>> GetClaimsByPolicyIdAsync(Guid policyId, CancellationToken cancellationToken)
+        public Task<List<Claim>> GetClaimsByPolicyIdAsync(Guid policyId, Guid? brokerId, CancellationToken cancellationToken)
     {
         return context.Claims
             .AsNoTracking()
-            .Where(claim => claim.PolicyId == policyId)
+            .Where(claim => claim.PolicyId == policyId && (!brokerId.HasValue || claim.Policy.BrokerId == brokerId.Value))
             .OrderByDescending(claim => claim.CreatedAt)
             .ToListAsync(cancellationToken);
     }

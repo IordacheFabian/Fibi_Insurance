@@ -45,6 +45,17 @@ public class BrokersController : AdminBaseController
         return CreatedAtAction(nameof(GetBrokersAsync), broker);
     }
 
+    [HttpPost("brokers/registration")]
+    public async Task<ActionResult<BrokerDetailsDto>> CreateBrokerWithAccountAsync([FromBody] CreateBrokerWithAccountDto createBrokerWithAccountDto)
+    {
+        var broker = await Mediator.Send(new CreateBrokerWithAccount.Command
+        {
+            CreateBrokerWithAccountDto = createBrokerWithAccountDto
+        });
+
+        return CreatedAtAction(nameof(GetBrokerAsync), new { id = broker.Id }, broker);
+    }
+
     [HttpPut("brokers/{id:guid}")]
     public async Task<ActionResult> UpdateBrokerAsync(Guid id, [FromBody] UpdateBrokerDto updateBrokerDto)
     {

@@ -15,6 +15,7 @@ public class CreateBuilding
     public class Command : IRequest<string>
     {
         public Guid ClientId { get; set; }  
+        public Guid BrokerId { get; set; }
         public required CreateBuildingDto BuildingDto { get; set; }
     }
 
@@ -22,7 +23,7 @@ public class CreateBuilding
     {
         public async Task<string> Handle(Command request, CancellationToken cancellationToken)
         {
-            var client = await clientRepository.GetClientAsync(request.ClientId, cancellationToken);
+            var client = await clientRepository.GetClientAsync(request.ClientId, request.BrokerId, cancellationToken);
 
             if(client == null) throw new NotFoundException("Client not found");
 

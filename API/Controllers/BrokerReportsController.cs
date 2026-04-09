@@ -13,16 +13,10 @@ public class BrokerReportsController : BrokerBaseController
     [HttpGet("reports/analytics")]
     public async Task<ActionResult<ReportsAnalyticsDto>> GetAnalyticsAsync([FromQuery] ReportsAnalyticsRequestDto request)
     {
-        var brokerIdValue = User.FindFirst("brokerId")?.Value;
-        if (!Guid.TryParse(brokerIdValue, out var brokerId))
-        {
-            return BadRequest(new { message = "Broker context is missing from the authenticated user." });
-        }
-
         var result = await Mediator.Send(new GetReportsAnalytics.Query
         {
             Request = request,
-            BrokerId = brokerId,
+            BrokerId = CurrentBrokerId,
         });
 
         return Ok(result);

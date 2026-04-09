@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Context;
 
@@ -10,9 +11,11 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260409100600_SeedAdminUser")]
+    partial class SeedAdminUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.12");
@@ -305,9 +308,6 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("BrokerId")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("ClientType")
                         .HasColumnType("INTEGER");
 
@@ -330,8 +330,6 @@ namespace Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BrokerId");
 
                     b.HasIndex("IdentificationNumber")
                         .IsUnique();
@@ -880,16 +878,6 @@ namespace Persistence.Migrations
                     b.Navigation("Policy");
                 });
 
-            modelBuilder.Entity("Domain.Models.Clients.Client", b =>
-                {
-                    b.HasOne("Domain.Models.Brokers.Broker", "Broker")
-                        .WithMany("Clients")
-                        .HasForeignKey("BrokerId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Broker");
-                });
-
             modelBuilder.Entity("Domain.Models.County", b =>
                 {
                     b.HasOne("Domain.Models.Country", "Country")
@@ -1009,8 +997,6 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Models.Brokers.Broker", b =>
                 {
-                    b.Navigation("Clients");
-
                     b.Navigation("Policies");
                 });
 

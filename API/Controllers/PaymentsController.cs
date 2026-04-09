@@ -14,7 +14,7 @@ public class PaymentsController : BrokerBaseController
     [HttpGet("payments")]
     public async Task<ActionResult<List<PaymentDto>>> GetPaymentsAsync()
     {
-        var payments = await Mediator.Send(new GetAllPayments.Query());
+        var payments = await Mediator.Send(new GetAllPayments.Query { BrokerId = CurrentBrokerId });
 
         return Ok(payments);
     }
@@ -22,7 +22,7 @@ public class PaymentsController : BrokerBaseController
     [HttpPost("policies/{policyId:guid}/payments")]
     public async Task<ActionResult<PaymentDto>> CreatePaymentAsync(Guid policyId, [FromBody] CreatePaymentDto createPaymentDto)
     {
-        var payment = await Mediator.Send(new CreatePayment.Command { PolicyId = policyId, Payment = createPaymentDto });
+        var payment = await Mediator.Send(new CreatePayment.Command { PolicyId = policyId, BrokerId = CurrentBrokerId, Payment = createPaymentDto });
 
         return Ok (payment);
     }
@@ -30,7 +30,7 @@ public class PaymentsController : BrokerBaseController
     [HttpGet("policies/{policyId:guid}/payments")]
     public async Task<ActionResult<List<PaymentDto>>> GetPaymentsByPolicyIdAsync(Guid policyId)
     {
-        var payments = await Mediator.Send(new GetPolicyPayments.Query { PolicyId = policyId });
+        var payments = await Mediator.Send(new GetPolicyPayments.Query { PolicyId = policyId, BrokerId = CurrentBrokerId });
 
         return Ok(payments);
     }

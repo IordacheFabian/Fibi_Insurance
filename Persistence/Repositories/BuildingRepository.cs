@@ -13,19 +13,20 @@ public class BuildingRepository(AppDbContext context) : IBuildingRepository
         await context.Buildings.AddAsync(building, cancellationToken);
     }
 
-    public async Task<Building?> GetBuildingAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Building?> GetBuildingAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Buildings
             .AsNoTracking()
             .Include(b => b.Currency)
+            .Include(b => b.Client)
             .Include(b => b.Address)
                 .ThenInclude(a => a.City)
                     .ThenInclude(c => c.County)
                         .ThenInclude(co => co.Country)
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && (!brokerId.HasValue || x.Client.BrokerId == brokerId.Value), cancellationToken);
     }
 
-    public async Task<Building?> GetBuildingDetailsAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Building?> GetBuildingDetailsAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Buildings
             .AsNoTracking()
@@ -35,15 +36,15 @@ public class BuildingRepository(AppDbContext context) : IBuildingRepository
                 .ThenInclude(x => x.City)
                     .ThenInclude(x => x.County)
                         .ThenInclude(x => x.Country)
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && (!brokerId.HasValue || x.Client.BrokerId == brokerId.Value), cancellationToken);
     }
 
-    public IQueryable<Building> GetBuildingForClientAsync(Guid id, CancellationToken cancellationToken)
+    public IQueryable<Building> GetBuildingForClientAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         var buildings = context.Buildings
             .AsNoTracking()
             .AsQueryable()
-            .Where(x => x.ClientId == id)
+            .Where(x => x.ClientId == id && (!brokerId.HasValue || x.Client.BrokerId == brokerId.Value))
             .Include(x => x.Currency)
             .Include(x => x.Address)
                 .ThenInclude(x => x.City)

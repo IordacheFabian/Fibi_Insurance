@@ -13,6 +13,7 @@ public class CreateClient
 {
     public class Command : IRequest<string>
     {
+        public Guid BrokerId { get; set; }
         public required CreateClientDto ClientDto { get; set; }
     }
 
@@ -21,6 +22,7 @@ public class CreateClient
         public async Task<string> Handle(Command request, CancellationToken cancellationToken)
         {
             var client = mapper.Map<Client>(request.ClientDto);
+            client.BrokerId = request.BrokerId;
 
             await clientRepository.AddClientAsync(client, cancellationToken);
 

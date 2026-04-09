@@ -11,19 +11,20 @@ public class GetPolicyPayments
     public class Query : IRequest<List<PaymentDto>>
     {
         public Guid PolicyId { get; set; }
+        public Guid BrokerId { get; set; }
     }
 
     public class Handler(IPaymentRepository paymentRepository) : IRequestHandler<Query, List<PaymentDto>>
     {
         public async Task<List<PaymentDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var policyExists = await paymentRepository.PolicyExistsAsync(request.PolicyId, cancellationToken);
+            var policyExists = await paymentRepository.PolicyExistsAsync(request.PolicyId, request.BrokerId, cancellationToken);
             if(!policyExists)
             {
                 throw new NotFoundException("Policy not found");
             }
 
-            var payments = await paymentRepository.GetPaymentsByPolicyIdAsync(request.PolicyId, cancellationToken);
+            var payments = await paymentRepository.GetPaymentsByPolicyIdAsync(request.PolicyId, request.BrokerId, cancellationToken);
 
             return payments.Select(payment => new PaymentDto
             {

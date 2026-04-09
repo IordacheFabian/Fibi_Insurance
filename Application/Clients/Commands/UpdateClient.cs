@@ -12,6 +12,7 @@ public class UpdateClient
     public class Command : IRequest<Unit>
     {
         public Guid Id { get; init; }
+        public Guid BrokerId { get; init; }
         public required UpdateClientDto ClientDto { get; set; }
     }
 
@@ -19,9 +20,9 @@ public class UpdateClient
     {
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var client = await clientRepository.GetClientAsync(request.Id, cancellationToken);
+            var client = await clientRepository.GetClientAsync(request.Id, request.BrokerId, cancellationToken);
                             
-            if (client == null) throw new Exception("Client not found");
+            if (client == null) throw new NotFoundException("Client not found");
 
             mapper.Map(request.ClientDto, client);
 

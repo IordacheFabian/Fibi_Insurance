@@ -15,13 +15,14 @@ public class PaymentRepository(AppDbContext context) : IPaymentRepository
         await context.Payments.AddAsync(payment, cancellationToken);   
     }
 
-    public async Task<List<Payment>> GetAllPaymentsAsync(CancellationToken cancellationToken)
+    public async Task<List<Payment>> GetAllPaymentsAsync(Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Payments
             .AsNoTracking()
             .Include(x => x.Policy)
                 .ThenInclude(x => x.Client)
             .Include(x => x.Currency)
+            .Where(x => !brokerId.HasValue || x.Policy.BrokerId == brokerId.Value)
             .OrderByDescending(x => x.PaymentDate)
             .ToListAsync(cancellationToken);
     }
@@ -39,30 +40,30 @@ public class PaymentRepository(AppDbContext context) : IPaymentRepository
             .AnyAsync(x => x.Id == currencyId && x.IsActive, cancellationToken);
     }
 
-    public async Task<List<Payment>> GetPaymentsByPolicyIdAsync(Guid policyId, CancellationToken cancellationToken)
+    public async Task<List<Payment>> GetPaymentsByPolicyIdAsync(Guid policyId, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Payments
             .AsNoTracking()
             .Include(x => x.Policy)
                 .ThenInclude(x => x.Client)
             .Include(x => x.Currency)
-            .Where(x => x.PolicyId == policyId)
+            .Where(x => x.PolicyId == policyId && (!brokerId.HasValue || x.Policy.BrokerId == brokerId.Value))
             .OrderByDescending(x => x.PaymentDate)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Policy?> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken)
+    public async Task<Policy?> GetPolicyByIdAsync(Guid policyId, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Policies
         .Include(x => x.Client)
         .Include(x => x.PolicyVersions)
             .ThenInclude(x => x.Currency)
-        .FirstOrDefaultAsync(x => x.Id == policyId, cancellationToken);
+        .FirstOrDefaultAsync(x => x.Id == policyId && (!brokerId.HasValue || x.BrokerId == brokerId.Value), cancellationToken);
     }
 
-    public async Task<bool> PolicyExistsAsync(Guid policyId, CancellationToken cancellationToken)
+    public async Task<bool> PolicyExistsAsync(Guid policyId, Guid? brokerId, CancellationToken cancellationToken)
     {
-        return await context.Policies.AnyAsync(x => x.Id == policyId, cancellationToken);
+        return await context.Policies.AnyAsync(x => x.Id == policyId && (!brokerId.HasValue || x.BrokerId == brokerId.Value), cancellationToken);
     }
 
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken)

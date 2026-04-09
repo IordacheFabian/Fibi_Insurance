@@ -14,6 +14,7 @@ public class CreatePayment
     public class Command : IRequest<PaymentDto>
     {
         public Guid PolicyId { get; set; }
+        public Guid BrokerId { get; set; }
         public CreatePaymentDto Payment { get; set; } = default!;
     }
 
@@ -21,7 +22,7 @@ public class CreatePayment
     {
         public async Task<PaymentDto> Handle(Command request, CancellationToken cancellationToken)
         {
-            var policy = await paymentRepository.GetPolicyByIdAsync(request.PolicyId, cancellationToken);
+            var policy = await paymentRepository.GetPolicyByIdAsync(request.PolicyId, request.BrokerId, cancellationToken);
 
             if(policy == null)
             {

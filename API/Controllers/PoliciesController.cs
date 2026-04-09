@@ -18,7 +18,6 @@ namespace API.Controllers;
 
 public class PoliciesController : BrokerBaseController
 {
-    // [Authorize(Roles = "Broker")]
     [HttpGet("policies")]
     public async Task<ActionResult<PagedResult<PolicyListItemDto>>> GetPoliciesAsync(
         [FromQuery] Guid? clientId,
@@ -33,7 +32,7 @@ public class PoliciesController : BrokerBaseController
         var policies = await Mediator.Send(new GetPolicies.Query
         {
             ClientId = clientId,
-            BrokerId = brokerId,
+            BrokerId = CurrentBrokerId,
             PolicyStatus = string.IsNullOrEmpty(policyStatus) ? null : Enum.Parse<PolicyStatus>(policyStatus, true),
             StartDate = startDate,
             EndDate = endDate,
@@ -47,7 +46,7 @@ public class PoliciesController : BrokerBaseController
     [HttpGet("policies/{policyId:guid}", Name = "GetPolicyDetailsAsync")]
     public async Task<ActionResult<PolicyDetailsDto>> GetPolicyDetailsAsync(Guid policyId)
     {
-        var policy = await Mediator.Send(new GetPolicyDetails.Query { PolicyId = policyId });
+        var policy = await Mediator.Send(new GetPolicyDetails.Query { PolicyId = policyId, BrokerId = CurrentBrokerId });
 
         return Ok(policy);
     }
@@ -55,7 +54,7 @@ public class PoliciesController : BrokerBaseController
     [HttpGet("policies/{policyId:guid}/endorsements")]
     public async Task<ActionResult<List<PolicyEndorsementsDto>>> GetPolicyEndorsementsAsync(Guid policyId)
     {
-        var endorsements = await Mediator.Send(new GetPolicyEndorsementsPolicyId.Query { PolicyId = policyId });
+        var endorsements = await Mediator.Send(new GetPolicyEndorsementsPolicyId.Query { PolicyId = policyId, BrokerId = CurrentBrokerId });
 
         return Ok(endorsements);
     }
@@ -63,7 +62,7 @@ public class PoliciesController : BrokerBaseController
     [HttpGet("endorsements")]
     public async Task<ActionResult<List<PolicyEndorsementsDto>>> GetEndorsementsAsync()
     {
-        var endorsements = await Mediator.Send(new GetPolicyEndorsementsList.Query());
+        var endorsements = await Mediator.Send(new GetPolicyEndorsementsList.Query { BrokerId = CurrentBrokerId });
 
         return Ok(endorsements);
     }
@@ -71,7 +70,7 @@ public class PoliciesController : BrokerBaseController
     [HttpGet("policies/{policyId:guid}/versions")]
     public async Task<ActionResult<List<PolicyVersionsDto>>> GetPolicyVersionsAsync(Guid policyId)
     {
-        var versions = await Mediator.Send(new GetPolicyVersions.Query { PolicyId = policyId });
+        var versions = await Mediator.Send(new GetPolicyVersions.Query { PolicyId = policyId, BrokerId = CurrentBrokerId });
 
         return Ok(versions);
     }
@@ -79,7 +78,7 @@ public class PoliciesController : BrokerBaseController
     [HttpGet("policies/{policyId:guid}/claims")]
     public async Task<ActionResult<List<ClaimDto>>> GetPolicyClaimsAsync(Guid policyId)
     {
-        var claims = await Mediator.Send(new GetPolicyClaims.Query { PolicyId = policyId });
+        var claims = await Mediator.Send(new GetPolicyClaims.Query { PolicyId = policyId, BrokerId = CurrentBrokerId });
 
         return Ok(claims);
     }
@@ -87,7 +86,7 @@ public class PoliciesController : BrokerBaseController
     [HttpGet("claims/{claimId:guid}")]
     public async Task<ActionResult<ClaimDto>> GetClaimAsync(Guid claimId)
     {
-        var claim = await Mediator.Send(new GetClaim.Query { ClaimId = claimId });
+        var claim = await Mediator.Send(new GetClaim.Query { ClaimId = claimId, BrokerId = CurrentBrokerId });
 
         return Ok(claim);
     }
@@ -95,7 +94,7 @@ public class PoliciesController : BrokerBaseController
     [HttpPost("policies")]
     public async Task<ActionResult<PolicyDetailsDto>> CreatePolicyDraftAsync(CreatePolicyDraftDto createPolicyDraftDto)
     {
-        var policy = await Mediator.Send(new CreatePolicyDraft.Command { CreatePolicyDraftDto = createPolicyDraftDto });
+        var policy = await Mediator.Send(new CreatePolicyDraft.Command { BrokerId = CurrentBrokerId, CreatePolicyDraftDto = createPolicyDraftDto });
 
         return CreatedAtRoute(
             nameof(GetPolicyDetailsAsync),
@@ -107,7 +106,7 @@ public class PoliciesController : BrokerBaseController
     [HttpPost("policies/{policyId:guid}/activate")]
     public async Task<ActionResult> ActivatePolicyAsync(Guid policyId)
     {
-        await Mediator.Send(new ActivatePolicy.Command { PolicyId = policyId });
+        await Mediator.Send(new ActivatePolicy.Command { PolicyId = policyId, BrokerId = CurrentBrokerId });
 
         return NoContent();
     }
@@ -118,6 +117,7 @@ public class PoliciesController : BrokerBaseController
         await Mediator.Send(new CancelPolicy.Command
         {
             PolicyId = policyId,
+            BrokerId = CurrentBrokerId,
             CancelPolicyDto = cancelPolicyDto
         });
 
@@ -130,6 +130,7 @@ public class PoliciesController : BrokerBaseController
         await Mediator.Send(new CreatePolicyEndorsement.Command
         {
             PolicyId = policyId,
+            BrokerId = CurrentBrokerId,
             CreatePolicyEndorsementDto = createPolicyEndorsementDto,
             CreatedBy = User.FindFirstValue(ClaimTypes.Name)
                 ?? User.FindFirstValue(ClaimTypes.Email)
@@ -145,6 +146,7 @@ public class PoliciesController : BrokerBaseController
         var result = await Mediator.Send(new CreateClaim.Command
         {
             PolicyId = policyId,
+            BrokerId = CurrentBrokerId,
             Claim = createClaimDto,
         });
 

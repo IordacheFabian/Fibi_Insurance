@@ -15,6 +15,7 @@ public class GetClient
 {
     public class Query : IRequest<PagedResult<ClientSearchDto>>
     {
+        public Guid BrokerId { get; init; }
         public string? Name { get; init; }
         public string? Identifier { get; init; }
         
@@ -33,7 +34,7 @@ public class GetClient
             };
             paging.Normalize();
 
-            var clients = clientRepository.ClientSearchAsync(request.Name, request.Identifier, cancellationToken);
+            var clients = clientRepository.ClientSearchAsync(request.Name, request.Identifier, request.BrokerId, cancellationToken);
             var totalCount = await clients.CountAsync(cancellationToken);
 
             var items = await clients

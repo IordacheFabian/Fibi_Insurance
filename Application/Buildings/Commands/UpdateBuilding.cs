@@ -11,6 +11,7 @@ public class UpdateBuilding
 {
     public class Command : IRequest<Unit>
     {
+        public Guid BrokerId { get; set; }
         public required UpdateBuildingDto BuildingDto { get; set; }
     }
 
@@ -18,7 +19,7 @@ public class UpdateBuilding
     {
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var building = await buildingRepository.GetBuildingAsync(request.BuildingDto.Id, cancellationToken);
+            var building = await buildingRepository.GetBuildingAsync(request.BuildingDto.Id, request.BrokerId, cancellationToken);
             if(building == null) throw new NotFoundException("Building not found");
 
             var currency = await currencyRepository.GetCurrencyAsync(request.BuildingDto.CurrencyId, cancellationToken);

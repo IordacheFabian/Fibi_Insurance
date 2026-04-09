@@ -42,10 +42,14 @@ public class MappingProfiles : Profile
         //client mappings
         CreateMap<CreateClientDto, Client>()
             .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.BrokerId, opt => opt.Ignore())
+            .ForMember(d => d.Broker, opt => opt.Ignore())
             .ForMember(d => d.Addresses, opt => opt.Ignore())
             .ForMember(d => d.Buildings, opt => opt.Ignore());
         CreateMap<UpdateClientDto, Client>()
             .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.BrokerId, opt => opt.Ignore())
+            .ForMember(d => d.Broker, opt => opt.Ignore())
             .ForMember(d => d.ClientType, opt => opt.Ignore())
             .ForMember(d => d.IdentificationNumber, opt => opt.Ignore())
             .ForMember(d => d.Addresses, opt => opt.Ignore())
@@ -240,6 +244,11 @@ public class MappingProfiles : Profile
         CreateMap<Broker, BrokerDto>();
         CreateMap<Broker, BrokerDetailsDto>();
         CreateMap<CreateBrokerDto, Broker>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.Policies, opt => opt.Ignore());
+        CreateMap<CreateBrokerWithAccountDto, Broker>()
             .ForMember(d => d.Id, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForMember(d => d.UpdatedAt, opt => opt.Ignore())

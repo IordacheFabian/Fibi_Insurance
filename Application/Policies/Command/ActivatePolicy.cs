@@ -11,13 +11,14 @@ public class ActivatePolicy
     public class Command : IRequest<Unit> 
     {
         public required Guid PolicyId { get; set; } 
+        public Guid BrokerId { get; set; }
     }
 
     public class Handler(IPolicyRepository policyRepository) : IRequestHandler<Command, Unit>
     {
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var policy = await policyRepository.GetPolicyForActivationAsync(request.PolicyId, cancellationToken);
+            var policy = await policyRepository.GetPolicyForActivationAsync(request.PolicyId, request.BrokerId, cancellationToken);
             if (policy == null) throw new NotFoundException("Policy not found");
 
             if (policy.PolicyStatus != PolicyStatus.Draft) 

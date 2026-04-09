@@ -14,6 +14,7 @@ public class CreateClaim
     public class Command : IRequest<ClaimDto>
     {
         public Guid PolicyId { get; set; }
+        public Guid BrokerId { get; set; }
         public CreateClaimDto Claim { get; set; } = default!;
     }
 
@@ -21,7 +22,7 @@ public class CreateClaim
     {
         public async Task<ClaimDto> Handle(Command request, CancellationToken cancellationToken)
         {
-            var policy = await policyRepository.GetPolicyAsync(request.PolicyId, cancellationToken);
+            var policy = await policyRepository.GetPolicyAsync(request.PolicyId, request.BrokerId, cancellationToken);
 
             if(policy == null)
             {

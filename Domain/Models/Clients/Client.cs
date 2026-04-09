@@ -1,4 +1,5 @@
 using System;
+using Domain.Models.Brokers;
 using Domain.Models.Buildings;
 using Domain.Models.Geography.Address;
 
@@ -13,6 +14,9 @@ public enum ClientType
 public class Client
 {
     public Guid Id { get; set; }
+
+    public Guid? BrokerId { get; set; }
+    public Broker? Broker { get; set; }
 
     public ClientType ClientType { get; set; } = ClientType.Individual;
     public string Name { get; set; } = string.Empty;

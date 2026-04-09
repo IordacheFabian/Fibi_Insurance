@@ -9,14 +9,14 @@ public class GetAllPayments
 {
     public class Query : IRequest<List<PaymentDto>>
     {
-        
+        public Guid? BrokerId { get; set; }
     }
 
     public class Handler(IPaymentRepository paymentRepository) : IRequestHandler<Query, List<PaymentDto>>
     {
         public async Task<List<PaymentDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var payments = await paymentRepository.GetAllPaymentsAsync(cancellationToken);
+            var payments = await paymentRepository.GetAllPaymentsAsync(request.BrokerId, cancellationToken);
 
             return payments.Select(payment => new PaymentDto
             {

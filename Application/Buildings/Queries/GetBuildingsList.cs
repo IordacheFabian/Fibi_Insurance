@@ -15,6 +15,7 @@ public class GetBuildingsList
     public class Query : IRequest<PagedResult<BuildingListDto>>
     {
         public Guid ClientId { get; set; }
+        public Guid BrokerId { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }
@@ -30,11 +31,11 @@ public class GetBuildingsList
             };
             paging.Normalize();
 
-            var client = await clientRepository.GetClientAsync(request.ClientId, cancellationToken);
+            var client = await clientRepository.GetClientAsync(request.ClientId, request.BrokerId, cancellationToken);
 
             if(client == null) throw new NotFoundException("Client not found");
 
-            var buildings = buildingRepository.GetBuildingForClientAsync(request.ClientId, cancellationToken);
+            var buildings = buildingRepository.GetBuildingForClientAsync(request.ClientId, request.BrokerId, cancellationToken);
 
             var totalCount = await buildings.CountAsync(cancellationToken);
 

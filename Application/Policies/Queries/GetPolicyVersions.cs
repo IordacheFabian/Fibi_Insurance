@@ -13,14 +13,15 @@ public class GetPolicyVersions
     public class Query : IRequest<List<PolicyVersionsDto>>
     {
         public Guid PolicyId { get; set; }
+        public Guid BrokerId { get; set; }
     }
 
     public class Handler(IPolicyRepository policyRepository, IMapper mapper) : IRequestHandler<Query, List<PolicyVersionsDto>>
     {
         public async Task<List<PolicyVersionsDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var versions = await policyRepository.GetPolicyVersionsAsync(request.PolicyId, cancellationToken);
-            if (versions == null)
+            var versions = await policyRepository.GetPolicyVersionsAsync(request.PolicyId, request.BrokerId, cancellationToken);
+            if (versions.Count == 0)
                 throw new NotFoundException("Policy not found");
 
             var result = mapper.Map<List<PolicyVersionsDto>>(versions);

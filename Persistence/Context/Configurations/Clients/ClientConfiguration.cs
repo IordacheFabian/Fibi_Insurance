@@ -21,6 +21,11 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
         
         builder.HasIndex(x => x.IdentificationNumber)
             .IsUnique();
+
+        builder.HasOne(x => x.Broker)
+            .WithMany(x => x.Clients)
+            .HasForeignKey(x => x.BrokerId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasMany(x => x.Buildings) 
             .WithOne(x => x.Client)

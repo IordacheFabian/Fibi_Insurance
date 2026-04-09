@@ -26,18 +26,18 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
         await context.PolicyEndorsements.AddAsync(policyEndorsement, cancellationToken);
     }
 
-    public async Task<Policy?> GetPolicyAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Policy?> GetPolicyAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Policies
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == id && (!brokerId.HasValue || x.BrokerId == brokerId.Value), cancellationToken);
     }
  
-    public async Task<PolicyDetailsDto?> GetPolicyDetailsAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<PolicyDetailsDto?> GetPolicyDetailsAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Policies
             .AsNoTracking()
-            .Where(p => p.Id == id)
+            .Where(p => p.Id == id && (!brokerId.HasValue || p.BrokerId == brokerId.Value))
             .Select(p => new
             {
                 Policy = p,
@@ -131,7 +131,7 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
         .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<Policy?> GetPolicyForEndorsementAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Policy?> GetPolicyForEndorsementAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Policies
             .AsTracking()
@@ -145,21 +145,21 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
                 .ThenInclude(v => v.Currency)
             .Include(p => p.PolicyVersions.Where(v => v.IsActiveVersion))
                 .ThenInclude(v => v.PolicyAdjustments)
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(p => p.Id == id && (!brokerId.HasValue || p.BrokerId == brokerId.Value), cancellationToken);
     }
 
-    public async Task<Policy?> GetPolicyForActivationAsync(Guid id, CancellationToken cancellationToken)
+            public async Task<Policy?> GetPolicyForActivationAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Policies
             .Include(p => p.PolicyVersions.Where(v => v.IsActiveVersion))
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(p => p.Id == id && (!brokerId.HasValue || p.BrokerId == brokerId.Value), cancellationToken);
     }
 
-    public async Task<Policy?> GetPolicyForCancellationAsync(Guid id, CancellationToken cancellationToken)
+            public async Task<Policy?> GetPolicyForCancellationAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Policies
             .Include(p => p.PolicyVersions.Where(v => v.IsActiveVersion))
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(p => p.Id == id && (!brokerId.HasValue || p.BrokerId == brokerId.Value), cancellationToken);
     }
 
     public IQueryable<Policy> ListPolicyAsync(Guid? clientId, Guid? brokerId, PolicyStatus? policyStatus, DateOnly? startDate, DateOnly? endDate, CancellationToken cancellationToken)
@@ -201,10 +201,11 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
         await context.PolicyVersions.AddAsync(policyVersion, cancellationToken);
     }
 
-    public async Task<List<PolicyEndorsementsDto>> GetPolicyEndorsementsAsync(CancellationToken cancellationToken)
+    public async Task<List<PolicyEndorsementsDto>> GetPolicyEndorsementsAsync(Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.PolicyEndorsements
             .AsNoTracking()
+            .Where(endorsement => !brokerId.HasValue || endorsement.Policy.BrokerId == brokerId.Value)
             .OrderByDescending(endorsement => endorsement.CreatedAt)
             .Select(endorsement => new PolicyEndorsementsDto
             {
@@ -236,11 +237,11 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<PolicyEndorsementsDto>> GetPolicyEndorsementForPolicyAsync(Guid policyId, CancellationToken cancellationToken)
+    public async Task<List<PolicyEndorsementsDto>> GetPolicyEndorsementForPolicyAsync(Guid policyId, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.PolicyEndorsements
             .AsNoTracking()
-            .Where(p => p.PolicyId == policyId)
+            .Where(p => p.PolicyId == policyId && (!brokerId.HasValue || p.Policy.BrokerId == brokerId.Value))
             .OrderByDescending(endorsement => endorsement.CreatedAt)
             .Select(e => new PolicyEndorsementsDto
             {
@@ -271,11 +272,11 @@ public class PolicyRepository(AppDbContext context) : IPolicyRepository
             })
             .ToListAsync(cancellationToken);
     }
-    public async Task<List<PolicyVersionsDto>> GetPolicyVersionsAsync(Guid policyId, CancellationToken cancellationToken)
+    public async Task<List<PolicyVersionsDto>> GetPolicyVersionsAsync(Guid policyId, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.PolicyVersions
             .AsNoTracking()
-            .Where(p => p.PolicyId == policyId)
+            .Where(p => p.PolicyId == policyId && (!brokerId.HasValue || p.Policy.BrokerId == brokerId.Value))
             .Select(v => new PolicyVersionsDto
             {
                 Id = v.Id,

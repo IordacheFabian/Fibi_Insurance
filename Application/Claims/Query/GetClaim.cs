@@ -11,13 +11,14 @@ public class GetClaim
     public class Query : IRequest<ClaimDto>
     {
         public Guid ClaimId { get; set; }
+        public Guid BrokerId { get; set; }
     }
 
     public class Handler(IClaimRepository claimRepository) : IRequestHandler<Query, ClaimDto>
     {
         public async Task<ClaimDto> Handle(Query request, CancellationToken cancellationToken)
         {
-            var claim = await claimRepository.GetClaimByIdAsync(request.ClaimId, cancellationToken);
+            var claim = await claimRepository.GetClaimByIdAsync(request.ClaimId, request.BrokerId, cancellationToken);
             if(claim == null)
             {
                 throw new NotFoundException("Claim not found");

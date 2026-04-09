@@ -12,6 +12,7 @@ public class CancelPolicy
     public class Command : IRequest<Unit>
     {
         public required Guid PolicyId { get; set; }
+        public Guid BrokerId { get; set; }
         public required CancelPolicyDto CancelPolicyDto { get; set; }
     }
 
@@ -19,7 +20,7 @@ public class CancelPolicy
     {
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var policy = await policyRepository.GetPolicyForCancellationAsync(request.PolicyId, cancellationToken);
+            var policy = await policyRepository.GetPolicyForCancellationAsync(request.PolicyId, request.BrokerId, cancellationToken);
             if (policy == null) throw new NotFoundException("Policy not found");
 
             if (policy.PolicyStatus != PolicyStatus.Active) 

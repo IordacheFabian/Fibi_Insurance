@@ -53,5 +53,6 @@ public class AppDbContext : DbContext
         GeographySeed.Seed(modelBuilder);
         MetadataSeed.Seed(modelBuilder);
         BrokerSeed.Seed(modelBuilder);
+        AdminSeed.Seed(modelBuilder);
     }
 }

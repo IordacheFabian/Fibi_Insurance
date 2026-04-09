@@ -14,6 +14,7 @@ public class CreatePolicyEndorsement
     public class Command : IRequest<Unit>
     {
         public Guid PolicyId { get; set; }
+        public Guid BrokerId { get; set; }
         public CreatePolicyEndorsementDto CreatePolicyEndorsementDto { get; set; } = default!;
         public string CreatedBy { get; set; } = default!;
     }
@@ -24,7 +25,7 @@ public class CreatePolicyEndorsement
     {
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var policy = await policyRepository.GetPolicyForEndorsementAsync(request.PolicyId, cancellationToken);
+            var policy = await policyRepository.GetPolicyForEndorsementAsync(request.PolicyId, request.BrokerId, cancellationToken);
 
             if (policy == null)
                 throw new NotFoundException("Policy not found");

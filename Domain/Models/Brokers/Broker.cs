@@ -1,4 +1,5 @@
 using System;
+using Domain.Models.Clients;
 using Domain.Models.Policies;
 
 namespace Domain.Models.Brokers;
@@ -22,5 +23,6 @@ public class Broker
     public DateTime CreatedAt { get; set; } 
     public DateTime? UpdatedAt { get; set; }
 
+    public List<Client> Clients { get; set; } = new();
     public List<Policy> Policies { get; set; } = new(); 
 }

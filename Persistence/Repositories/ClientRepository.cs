@@ -13,27 +13,32 @@ public class ClientRepository(AppDbContext context) : IClientRepository
         await context.Clients.AddAsync(client, cancellationToken);
     }
 
-    public async Task<Client?> GetClientAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Client?> GetClientAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Clients
-                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && (!brokerId.HasValue || x.BrokerId == brokerId.Value), cancellationToken);
     }
 
-    public async Task<Client?> GetClientDetailsAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Client?> GetClientDetailsAsync(Guid id, Guid? brokerId, CancellationToken cancellationToken)
     {
         return await context.Clients
             .AsNoTracking()
             .Include(x => x.Buildings)
                 .ThenInclude(x => x.Address)
                     .ThenInclude(x => x.City)
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && (!brokerId.HasValue || x.BrokerId == brokerId.Value), cancellationToken);
     }
 
-    public IQueryable<Client> ClientSearchAsync(string? name, string? identifier, CancellationToken cancellationToken)
+    public IQueryable<Client> ClientSearchAsync(string? name, string? identifier, Guid? brokerId, CancellationToken cancellationToken)
     {
         var query = context.Clients
             .AsNoTracking()
             .AsQueryable();
+
+        if (brokerId.HasValue)
+        {
+            query = query.Where(x => x.BrokerId == brokerId.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(name))
         {
