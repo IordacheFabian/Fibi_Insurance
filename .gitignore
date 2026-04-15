@@ -7,6 +7,10 @@ out/
 .vscode/
 *.user
 *.suo
+.vs/
+*.db-shm
+*.db-wal
+
 
 # OS files
 Thumbs.db
