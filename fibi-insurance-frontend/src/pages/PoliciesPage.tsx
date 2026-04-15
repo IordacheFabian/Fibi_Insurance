@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusChip } from "@/components/ui/StatusChip";
+import { useRole } from "@/contexts/RoleContext";
 import { getPolicies, normalizePolicyStatus } from "@/lib/policies/policy.api";
 import { cn, formatMoney } from "@/lib/utils";
 
@@ -27,13 +28,14 @@ function formatDateOnly(value: string) {
 }
 
 export default function PoliciesPage() {
+  const { role } = useRole();
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<typeof statusTabs[number]>("all");
   const deferredSearch = useDeferredValue(search);
 
   const { data: policies = [], isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["policies", tab],
-    queryFn: () => getPolicies(tab === "all" ? {} : { policyStatus: tab }),
+    queryKey: ["policies", role, tab],
+    queryFn: () => getPolicies(tab === "all" ? {} : { policyStatus: tab }, role),
     staleTime: 30000,
   });
 
@@ -66,9 +68,11 @@ export default function PoliciesPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Policies" description="Manage insurance policies and coverage">
-        <Link to="/policies/new" className="flex items-center gap-2 h-9 px-4 rounded-lg gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
-          <Plus className="h-4 w-4" /> Create Policy
-        </Link>
+        {role === "broker" && (
+          <Link to="/policies/new" className="flex items-center gap-2 h-9 px-4 rounded-lg gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+            <Plus className="h-4 w-4" /> Create Policy
+          </Link>
+        )}
       </PageHeader>
 
       <div className="glass-card p-4">
@@ -157,7 +161,7 @@ export default function PoliciesPage() {
         <EmptyState
           icon={FileText}
           title="No policies found"
-          description={search.trim() ? "Try a different search term or switch to another status." : "No policies are available for this broker yet."}
+          description={search.trim() ? "Try a different search term or switch to another status." : role === "admin" ? "No policies are available in the portfolio yet." : "No policies are available for this broker yet."}
         />
       ) : (
         <motion.div

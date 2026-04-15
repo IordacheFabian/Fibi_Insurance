@@ -101,9 +101,12 @@ export async function getPayments(role: PaymentsRole = "broker"): Promise<Paymen
 	}
 }
 
-export async function getPolicyPayments(policyId: string): Promise<PaymentRecord[]> {
+export async function getPolicyPayments(policyId: string, role: PaymentsRole = "broker"): Promise<PaymentRecord[]> {
 	try {
-		const { data } = await apiClient.get<PaymentListItem[]>(`/api/brokers/policies/${policyId}/payments`);
+		const path = role === "admin"
+			? `/api/admin/policies/${policyId}/payments`
+			: `/api/brokers/policies/${policyId}/payments`;
+		const { data } = await apiClient.get<PaymentListItem[]>(path);
 		return data.map(mapPaymentRecord);
 	} catch (error) {
 		throw new Error(getApiErrorMessage(error, "Failed to fetch policy payments"));

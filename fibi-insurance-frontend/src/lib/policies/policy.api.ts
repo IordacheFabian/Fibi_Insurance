@@ -14,6 +14,8 @@ import type {
 	PolicyVersion,
 } from "./policy.types";
 
+export type PoliciesRole = "broker" | "admin";
+
 const DEFAULT_PAGE_SIZE = 100;
 
 const POLICY_STATUS_BY_NUMBER = ["draft", "active", "expired", "cancelled"] as const;
@@ -46,9 +48,13 @@ function mapPolicyStatusToApiValue(status?: GetPoliciesParams["policyStatus"]): 
 	return normalizedStatus.charAt(0).toUpperCase() + normalizedStatus.slice(1);
 }
 
-async function getPoliciesPage(filters: GetPoliciesParams, pageNumber: number, pageSize: number): Promise<PolicyListResponse> {
+function getPoliciesBasePath(role: PoliciesRole) {
+	return role === "admin" ? "/api/admin" : "/api/brokers";
+}
+
+async function getPoliciesPage(filters: GetPoliciesParams, role: PoliciesRole, pageNumber: number, pageSize: number): Promise<PolicyListResponse> {
 	try {
-		const { data } = await apiClient.get<PolicyListResponse>("/api/brokers/policies", {
+		const { data } = await apiClient.get<PolicyListResponse>(`${getPoliciesBasePath(role)}/policies`, {
 			params: {
 				clientId: filters.clientId,
 				brokerId: filters.brokerId,
@@ -66,13 +72,13 @@ async function getPoliciesPage(filters: GetPoliciesParams, pageNumber: number, p
 	}
 }
 
-export async function getPolicies(filters: GetPoliciesParams = {}, pageSize = DEFAULT_PAGE_SIZE): Promise<PolicyListItem[]> {
+export async function getPolicies(filters: GetPoliciesParams = {}, role: PoliciesRole = "broker", pageSize = DEFAULT_PAGE_SIZE): Promise<PolicyListItem[]> {
 	const policies: PolicyListItem[] = [];
 	let pageNumber = filters.pageNumber ?? 1;
 	let hasNextPage = true;
 
 	while (hasNextPage) {
-		const page = await getPoliciesPage(filters, pageNumber, filters.pageSize ?? pageSize);
+		const page = await getPoliciesPage(filters, role, pageNumber, filters.pageSize ?? pageSize);
 		policies.push(...page.items);
 		hasNextPage = page.hasNextPage;
 		pageNumber += 1;
@@ -81,54 +87,54 @@ export async function getPolicies(filters: GetPoliciesParams = {}, pageSize = DE
 	return policies;
 }
 
-export async function getPolicyById(policyId: string): Promise<PolicyDetails> {
+export async function getPolicyById(policyId: string, role: PoliciesRole = "broker"): Promise<PolicyDetails> {
 	try {
-		const { data } = await apiClient.get<PolicyDetails>(`/api/brokers/policies/${policyId}`);
+		const { data } = await apiClient.get<PolicyDetails>(`${getPoliciesBasePath(role)}/policies/${policyId}`);
 		return data;
 	} catch (error) {
 		throw new Error(getApiErrorMessage(error, "Failed to fetch policy"));
 	}
 }
 
-export async function getPolicyEndorsements(policyId: string): Promise<PolicyEndorsement[]> {
+export async function getPolicyEndorsements(policyId: string, role: PoliciesRole = "broker"): Promise<PolicyEndorsement[]> {
 	try {
-		const { data } = await apiClient.get<PolicyEndorsement[]>(`/api/brokers/policies/${policyId}/endorsements`);
+		const { data } = await apiClient.get<PolicyEndorsement[]>(`${getPoliciesBasePath(role)}/policies/${policyId}/endorsements`);
 		return data;
 	} catch (error) {
 		throw new Error(getApiErrorMessage(error, "Failed to fetch policy endorsements"));
 	}
 }
 
-export async function getEndorsements(): Promise<PolicyEndorsement[]> {
+export async function getEndorsements(role: PoliciesRole = "broker"): Promise<PolicyEndorsement[]> {
 	try {
-		const { data } = await apiClient.get<PolicyEndorsement[]>("/api/brokers/endorsements");
+		const { data } = await apiClient.get<PolicyEndorsement[]>(`${getPoliciesBasePath(role)}/endorsements`);
 		return data;
 	} catch (error) {
 		throw new Error(getApiErrorMessage(error, "Failed to fetch endorsements"));
 	}
 }
 
-export async function getPolicyVersions(policyId: string): Promise<PolicyVersion[]> {
+export async function getPolicyVersions(policyId: string, role: PoliciesRole = "broker"): Promise<PolicyVersion[]> {
 	try {
-		const { data } = await apiClient.get<PolicyVersion[]>(`/api/brokers/policies/${policyId}/versions`);
+		const { data } = await apiClient.get<PolicyVersion[]>(`${getPoliciesBasePath(role)}/policies/${policyId}/versions`);
 		return data;
 	} catch (error) {
 		throw new Error(getApiErrorMessage(error, "Failed to fetch policy versions"));
 	}
 }
 
-export async function getPolicyClaims(policyId: string): Promise<PolicyClaim[]> {
+export async function getPolicyClaims(policyId: string, role: PoliciesRole = "broker"): Promise<PolicyClaim[]> {
 	try {
-		const { data } = await apiClient.get<PolicyClaim[]>(`/api/brokers/policies/${policyId}/claims`);
+		const { data } = await apiClient.get<PolicyClaim[]>(`${getPoliciesBasePath(role)}/policies/${policyId}/claims`);
 		return data;
 	} catch (error) {
 		throw new Error(getApiErrorMessage(error, "Failed to fetch policy claims"));
 	}
 }
 
-export async function getClaimById(claimId: string): Promise<PolicyClaim> {
+export async function getClaimById(claimId: string, role: PoliciesRole = "broker"): Promise<PolicyClaim> {
 	try {
-		const { data } = await apiClient.get<PolicyClaim>(`/api/brokers/claims/${claimId}`);
+		const { data } = await apiClient.get<PolicyClaim>(`${getPoliciesBasePath(role)}/claims/${claimId}`);
 		return data;
 	} catch (error) {
 		throw new Error(getApiErrorMessage(error, "Failed to fetch claim"));

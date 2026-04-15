@@ -27,9 +27,8 @@ const brokerNav = [
 const adminNav = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/" },
   { label: "Brokers", icon: UserCog, path: "/brokers" },
-  { label: "Clients", icon: Users, path: "/clients" },
-  { label: "Buildings", icon: Building2, path: "/buildings" },
   { label: "Policies", icon: FileText, path: "/policies" },
+  { label: "Endorsements", icon: GitBranch, path: "/endorsements" },
   { label: "Claims", icon: ShieldAlert, path: "/claims" },
   { label: "Reports", icon: BarChart3, path: "/reports" },
   { label: "Payments", icon: CreditCard, path: "/payments" },

@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { toast } from "@/components/ui/sonner";
+import { useRole } from "@/contexts/RoleContext";
 import { createPayment, getPayments } from "@/lib/payments/payment.api";
 import { getPolicies, normalizePolicyStatus } from "@/lib/policies/policy.api";
 import { cn, formatMoney } from "@/lib/utils";
@@ -48,6 +49,7 @@ function formatDateTime(value: string) {
 }
 
 export default function PaymentsPage() {
+  const { role } = useRole();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<typeof statusTabs[number]>("all");
@@ -56,8 +58,8 @@ export default function PaymentsPage() {
   const [paymentError, setPaymentError] = useState("");
 
   const { data: payments = [], isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["payments"],
-    queryFn: () => getPayments(),
+    queryKey: ["payments", role],
+    queryFn: () => getPayments(role),
     staleTime: 30000,
   });
 
@@ -65,8 +67,8 @@ export default function PaymentsPage() {
     data: policies = [],
     isLoading: arePoliciesLoading,
   } = useQuery({
-    queryKey: ["policies"],
-    queryFn: () => getPolicies(),
+    queryKey: ["policies", role],
+    queryFn: () => getPolicies({}, role),
     staleTime: 30000,
   });
 
@@ -191,15 +193,17 @@ export default function PaymentsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Payments" description="Track premium collections and record policy payments">
-        <button
-          type="button"
-          onClick={handleOpenRecordDialog}
-          disabled={arePoliciesLoading || activePolicies.length === 0}
-          className="flex items-center gap-2 h-9 px-4 rounded-lg gradient-success text-success-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <Plus className="h-4 w-4" /> Record Payment
-        </button>
+      <PageHeader title="Payments" description={role === "admin" ? "Monitor premium collections across the full portfolio" : "Track premium collections and record policy payments"}>
+        {role === "broker" && (
+          <button
+            type="button"
+            onClick={handleOpenRecordDialog}
+            disabled={arePoliciesLoading || activePolicies.length === 0}
+            className="flex items-center gap-2 h-9 px-4 rounded-lg gradient-success text-success-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Plus className="h-4 w-4" /> Record Payment
+          </button>
+        )}
       </PageHeader>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

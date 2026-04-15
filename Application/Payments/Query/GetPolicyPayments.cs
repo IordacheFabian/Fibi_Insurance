@@ -11,7 +11,7 @@ public class GetPolicyPayments
     public class Query : IRequest<List<PaymentDto>>
     {
         public Guid PolicyId { get; set; }
-        public Guid BrokerId { get; set; }
+        public Guid? BrokerId { get; set; }
     }
 
     public class Handler(IPaymentRepository paymentRepository) : IRequestHandler<Query, List<PaymentDto>>

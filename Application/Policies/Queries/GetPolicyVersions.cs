@@ -13,7 +13,7 @@ public class GetPolicyVersions
     public class Query : IRequest<List<PolicyVersionsDto>>
     {
         public Guid PolicyId { get; set; }
-        public Guid BrokerId { get; set; }
+        public Guid? BrokerId { get; set; }
     }
 
     public class Handler(IPolicyRepository policyRepository, IMapper mapper) : IRequestHandler<Query, List<PolicyVersionsDto>>

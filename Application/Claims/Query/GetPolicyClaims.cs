@@ -10,7 +10,7 @@ public class GetPolicyClaims
     public class Query : IRequest<List<ClaimDto>>
     {
         public Guid PolicyId { get; set; }
-        public Guid BrokerId { get; set; }
+        public Guid? BrokerId { get; set; }
     }
 
     public class Handler(IClaimRepository claimRepository) : IRequestHandler<Query, List<ClaimDto>>

@@ -8,7 +8,7 @@ public class GetPolicyEndorsementsList
 {
     public class Query : IRequest<List<PolicyEndorsementsDto>>
     {
-        public Guid BrokerId { get; set; }
+        public Guid? BrokerId { get; set; }
     }
 
     public class Handler(IPolicyRepository policyRepository) : IRequestHandler<Query, List<PolicyEndorsementsDto>>

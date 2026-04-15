@@ -38,6 +38,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/sonner";
+import { useRole } from "@/contexts/RoleContext";
 import { createPayment, getPolicyPayments } from "@/lib/payments/payment.api";
 import {
   activatePolicy,
@@ -172,6 +173,7 @@ function getEndorsementTypeLabel(value: EndorsementFormState["endorsementType"])
 
 export default function PolicyDetailsPage() {
   const { id } = useParams<{ id: string }>();
+  const { role } = useRole();
   const queryClient = useQueryClient();
 
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
@@ -188,8 +190,8 @@ export default function PolicyDetailsPage() {
   const [paymentError, setPaymentError] = useState("");
 
   const { data: policy, isLoading, isError, error } = useQuery({
-    queryKey: ["policies", id],
-    queryFn: () => getPolicyById(id!),
+    queryKey: ["policies", role, id],
+    queryFn: () => getPolicyById(id!, role),
     enabled: Boolean(id),
     staleTime: 30000,
   });
@@ -200,8 +202,8 @@ export default function PolicyDetailsPage() {
     isError: areVersionsErrored,
     error: versionsError,
   } = useQuery({
-    queryKey: ["policies", id, "versions"],
-    queryFn: () => getPolicyVersions(id!),
+    queryKey: ["policies", role, id, "versions"],
+    queryFn: () => getPolicyVersions(id!, role),
     enabled: Boolean(id),
     staleTime: 30000,
   });
@@ -212,8 +214,8 @@ export default function PolicyDetailsPage() {
     isError: areEndorsementsErrored,
     error: endorsementsError,
   } = useQuery({
-    queryKey: ["policies", id, "endorsements"],
-    queryFn: () => getPolicyEndorsements(id!),
+    queryKey: ["policies", role, id, "endorsements"],
+    queryFn: () => getPolicyEndorsements(id!, role),
     enabled: Boolean(id),
     staleTime: 30000,
   });
@@ -224,8 +226,8 @@ export default function PolicyDetailsPage() {
     isError: areClaimsErrored,
     error: claimsError,
   } = useQuery({
-    queryKey: ["policies", id, "claims"],
-    queryFn: () => getPolicyClaims(id!),
+    queryKey: ["policies", role, id, "claims"],
+    queryFn: () => getPolicyClaims(id!, role),
     enabled: Boolean(id),
     staleTime: 30000,
   });
@@ -236,8 +238,8 @@ export default function PolicyDetailsPage() {
     isError: arePaymentsErrored,
     error: paymentsError,
   } = useQuery({
-    queryKey: ["policies", id, "payments"],
-    queryFn: () => getPolicyPayments(id!),
+    queryKey: ["policies", role, id, "payments"],
+    queryFn: () => getPolicyPayments(id!, role),
     enabled: Boolean(id),
     staleTime: 30000,
   });
@@ -547,7 +549,7 @@ export default function PolicyDetailsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Policy Details" description="Review the active version, policy history, and backend actions">
-        {policyStatus === "draft" && (
+        {role === "broker" && policyStatus === "draft" && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button type="button" className="flex items-center gap-2 h-9 px-4 rounded-lg gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
@@ -577,7 +579,7 @@ export default function PolicyDetailsPage() {
           </AlertDialog>
         )}
 
-        {policyStatus === "active" && (
+        {role === "broker" && policyStatus === "active" && (
           <>
             <button
               type="button"
@@ -642,7 +644,7 @@ export default function PolicyDetailsPage() {
           </p>
         </div>
         <div className="text-sm text-muted-foreground">
-          {activatePolicyMutation.isError && activatePolicyMutation.error instanceof Error ? activatePolicyMutation.error.message : null}
+          {role === "broker" && activatePolicyMutation.isError && activatePolicyMutation.error instanceof Error ? activatePolicyMutation.error.message : null}
         </div>
       </div>
 

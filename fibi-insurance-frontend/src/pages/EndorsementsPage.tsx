@@ -68,8 +68,8 @@ export default function EndorsementsPage() {
   const [tab, setTab] = useState<typeof statusTabs[number]>("all");
 
   const { data: endorsements = [], isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["endorsements"],
-    queryFn: getEndorsements,
+    queryKey: ["endorsements", role],
+    queryFn: () => getEndorsements(role),
     staleTime: 30000,
   });
 

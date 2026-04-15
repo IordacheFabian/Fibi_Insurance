@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusChip } from "@/components/ui/StatusChip";
+import { useRole } from "@/contexts/RoleContext";
 import { formatMoney } from "@/lib/utils";
 
 function getClientTypeLabel(clientType: ClientTypeValue): "individual" | "company" {
@@ -52,6 +53,7 @@ function formatDateOnly(value: string) {
 }
 
 export default function ClientDetailsPage() {
+  const { role } = useRole();
 
     const { id } = useParams<{ id: string }>();
     
@@ -75,8 +77,8 @@ export default function ClientDetailsPage() {
       error: policiesQueryError,
       refetch: refetchPolicies,
     } = useQuery({
-      queryKey: ["clients", id, "policies"],
-      queryFn: () => getPolicies({ clientId: id! }),
+      queryKey: ["clients", id, "policies", role],
+      queryFn: () => getPolicies({ clientId: id! }, role),
       staleTime: 30000,
       enabled: Boolean(id),
     });
