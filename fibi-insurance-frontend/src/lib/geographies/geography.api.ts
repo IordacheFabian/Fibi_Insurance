@@ -4,9 +4,15 @@ import type { CityDto, CountryDto, CountyDto, GeographyTreeCountry } from "./geo
 
 const DEFAULT_PAGE_SIZE = 100;
 
-async function getCountriesPage(pageNumber: number, pageSize: number): Promise<PagedResult<CountryDto>> {
+export type GeographyRole = "admin" | "broker";
+
+function getGeographyBasePath(role: GeographyRole) {
+  return role === "admin" ? "/api/admin" : "/api/brokers";
+}
+
+async function getCountriesPage(role: GeographyRole, pageNumber: number, pageSize: number): Promise<PagedResult<CountryDto>> {
   try {
-    const { data } = await apiClient.get<PagedResult<CountryDto>>("/api/brokers/countries", {
+    const { data } = await apiClient.get<PagedResult<CountryDto>>(`${getGeographyBasePath(role)}/countries`, {
       params: { pageNumber, pageSize },
     });
     return data;
@@ -15,9 +21,9 @@ async function getCountriesPage(pageNumber: number, pageSize: number): Promise<P
   }
 }
 
-async function getCountiesPage(countryId: string, pageNumber: number, pageSize: number): Promise<PagedResult<CountyDto>> {
+async function getCountiesPage(role: GeographyRole, countryId: string, pageNumber: number, pageSize: number): Promise<PagedResult<CountyDto>> {
   try {
-    const { data } = await apiClient.get<PagedResult<CountyDto>>(`/api/brokers/countries/${countryId}/counties`, {
+    const { data } = await apiClient.get<PagedResult<CountyDto>>(`${getGeographyBasePath(role)}/countries/${countryId}/counties`, {
       params: { pageNumber, pageSize },
     });
     return data;
@@ -26,9 +32,9 @@ async function getCountiesPage(countryId: string, pageNumber: number, pageSize: 
   }
 }
 
-async function getCitiesPage(countyId: string, pageNumber: number, pageSize: number): Promise<PagedResult<CityDto>> {
+async function getCitiesPage(role: GeographyRole, countyId: string, pageNumber: number, pageSize: number): Promise<PagedResult<CityDto>> {
   try {
-    const { data } = await apiClient.get<PagedResult<CityDto>>(`/api/brokers/counties/${countyId}/cities`, {
+    const { data } = await apiClient.get<PagedResult<CityDto>>(`${getGeographyBasePath(role)}/counties/${countyId}/cities`, {
       params: { pageNumber, pageSize },
     });
     return data;
@@ -37,13 +43,13 @@ async function getCitiesPage(countyId: string, pageNumber: number, pageSize: num
   }
 }
 
-export async function getCountries(pageSize = DEFAULT_PAGE_SIZE): Promise<CountryDto[]> {
+export async function getCountries(role: GeographyRole = "broker", pageSize = DEFAULT_PAGE_SIZE): Promise<CountryDto[]> {
   const countries: CountryDto[] = [];
   let pageNumber = 1;
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const page = await getCountriesPage(pageNumber, pageSize);
+    const page = await getCountriesPage(role, pageNumber, pageSize);
     countries.push(...page.items);
     hasNextPage = page.hasNextPage;
     pageNumber += 1;
@@ -52,13 +58,13 @@ export async function getCountries(pageSize = DEFAULT_PAGE_SIZE): Promise<Countr
   return countries;
 }
 
-export async function getCounties(countryId: string, pageSize = DEFAULT_PAGE_SIZE): Promise<CountyDto[]> {
+export async function getCounties(countryId: string, role: GeographyRole = "broker", pageSize = DEFAULT_PAGE_SIZE): Promise<CountyDto[]> {
   const counties: CountyDto[] = [];
   let pageNumber = 1;
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const page = await getCountiesPage(countryId, pageNumber, pageSize);
+    const page = await getCountiesPage(role, countryId, pageNumber, pageSize);
     counties.push(...page.items);
     hasNextPage = page.hasNextPage;
     pageNumber += 1;
@@ -67,13 +73,13 @@ export async function getCounties(countryId: string, pageSize = DEFAULT_PAGE_SIZ
   return counties;
 }
 
-export async function getCities(countyId: string, pageSize = DEFAULT_PAGE_SIZE): Promise<CityDto[]> {
+export async function getCities(countyId: string, role: GeographyRole = "broker", pageSize = DEFAULT_PAGE_SIZE): Promise<CityDto[]> {
   const cities: CityDto[] = [];
   let pageNumber = 1;
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const page = await getCitiesPage(countyId, pageNumber, pageSize);
+    const page = await getCitiesPage(role, countyId, pageNumber, pageSize);
     cities.push(...page.items);
     hasNextPage = page.hasNextPage;
     pageNumber += 1;
@@ -82,17 +88,17 @@ export async function getCities(countyId: string, pageSize = DEFAULT_PAGE_SIZE):
   return cities;
 }
 
-export async function getGeographyTree(): Promise<GeographyTreeCountry[]> {
-  const countries = await getCountries();
+export async function getGeographyTree(role: GeographyRole = "broker"): Promise<GeographyTreeCountry[]> {
+  const countries = await getCountries(role);
 
   return Promise.all(
     countries.map(async (country) => {
-      const counties = await getCounties(country.id);
+      const counties = await getCounties(country.id, role);
 
       const countiesWithCities = await Promise.all(
         counties.map(async (county) => ({
           ...county,
-          cities: await getCities(county.id),
+          cities: await getCities(county.id, role),
         })),
       );
 
